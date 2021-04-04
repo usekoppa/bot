@@ -1,4 +1,4 @@
-import { Asyncable } from "@utils/types";
+import { Asyncable } from "@utils/util_types";
 
 import {
   APIMessage,
@@ -8,6 +8,7 @@ import {
   SplitOptions,
 } from "discord.js";
 import equal from "fast-deep-equal";
+import { Service } from "typedi";
 
 export type StringResolvable = string | string[];
 export type APIMessageContentResolvable =
@@ -50,13 +51,8 @@ export interface Command {
 // The values of aliases are a string, which are then resolved to commands.
 type CommandResolvable = Command | string;
 
+@Service()
 export class Registry {
-  private static instance?: Registry;
-
-  public static getInstance() {
-    return Registry.instance ?? (Registry.instance = new Registry());
-  }
-
   private commands = new Map<string, CommandResolvable>();
 
   public add(cmd: Command) {

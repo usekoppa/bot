@@ -1,16 +1,10 @@
-import "./register_aliases";
+import "reflect-metadata";
+import "./lib/utils/register_aliases";
 
-import { config } from "@utils/config";
+import { config } from "dotenv";
 
-import { Client, Intents, MessageOptions } from "discord.js";
+import { bootstrap } from "./bootstrap";
 
-import * as commands from "./commands";
+config();
 
-const intents = [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES];
-
-const client = new Client({ intents });
-
-
-
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-client.login(config.bot.token);
+void bootstrap();

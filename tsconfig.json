@@ -35,10 +35,10 @@
     "rootDir": "./src",
     "paths": {
       "@utils/*": [
-        "./src/utils/*"
+        "./src/lib/utils/*"
       ],
-      "@workflows/*": [
-        "./src/workflows/*"
+      "@lib/*": [
+        "./src/lib/*"
       ],
       "@root/*": [
         "./src/*"

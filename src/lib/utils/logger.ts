@@ -20,6 +20,7 @@ export function setDefaultName(newDefaultName: string) {
   defaultName = newDefaultName;
 }
 
+// TODO(@zorbyte): Use type-di.
 // Add these overloads so that the child creation function isn't usually visible.
 export function createLogger(name?: string): Logger;
 export function createLogger(name: string, childNames: string[]): Logger;
@@ -32,7 +33,7 @@ export function createLogger(name = defaultName, childNames?: string[]) {
   const debugEnabled = !!process.env.DEBUG_LOG;
   const displayName = [name, ...knownChildNames]
     .filter(name => name !== "")
-    .map(green)
+    .map(name => green(name))
     .join(gray(" > "));
 
   const loggerObj: Logger = {
