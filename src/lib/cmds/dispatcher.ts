@@ -3,11 +3,11 @@ import { config } from "@utils/config";
 import { printError } from "@utils/errors";
 import { createLogger } from "@utils/logger";
 
-import { Message, MessageOptions } from "discord.js";
+import { Message, MessageOptions, TextChannel } from "discord.js";
 import { Container } from "typedi";
 
 import { extractFromCommandString } from "./input_string_util";
-import { Registry, ReturnedMessageSend } from "./registry";
+import { Registry } from "./registry";
 
 const log = createLogger("cmds");
 const evs = new EventManager(log);
@@ -31,7 +31,7 @@ evs.on("message", async (msg, log) => {
     cmdLog.debug("Command has been called", { callKey, args });
 
     try {
-      const output = await cmd.run(msg, args, callKey);
+      const output = await cmd.run({ msg, args, callKey, log });
       await handleOutput(msg, output).catch(err =>
         printError("Failed to handle output", { log: cmdLog, err })
       );
@@ -43,7 +43,10 @@ evs.on("message", async (msg, log) => {
   }
 });
 
-async function handleOutput(msg: Message, output: ReturnedMessageSend) {
+async function handleOutput(
+  msg: Message,
+  output: Parameters<TextChannel["send"]>[0]
+) {
   if (typeof output === "undefined") return;
   if (Array.isArray(output)) {
     return await msg.channel.send(...(output as [MessageOptions]));

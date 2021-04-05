@@ -1,42 +1,18 @@
+import { Logger } from "@utils/logger";
 import { Asyncable } from "@utils/util_types";
 
-import {
-  APIMessage,
-  Message,
-  MessageAdditions,
-  MessageOptions,
-  SplitOptions,
-} from "discord.js";
+import { Message, TextChannel } from "discord.js";
 import equal from "fast-deep-equal";
 import { Service } from "typedi";
 
-export type StringResolvable = string | string[];
-export type APIMessageContentResolvable =
-  | string
-  | number
-  | boolean
-  | bigint
-  | symbol
-  | readonly StringResolvable[];
-
-export type ReturnedMessageSend =
-  | APIMessageContentResolvable
-  | [
-      content: APIMessageContentResolvable | APIMessage,
-      opts?:
-        | MessageOptions
-        | (MessageOptions & { split: true & SplitOptions })
-        | ((MessageOptions & { split?: false }) | MessageAdditions)
-    ]
-  | void;
-
-type Runner = (
-  msg: Message,
+type Runner = (opts: {
+  msg: Message;
 
   // TODO(@zorbyte): This would be dynamically produced from the syntax usage tree.
-  args: string[],
-  callKey: string
-) => Asyncable<ReturnedMessageSend>;
+  args: string[];
+  callKey: string;
+  log: Logger;
+}) => Asyncable<Parameters<TextChannel["send"]>[0]>;
 
 export interface Command {
   name: string;

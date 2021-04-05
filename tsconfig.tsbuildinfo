@@ -482,7 +482,7 @@
         "affectsGlobalScope": false
       },
       "./src/main.ts": {
-        "version": "a80c4adfcd09566736fb053435310d0d72885f0496b7341b55a08db9cc6e5d0a",
+        "version": "8d53fa32888b1b265210ca8e1fc1ec1fc0c979c0c26d499cb975fcbdc83989b8",
         "signature": "fca5033d07de1464dd2af946671c87a32457c76801c55b10e0c12b01bd9fe5e1",
         "affectsGlobalScope": false
       },
@@ -622,7 +622,7 @@
         "affectsGlobalScope": false
       },
       "./src/info/ping.ts": {
-        "version": "e6a3a49491e05d3642131f0e550bb5a1285510ee4c3ebccd75d5bd0bb1d2c870",
+        "version": "513d8ae6feb174e84b1057a93639539ca412782936aa1335be5de25cc2bfc17e",
         "signature": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
         "affectsGlobalScope": false
       },
@@ -1082,7 +1082,9 @@
         "./src/info/ping.ts"
       ],
       "./src/info/ping.ts": [
+        "./node_modules/discord.js/typings/index.d.ts",
         "./node_modules/typedi/types/index.d.ts",
+        "./src/lib/client.ts",
         "./src/lib/cmds/registry.ts"
       ],
       "./src/lib/client.ts": [
@@ -1610,31 +1612,13 @@
       "./src/lib/utils/register_aliases.ts",
       "./src/lib/utils/tokens.ts",
       "./src/lib/utils/util_types.ts",
-      [
-        "./src/main.ts",
-        [
-          {
-            "file": "./src/main.ts",
-            "start": 166,
-            "length": 13,
-            "messageText": "Cannot find name 'approximatePi'.",
-            "category": 1,
-            "code": 2304
-          }
-        ]
-      ],
+      "./src/main.ts",
       "./src/starboard/char_consolidator.ts",
       "./src/starboard/cmds.ts",
       "./src/starboard/schema.ts",
       "./src/starboard/stats.ts",
       "./src/users/info_cmd.ts",
       "./src/users/profile.ts"
-    ],
-    "affectedFilesPendingEmit": [
-      [
-        "./src/main.ts",
-        1
-      ]
     ]
   },
   "version": "4.2.3"
