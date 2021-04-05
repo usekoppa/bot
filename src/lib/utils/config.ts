@@ -1,8 +1,8 @@
-// TODO(@zorbyte): Arrange a type-di solution for this.
+// TODO(@zorbyte): Use tokens from type-di for this.
 export const config = {
   bot: {
     token: getCriticalEnvVar("BOT_TOKEN"),
-    prefix: "e:",
+    prefix: "k:",
   },
 
   db: {

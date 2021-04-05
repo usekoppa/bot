@@ -23,6 +23,16 @@ module.exports = {
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/ban-ts-comment": [
+      "error",
+      {
+        "ts-expect-error": "allow-with-description",
+        "ts-ignore": true,
+        "ts-nocheck": "allow-with-description",
+        "ts-check": true,
+        minimumDescriptionLength: 3,
+      },
+    ],
     "simple-import-sort/imports": [
       "error",
       {

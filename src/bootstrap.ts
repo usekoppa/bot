@@ -1,9 +1,14 @@
+import { printError } from "@utils/errors";
+
 export async function bootstrap() {
   await loadComponents();
 }
 
 async function loadComponents() {
-  void (await Promise.all(
-    ["@lib/commands/msg_handler", "./info", "./bot"].map(comp => import(comp))
-  ));
+  await Promise.all(
+    ["@lib/cmds/dispatcher", "./info", "./bot"].map(comp => import(comp))
+  ).catch(err => {
+    printError("Failed to load component", { err });
+    process.exit(1);
+  });
 }

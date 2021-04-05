@@ -1,2 +1,2 @@
-import "./gateway_handlers";
+import "./generic_handlers";
 import "./login";

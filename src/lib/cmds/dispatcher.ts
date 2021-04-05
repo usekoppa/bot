@@ -1,4 +1,4 @@
-import { KoppaClient } from "@lib/client";
+import { EventManager } from "@lib/event_manager";
 import { config } from "@utils/config";
 import { printError } from "@utils/errors";
 import { createLogger } from "@utils/logger";
@@ -9,13 +9,13 @@ import { Container } from "typedi";
 import { extractFromCommandString } from "./input_string_util";
 import { Registry, ReturnedMessageSend } from "./registry";
 
-export const log = createLogger("commands");
+const log = createLogger("cmds");
+const evs = new EventManager(log);
 
 const registry = Container.get(Registry);
-const client = Container.get(KoppaClient);
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-client.on("message", async msg => {
+evs.on("message", async (msg, log) => {
   try {
     // Ensures the user is not a bot to prevent spam and also ensures we only handle msgs that begin with the bot prefix.
     if (msg.author.bot || !msg.content.startsWith(config.bot.prefix)) return;

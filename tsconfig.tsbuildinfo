@@ -211,8 +211,23 @@
         "signature": "1e61418f41d404e744b6536af9f8c6f6674dd4d54c12335cd0c4f7eded69cf3f",
         "affectsGlobalScope": true
       },
+      "./node_modules/chalk/index.d.ts": {
+        "version": "0d14fa22c41fdc7277e6f71473b20ebc07f40f00e38875142335d5b63cdfc9d2",
+        "signature": "0d14fa22c41fdc7277e6f71473b20ebc07f40f00e38875142335d5b63cdfc9d2",
+        "affectsGlobalScope": false
+      },
+      "./src/lib/utils/logger.ts": {
+        "version": "32ebeb05d6dae6610fca614b278854abdc5c8d2a9c4f65bcfd4ec32a8afe9191",
+        "signature": "ddb405ac4ebf16efc12d8fbc833c3623383180c6445ddef4642f1ab7d6c3b3a6",
+        "affectsGlobalScope": false
+      },
+      "./src/lib/utils/errors.ts": {
+        "version": "9d6025423ad2f29f07686fc6099eb3ed181663601890805dff2746aeede582fc",
+        "signature": "caa701cdbe26f2d4b41cd1115c6b3807b22f6b778416ecee2e17e1d82beef78f",
+        "affectsGlobalScope": false
+      },
       "./src/bootstrap.ts": {
-        "version": "b8a1466e161a2c034a671ed1ce867a9fab554d3cd9e264209f0267124ab11ce9",
+        "version": "6b32f732541d9b0260b99c87555a9a127d1ff57eef891e697c20060171b1e2c2",
         "signature": "9c89f3d2748538ad72a1d194bf44a3b85c1691b4039043b525eba3dc18505307",
         "affectsGlobalScope": false
       },
@@ -467,7 +482,7 @@
         "affectsGlobalScope": false
       },
       "./src/main.ts": {
-        "version": "8d53fa32888b1b265210ca8e1fc1ec1fc0c979c0c26d499cb975fcbdc83989b8",
+        "version": "a80c4adfcd09566736fb053435310d0d72885f0496b7341b55a08db9cc6e5d0a",
         "signature": "fca5033d07de1464dd2af946671c87a32457c76801c55b10e0c12b01bd9fe5e1",
         "affectsGlobalScope": false
       },
@@ -477,8 +492,8 @@
         "affectsGlobalScope": false
       },
       "./node_modules/discord.js/typings/index.d.ts": {
-        "version": "2da2afe6c43ecc883876c73916703efebae29be6e9e018ea50812165772dc50a",
-        "signature": "2da2afe6c43ecc883876c73916703efebae29be6e9e018ea50812165772dc50a",
+        "version": "bbb87411988e93370461ac33c6437098c8cd39e9a7c92ea0d94b6a375dbe52cc",
+        "signature": "bbb87411988e93370461ac33c6437098c8cd39e9a7c92ea0d94b6a375dbe52cc",
         "affectsGlobalScope": true
       },
       "./node_modules/typedi/types/token.class.d.ts": {
@@ -562,27 +577,22 @@
         "affectsGlobalScope": false
       },
       "./src/lib/client.ts": {
-        "version": "aa9abb687f2836bc402e5435fdf20239c3b0107568b58e7fc0231ccdf1fcb0be",
-        "signature": "990224132e16d9904724dd59733621ebc206f2b277aece81b2b0a7d7042f6fc5",
+        "version": "0285d6b76fb1eb6c11153707831bd2fa57e4f51fca9feab9ae754771aaededc1",
+        "signature": "187006bb3265bc0d278494b065b1259a76ccba72a63ff59f6779ac5d6d9c579b",
+        "affectsGlobalScope": false
+      },
+      "./src/lib/event_manager.ts": {
+        "version": "177baac5f815b36b63d7d16c81725744a2e9d0043ed04b7441ddc385ad6dd4f1",
+        "signature": "c694e7cf5e1b8df9de9487e84b1f29e3a7d3ee238e7fd359c0185910339e6248",
         "affectsGlobalScope": false
       },
       "./src/lib/utils/config.ts": {
-        "version": "ae2f86da44de553eb4009689a460d00631935f2cf38624c7a3105d7bbd622f76",
+        "version": "1ca26e76043e46bca382a55559f5218e47e4f407d08a025f40349d869b0538ca",
         "signature": "d9afecec72ff4f05f54a592a59fdd141319fa9b34e3e73f652dd6b11feaad3a8",
         "affectsGlobalScope": false
       },
-      "./node_modules/chalk/index.d.ts": {
-        "version": "0d14fa22c41fdc7277e6f71473b20ebc07f40f00e38875142335d5b63cdfc9d2",
-        "signature": "0d14fa22c41fdc7277e6f71473b20ebc07f40f00e38875142335d5b63cdfc9d2",
-        "affectsGlobalScope": false
-      },
-      "./src/lib/utils/logger.ts": {
-        "version": "32ebeb05d6dae6610fca614b278854abdc5c8d2a9c4f65bcfd4ec32a8afe9191",
-        "signature": "ddb405ac4ebf16efc12d8fbc833c3623383180c6445ddef4642f1ab7d6c3b3a6",
-        "affectsGlobalScope": false
-      },
-      "./src/bot/gateway_handlers.ts": {
-        "version": "d61680bd44bf720338bbb06ec0d48c45cca98f06100aac3d0e3cfc8fe7212c10",
+      "./src/bot/generic_handlers.ts": {
+        "version": "1a7af3c9fe61138cd4a8d7a0474dea6a18d81e144fff6c3124e2831515036a24",
         "signature": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
         "affectsGlobalScope": false
       },
@@ -592,8 +602,8 @@
         "affectsGlobalScope": false
       },
       "./src/bot/index.ts": {
-        "version": "fbd299a1451046b0c1cd8fa819780f6ab7e789978f39e618a451c883841dfe51",
-        "signature": "fbd299a1451046b0c1cd8fa819780f6ab7e789978f39e618a451c883841dfe51",
+        "version": "2d7ad70d600874cff2f555f88f0e3afc34b24aba480247bfa73660a91ab70aa6",
+        "signature": "2d7ad70d600874cff2f555f88f0e3afc34b24aba480247bfa73660a91ab70aa6",
         "affectsGlobalScope": false
       },
       "./src/lib/utils/util_types.ts": {
@@ -606,13 +616,13 @@
         "signature": "37ffe3c12813b6a6d512f7c27b71f3388d03dafa10555ad5094cea393ed3d1f6",
         "affectsGlobalScope": false
       },
-      "./src/lib/commands/registry.ts": {
+      "./src/lib/cmds/registry.ts": {
         "version": "6d4cd03faa1249b586cf361a762b42c1b492f12031ec5365defbf7c3b253fa94",
         "signature": "f4b9ebb037225172421ef29374039b5078c16db3de2d5dbc6ef5170729b4a554",
         "affectsGlobalScope": false
       },
       "./src/info/ping.ts": {
-        "version": "004de84bbfcc2422275893d3d04a432d7df8d4aeedeb51eb62c824a8c327311e",
+        "version": "e6a3a49491e05d3642131f0e550bb5a1285510ee4c3ebccd75d5bd0bb1d2c870",
         "signature": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
         "affectsGlobalScope": false
       },
@@ -621,37 +631,27 @@
         "signature": "2d314a959d3e82e13a844456e5abd1895172cadca1834f4567eacb6b41eaeefc",
         "affectsGlobalScope": false
       },
-      "./src/lib/component.ts": {
-        "version": "b110b1523a82e917554105258b438af15a7ab18158ef3bb191256af5d538d09d",
-        "signature": "6a9a3c5646e52ab8d081b1c006e9843e6f90e7ec6e58f63fde8d3a2075ede939",
-        "affectsGlobalScope": false
-      },
-      "./src/lib/commands/input_string_util.ts": {
+      "./src/lib/cmds/input_string_util.ts": {
         "version": "e0f8b01bf50fb4081e2285737db117be89da1cf71a624139e25b2f97b73ab0d3",
         "signature": "09ab85edd11b22150752fd3077ae8f6ad26c315cd534539bd492e22417962b6e",
         "affectsGlobalScope": false
       },
-      "./src/lib/utils/errors.ts": {
-        "version": "fef1444b2b5f43d0b079184f9da3ba24c4f4655f3d51eceb6c6aee8be196aecb",
-        "signature": "aea13f3834f28872af5d5354b632a3627628b23c96995de2f0b18d587ae5e4e0",
+      "./src/lib/cmds/dispatcher.ts": {
+        "version": "cd798ed2a760c5ede71465810c351ac24f983caa6cade2a91122691a1672c093",
+        "signature": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
         "affectsGlobalScope": false
       },
-      "./src/lib/commands/msg_handler.ts": {
-        "version": "8173ee78943d3d75a7041c8f803613c97be8bea611f26c75716494e808a496d2",
-        "signature": "7c480ef02e07f9eaba984011158180361b362dc210469aa3c8a97e1e9441bab6",
-        "affectsGlobalScope": false
-      },
-      "./src/lib/commands/usage/parser.ts": {
+      "./src/lib/cmds/usage/parser.ts": {
         "version": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "signature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "affectsGlobalScope": false
       },
-      "./src/lib/commands/usage/syntax.ts": {
+      "./src/lib/cmds/usage/syntax.ts": {
         "version": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "signature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "affectsGlobalScope": false
       },
-      "./src/lib/commands/usage/validator.ts": {
+      "./src/lib/cmds/usage/validator.ts": {
         "version": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "signature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "affectsGlobalScope": false
@@ -662,8 +662,8 @@
         "affectsGlobalScope": false
       },
       "./src/lib/utils/tokens.ts": {
-        "version": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "signature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "version": "12848390bd63cf6af8c3e5aebf8806378614b47de915b83f38c6a2fd828404b9",
+        "signature": "a5a881a4d7b2a829042b875541856522d502be979390a48ffef97edbe95dbca9",
         "affectsGlobalScope": false
       },
       "./src/starboard/char_consolidator.ts": {
@@ -1058,14 +1058,19 @@
         "./node_modules/typedi/types/types/abstract-constructable.type.d.ts",
         "./node_modules/typedi/types/types/constructable.type.d.ts"
       ],
-      "./src/bot/gateway_handlers.ts": [
+      "./src/bootstrap.ts": [
+        "./src/lib/utils/errors.ts"
+      ],
+      "./src/bot/generic_handlers.ts": [
         "./node_modules/typedi/types/index.d.ts",
         "./src/lib/client.ts",
+        "./src/lib/event_manager.ts",
         "./src/lib/utils/config.ts",
+        "./src/lib/utils/errors.ts",
         "./src/lib/utils/logger.ts"
       ],
       "./src/bot/index.ts": [
-        "./src/bot/gateway_handlers.ts",
+        "./src/bot/generic_handlers.ts",
         "./src/bot/login.ts"
       ],
       "./src/bot/login.ts": [
@@ -1078,31 +1083,33 @@
       ],
       "./src/info/ping.ts": [
         "./node_modules/typedi/types/index.d.ts",
-        "./src/lib/commands/registry.ts"
+        "./src/lib/cmds/registry.ts"
       ],
       "./src/lib/client.ts": [
         "./node_modules/discord.js/typings/index.d.ts",
         "./node_modules/typedi/types/index.d.ts"
       ],
-      "./src/lib/commands/msg_handler.ts": [
+      "./src/lib/cmds/dispatcher.ts": [
         "./node_modules/discord.js/typings/index.d.ts",
         "./node_modules/typedi/types/index.d.ts",
-        "./src/lib/client.ts",
-        "./src/lib/commands/input_string_util.ts",
-        "./src/lib/commands/registry.ts",
+        "./src/lib/cmds/input_string_util.ts",
+        "./src/lib/cmds/registry.ts",
+        "./src/lib/event_manager.ts",
         "./src/lib/utils/config.ts",
         "./src/lib/utils/errors.ts",
         "./src/lib/utils/logger.ts"
       ],
-      "./src/lib/commands/registry.ts": [
+      "./src/lib/cmds/registry.ts": [
         "./node_modules/discord.js/typings/index.d.ts",
         "./node_modules/fast-deep-equal/index.d.ts",
         "./node_modules/typedi/types/index.d.ts",
         "./src/lib/utils/util_types.ts"
       ],
-      "./src/lib/component.ts": [
+      "./src/lib/event_manager.ts": [
         "./node_modules/discord.js/typings/index.d.ts",
-        "./src/lib/client.ts"
+        "./node_modules/typedi/types/index.d.ts",
+        "./src/lib/client.ts",
+        "./src/lib/utils/logger.ts"
       ],
       "./src/lib/utils/errors.ts": [
         "./src/lib/utils/logger.ts"
@@ -1118,6 +1125,9 @@
         "./node_modules/@types/node/path.d.ts",
         "./src/lib/shims/module-alias.d.ts",
         "./src/lib/utils/read_json.ts"
+      ],
+      "./src/lib/utils/tokens.ts": [
+        "./node_modules/typedi/types/index.d.ts"
       ],
       "./src/main.ts": [
         "./node_modules/dotenv/types/index.d.ts",
@@ -1435,7 +1445,7 @@
         "./node_modules/typedi/types/types/constructable.type.d.ts"
       ],
       "./src/bot/index.ts": [
-        "./src/bot/gateway_handlers.ts",
+        "./src/bot/generic_handlers.ts",
         "./src/bot/login.ts"
       ],
       "./src/info/index.ts": [
@@ -1444,21 +1454,22 @@
       "./src/lib/client.ts": [
         "./node_modules/discord.js/typings/index.d.ts"
       ],
-      "./src/lib/commands/msg_handler.ts": [
-        "./src/lib/utils/logger.ts"
-      ],
-      "./src/lib/commands/registry.ts": [
+      "./src/lib/cmds/registry.ts": [
         "./node_modules/discord.js/typings/index.d.ts",
         "./src/lib/utils/util_types.ts"
       ],
-      "./src/lib/component.ts": [
-        "./node_modules/discord.js/typings/index.d.ts"
+      "./src/lib/event_manager.ts": [
+        "./node_modules/discord.js/typings/index.d.ts",
+        "./src/lib/utils/logger.ts"
       ],
       "./src/lib/utils/errors.ts": [
         "./src/lib/utils/logger.ts"
       ],
       "./src/lib/utils/logger.ts": [
         "./node_modules/chalk/index.d.ts"
+      ],
+      "./src/lib/utils/tokens.ts": [
+        "./node_modules/typedi/types/index.d.ts"
       ],
       "./src/main.ts": [
         "./node_modules/reflect-metadata/index.d.ts",
@@ -1578,19 +1589,19 @@
       "./node_modules/typescript/lib/lib.esnext.string.d.ts",
       "./node_modules/typescript/lib/lib.esnext.weakref.d.ts",
       "./src/bootstrap.ts",
-      "./src/bot/gateway_handlers.ts",
+      "./src/bot/generic_handlers.ts",
       "./src/bot/index.ts",
       "./src/bot/login.ts",
       "./src/info/index.ts",
       "./src/info/ping.ts",
       "./src/lib/client.ts",
-      "./src/lib/commands/input_string_util.ts",
-      "./src/lib/commands/msg_handler.ts",
-      "./src/lib/commands/registry.ts",
-      "./src/lib/commands/usage/parser.ts",
-      "./src/lib/commands/usage/syntax.ts",
-      "./src/lib/commands/usage/validator.ts",
-      "./src/lib/component.ts",
+      "./src/lib/cmds/dispatcher.ts",
+      "./src/lib/cmds/input_string_util.ts",
+      "./src/lib/cmds/registry.ts",
+      "./src/lib/cmds/usage/parser.ts",
+      "./src/lib/cmds/usage/syntax.ts",
+      "./src/lib/cmds/usage/validator.ts",
+      "./src/lib/event_manager.ts",
       "./src/lib/shims/module-alias.d.ts",
       "./src/lib/utils/config.ts",
       "./src/lib/utils/errors.ts",
@@ -1599,13 +1610,31 @@
       "./src/lib/utils/register_aliases.ts",
       "./src/lib/utils/tokens.ts",
       "./src/lib/utils/util_types.ts",
-      "./src/main.ts",
+      [
+        "./src/main.ts",
+        [
+          {
+            "file": "./src/main.ts",
+            "start": 166,
+            "length": 13,
+            "messageText": "Cannot find name 'approximatePi'.",
+            "category": 1,
+            "code": 2304
+          }
+        ]
+      ],
       "./src/starboard/char_consolidator.ts",
       "./src/starboard/cmds.ts",
       "./src/starboard/schema.ts",
       "./src/starboard/stats.ts",
       "./src/users/info_cmd.ts",
       "./src/users/profile.ts"
+    ],
+    "affectedFilesPendingEmit": [
+      [
+        "./src/main.ts",
+        1
+      ]
     ]
   },
   "version": "4.2.3"
