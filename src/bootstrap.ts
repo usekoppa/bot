@@ -1,10 +1,10 @@
 import { printError } from "@utils/errors";
 
 export async function bootstrap() {
-  await loadComponents();
+  await loadServices();
 }
 
-async function loadComponents() {
+async function loadServices() {
   await Promise.all(
     ["@lib/cmds/dispatcher", "./info", "./bot"].map(comp => import(comp))
   ).catch(err => {
