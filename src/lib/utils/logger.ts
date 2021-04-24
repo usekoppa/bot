@@ -4,14 +4,16 @@ const METHOD_COLOURS = {
   debug: gray,
   info: cyan,
   warn: yellow,
-  error: red,
+  pureError: red,
 };
 
-type LevelNames = keyof typeof METHOD_COLOURS;
+type LevelNames = keyof typeof METHOD_COLOURS | "error";
 type LoggerMethods = Record<LevelNames, typeof console.log>;
 
 export interface Logger extends LoggerMethods {
   child(...names: string[]): Logger;
+  error(msg: string, err: Error): void;
+  error(msg: string, err: unknown): void;
 }
 
 let defaultName = "";
@@ -20,8 +22,11 @@ export function setDefaultName(newDefaultName: string) {
   defaultName = newDefaultName;
 }
 
-// TODO(@zorbyte): Use type-di.
-// Add these overloads so that the child creation function isn't usually visible.
+// TODO(@zorbyte): Use type-di and/or implement a mechanism to store loggers and prevent duplicate instances.
+//                 Debug log environment variable should allow scopes, to print logs for certain child loggers instead.
+//                 Logs should be written to a file with criteria for the types of logs to be written to the file
+
+// These overloads are so that the child creation function isn't usually visible.
 export function createLogger(name?: string): Logger;
 export function createLogger(name: string, childNames: string[]): Logger;
 export function createLogger(name = defaultName, childNames?: string[]) {
@@ -43,7 +48,19 @@ export function createLogger(name = defaultName, childNames?: string[]) {
     },
     info: writeLog.bind(null, displayName, "info"),
     warn: writeLog.bind(null, displayName, "warn"),
-    error: writeLog.bind(null, displayName, "error"),
+    error(msg: string, err: unknown) {
+      loggerObj.pureError(msg);
+      if (typeof err === "undefined") {
+        loggerObj.pureError(
+          new Error(
+            'Error object provided to error printer was "undefined". Using quasi-error for stacktrace instead'
+          )
+        );
+      } else {
+        loggerObj.pureError(err);
+      }
+    },
+    pureError: writeLog.bind(null, displayName, "error"),
     child(...childNames: string[]) {
       return createLogger(name, [...knownChildNames, ...childNames]);
     },
@@ -54,7 +71,7 @@ export function createLogger(name = defaultName, childNames?: string[]) {
 
 function writeLog(displayName: string, key: LevelNames, ...args: unknown[]) {
   const callableKey = key === "warn" ? "info" : key;
-  const colouriser = METHOD_COLOURS[key];
+  const colouriser = METHOD_COLOURS[key === "error" ? "pureError" : key];
 
   console[callableKey as "log"](
     formatLog(displayName, { method: key, colouriser }),

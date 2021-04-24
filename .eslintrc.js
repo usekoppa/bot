@@ -41,7 +41,7 @@ module.exports = {
           ["^\\u0000"],
 
           // Node.js builtins.
-          [`^(${require("module").builtinModules.join("|")})(/|$)`],
+          [`^(node:)?(${require("module").builtinModules.join("|")})(/|$)`],
 
           // Internal packages.
           [

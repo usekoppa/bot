@@ -1,28 +1,29 @@
 import { createLogger, Logger } from "@utils/logger";
+import { Asyncable } from "@utils/util_types";
 
 import { ClientEvents } from "discord.js";
 import { Container } from "typedi";
 
 import { KoppaClient } from "./client";
 
-type EventListener = (...args: [...unknown[], Logger]) => void;
+type EventListener = (...args: [...unknown[], Logger]) => Asyncable<void>;
 
 type ClientEventListener<K extends keyof ClientEvents> = (
   ...args: [...ClientEvents[K], Logger]
-) => void;
+) => Asyncable<void>;
 
-type WrappedEventListener<L extends EventListener> = (
+export type WrappedEventListener<L extends EventListener> = (
   // LL is the potential logger type.
   ...args: Parameters<L> extends [...infer ParamsWithoutLog, infer LL]
     ? LL extends Logger
       ? ParamsWithoutLog
       : Parameters<L>
     : unknown[]
-) => void;
+) => Promise<void>;
 
-type WrappedClientEventListener<K extends keyof ClientEvents> = (
+export type WrappedClientEventListener<K extends keyof ClientEvents> = (
   ...args: ClientEvents[K]
-) => void;
+) => Promise<void>;
 
 export class EventManager {
   private static log = createLogger("evs");
@@ -75,7 +76,7 @@ export class EventManager {
     EventManager.log.debug("Added listener", { event, type, totalListeners });
 
     const wrapped = this.wrapListener(event, type, listener);
-    this.client[type](event, wrapped);
+    this.client[type](event, wrapped as (...args: unknown[]) => void);
 
     return wrapped;
   }
@@ -87,9 +88,9 @@ export class EventManager {
   ) {
     const childLogger = this.moduleLogger.child(event);
 
-    return (...args: unknown[]) => {
+    return async (...args: unknown[]) => {
       EventManager.log.debug("Listener called", { event, type });
-      listener(...args, childLogger);
+      await listener(...args, childLogger);
     };
   }
 }

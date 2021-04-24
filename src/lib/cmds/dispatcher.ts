@@ -1,12 +1,10 @@
 import { EventManager } from "@lib/event_manager";
 import { config } from "@utils/config";
-import { printError } from "@utils/errors";
 import { createLogger } from "@utils/logger";
 
 import { Message, MessageOptions, TextChannel } from "discord.js";
 import { Container } from "typedi";
 
-import { extractFromCommandString } from "./input_string_util";
 import { Registry } from "./registry";
 
 const log = createLogger("cmds");
@@ -33,13 +31,13 @@ evs.on("message", async (msg, log) => {
     try {
       const output = await cmd.run({ msg, args, callKey, log });
       await handleOutput(msg, output).catch(err =>
-        printError("Failed to handle output", { log: cmdLog, err })
+        log.error("Failed to handle output", err)
       );
     } catch (err) {
-      printError("Failed to execute", { log: cmdLog, err });
+      log.error("Failed to execute", err);
     }
   } catch (err) {
-    printError("Failed to handle message event.", { log });
+    log.error("Failed to handle message event", err);
   }
 });
 
@@ -53,4 +51,17 @@ async function handleOutput(
   }
 
   await msg.channel.send(output);
+}
+
+function extractFromCommandString(
+  prefix: string,
+  cmdStr: string
+): [callKey: string, args: string[]] {
+  const [callKey, ...args] = cmdStr
+    .slice(prefix.length)
+    .toLowerCase()
+    .trim()
+    .split(/ /g);
+
+  return [callKey, args];
 }

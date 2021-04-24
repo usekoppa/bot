@@ -33,15 +33,16 @@
     "skipLibCheck": true,
     "outDir": "./dist",
     "rootDir": "./src",
+    "baseUrl": "./src",
     "paths": {
       "@utils/*": [
-        "./src/lib/utils/*"
+        "./lib/utils/*"
       ],
       "@lib/*": [
-        "./src/lib/*"
+        "./lib/*"
       ],
       "@root/*": [
-        "./src/*"
+        "./*"
       ]
     }
   },

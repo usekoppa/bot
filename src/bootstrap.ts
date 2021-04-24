@@ -1,4 +1,6 @@
-import { printError } from "@utils/errors";
+import { createLogger } from "@utils/logger";
+
+const log = createLogger();
 
 export async function bootstrap() {
   await loadServices();
@@ -6,9 +8,12 @@ export async function bootstrap() {
 
 async function loadServices() {
   await Promise.all(
-    ["@lib/cmds/dispatcher", "./info", "./bot"].map(comp => import(comp))
+    ["@lib/cmds/dispatcher", "./info", "./bot"].map(path => {
+      log.debug("Importing service", { path });
+      return import(path);
+    })
   ).catch(err => {
-    printError("Failed to load component", { err });
+    log.error("Failed to load component", err);
     process.exit(1);
   });
 }

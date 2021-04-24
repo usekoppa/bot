@@ -1,4 +1,4 @@
-import { Logger } from "@utils/logger";
+import { createLogger, Logger } from "@utils/logger";
 import { Asyncable } from "@utils/util_types";
 
 import { Message, TextChannel } from "discord.js";
@@ -29,6 +29,7 @@ type CommandResolvable = Command | string;
 
 @Service()
 export class Registry {
+  private log = createLogger("registry");
   private commands = new Map<string, CommandResolvable>();
 
   public add(cmd: Command) {
@@ -36,6 +37,7 @@ export class Registry {
       throw new Error(`Duplicate command ${cmd.name}`);
     }
 
+    this.log.debug(`Adding command ${cmd.name}`);
     this.commands.set(cmd.name, cmd);
     for (const alias of cmd.aliases ?? []) this.commands.set(alias, cmd.name);
   }
