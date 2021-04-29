@@ -34,7 +34,7 @@ compose<boolean, State>(
     // Maybe I want to do something after the menu is done, but in the context of the check button?
     // Just await the resolve function and do that thing afterwards.
   }),
-  button("❌", ctx => ctx.finish(false)),
+  button("❌", ctx => ctx.resolve(false)),
   button("♿", async ctx => {
     // This is how we would change page.
     // The page should return a boolean.
