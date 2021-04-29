@@ -14,10 +14,10 @@ registry.add({
     const m = await msg.channel.send("Ping?");
     const pingTime = Math.abs(m.createdTimestamp - msg.createdTimestamp);
 
-    const respEmbed = createGenericResponse(
-      msg.author,
-      `Latency: ~${client.ws.ping}ms`
-    )
+    const respEmbed = createGenericResponse({
+      author: msg.author,
+      footerNote: `Latency: ~${client.ws.ping}ms`,
+    })
       .setTitle(":ping_pong: Pong!")
       .setDescription(`It took **~${pingTime}ms** to send this message.`);
 

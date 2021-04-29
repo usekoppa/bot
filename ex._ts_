@@ -1,32 +1,30 @@
-
 // API Usage.
 
-enum PageErrors {
-  TimeOut,
-  Perms,
-}
-
 interface State {
-  userIsAutism: boolean;
+  userIsRetard: boolean;
   someData?: string;
 }
 
 // State is optional here, as the onFinish function doesn't use ctx.state
 // (so if I didn't supply the state generic, could use the default state which is {})
 // but I'm supplying it as a generic anyway for the sake of demonstration.
-const oneMinPageTimer = timer<State>(60 * 1000, ctx =>
-  ctx.reject(PageErrors.TimeOut)
-);
+const oneMinPageTimer = timer<boolean, State>(60 * 1000, ctx => {
+  // As such, ctx.state is of the type State.
+  sendTimeoutMessage(ctx);
+  return ctx.resolve(false);
+});
 
-const autismPage = compose<State>(
-  embed({ title: "bro are u sure u are autism" }),
+const retardPage = compose<boolean, State>(
+  embed({ title: "bro are u sure u are retard" }),
   oneMinPageTimer,
   button("✅", ctx => ctx.resolve(true)),
   button("❌", ctx => ctx.resolve(false))
 );
 
-// function composer<S>(...): Promise<{ ctx: Context<S>, result: ... }>
-compose<State>(
+// function composer<R, S>(...): Promise<{ ctx: Context<R, S>, result: R }>
+// R = result type
+// S = State type
+compose<boolean, State>(
   embed({ title: "do you agree" }),
   oneMinPageTimer,
   button("✅", async ctx => {
@@ -43,20 +41,20 @@ compose<State>(
     // If the page throws an error, we don't have to handle it
     // because it will rise to the top of the error chain anyway
     // and thus be handled by the catch that is below.
-    const res = await ctx.child(autismPage);
-    ctx.state.userIsAutism = res;
+    const res = await ctx.child(retardPage);
+    ctx.state.userIsRetard = res;
   })
 )
   // (msg: Message, initialState: S)
-  .run(msg, { userIsAutist: true })
-  .catch(({ ctx, error }) => {
-    console.error("Wtf autism?!", error);
+  .run(msg, { userIsRetard: true })
+  .catch(error => {
+    console.error("Wtf broken?!", error);
   })
   .then(async ({ ctx, result }) => {
     // They went to autism page.
     if (typeof result === "undefined") {
       const user = await db.user(msg.author.id);
-      user.isAutist = ctx.state.userIsAutism;
+      user.isRetarded = ctx.state.userIsRetard;
       await db.push(user);
     } else if (result) {
       console.log("true!");

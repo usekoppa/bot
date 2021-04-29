@@ -9,12 +9,12 @@ registry.add({
   name: "wip",
   async run({ msg }) {
     const m = await msg.channel.send(
-      createGenericResponse(
-        msg.author,
-        "If you agree, you will not see this again"
-      )
+      createGenericResponse({
+        colour: EmbedColours.Warning,
+        author: msg.author,
+        footerNote: "If you agree, you will not see this again",
+      })
         .setTitle("Just a heads-up...")
-        .setColor(EmbedColours.Warning)
         .setDescription(
           "This feature is a Work-In-Progress and as such could have bugs." +
             "\n\n**Do you wish to proceed?**"

@@ -11,13 +11,25 @@ export const enum EmbedColours {
   CriticalError = 0xa62626,
 }
 
-export function createGenericResponse(author: User, extraInfo?: string) {
-  let footerStr = `Ran by ${author.tag}`;
-  if (extraInfo) {
-    footerStr += ` | ${extraInfo}`;
+export interface GenericResponseOpts {
+  colour?: EmbedColours;
+  author?: User;
+  footerNote?: string;
+}
+
+export function createGenericResponse(opts: GenericResponseOpts) {
+  let footerStr = "";
+  if (opts.author) {
+    footerStr = `Ran by ${opts.author.tag}`;
+    if (opts.footerNote) footerStr += " | ";
   }
 
-  return new MessageEmbed()
-    .setColor(EmbedColours.Primary)
-    .setFooter(footerStr, getAvatarURL(author));
+  if (opts.footerNote) footerStr += opts.footerNote;
+
+  const res = new MessageEmbed().setColor(opts.colour ?? EmbedColours.Primary);
+  if (footerStr) {
+    res.setFooter(footerStr, opts.author ? getAvatarURL(opts.author) : void 0);
+  }
+
+  return res;
 }
