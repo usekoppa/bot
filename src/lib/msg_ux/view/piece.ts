@@ -20,8 +20,11 @@ export interface Piece<S, R, PS> {
   cleanup?: CleanupPiece<S, R>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyPiece = Piece<any, any, any>;
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type PieceState<P extends Piece<any, any, any>> = P extends Piece<
+export type PieceState<P extends AnyPiece> = P extends Piece<
   any,
   any,
   /* eslint-enable @typescript-eslint/no-explicit-any */

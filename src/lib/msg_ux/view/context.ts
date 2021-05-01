@@ -22,9 +22,18 @@ export class Context<S, R> {
     this.reject = promise.reject;
   }
 
+  // TODO(@voltexene): Unfuck this up.
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public getPieceState<P extends Piece<S, R, any>>(piece: P): PieceState<P> {
-    return this.pieceStates.get(piece.id);
+  public getPieceState<P extends Piece<S, R, any>>(
+    piece: P | ((...args: any[]) => P)
+  ): PieceState<P> {
+    let finalPiece = piece as P;
+    if (typeof piece === "function") {
+      finalPiece = piece();
+    }
+
+    return this.pieceStates.get(finalPiece.id);
   }
 
   /**
@@ -32,8 +41,13 @@ export class Context<S, R> {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public getPieceConfigState<P extends Piece<S, R, any>>(
-    piece: P
+    piece: P | ((...args: any[]) => P)
   ): PieceState<P> {
-    return this.view.pieceInitStates.get(piece.id);
+    let finalPiece = piece as P;
+    if (typeof piece === "function") {
+      finalPiece = piece();
+    }
+
+    return this.view.pieceInitStates.get(finalPiece.id);
   }
 }

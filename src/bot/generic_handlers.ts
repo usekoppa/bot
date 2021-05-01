@@ -1,7 +1,6 @@
 import { KoppaClient } from "@lib/client";
 import { EventManager } from "@lib/event_manager";
 import { config } from "@utils/config";
-import { printError } from "@utils/errors";
 import { createLogger } from "@utils/logger";
 
 import { Container } from "typedi";
@@ -21,9 +20,7 @@ evs.once("ready", log => {
 
 evs.on("warn", (msg, log) => log.warn(msg));
 
-evs.on("error", (err, log) =>
-  printError("Client emitted an error", { err, log })
-);
+evs.on("error", (err, log) => log.error("Client emitted an error", err));
 
 evs.on("shardReconnecting", (id, log) =>
   log.warn(`Shard is reconnecting`, { id })

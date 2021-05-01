@@ -16,10 +16,10 @@ registry.add({
 
     const respEmbed = createGenericResponse({
       author: msg.author,
-      footerNote: `Latency: ~${client.ws.ping}ms`,
+      footerNote: `Latency: ${client.ws.ping}ms`,
     })
       .setTitle(":ping_pong: Pong!")
-      .setDescription(`It took **~${pingTime}ms** to send this message.`);
+      .setDescription(`It took **${pingTime}ms** to send this message.`);
 
     await m.edit("", respEmbed);
   },

@@ -4,7 +4,14 @@ import { Client, ClientOptions, Intents } from "discord.js";
 import { Service } from "typedi";
 
 export const clientOptions: ClientOptions = {
-  ws: { intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] },
+  ws: {
+    intents: [
+      Intents.FLAGS.GUILDS,
+      Intents.FLAGS.GUILD_MESSAGES,
+      Intents.FLAGS.GUILD_MEMBERS,
+      Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+    ],
+  },
 };
 
 const startTime = Date.now();

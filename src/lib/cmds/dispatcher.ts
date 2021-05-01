@@ -1,4 +1,5 @@
 import { EventManager } from "@lib/event_manager";
+import { createGenericResponse, EmbedColours } from "@lib/msg_ux/embeds";
 import { config } from "@utils/config";
 import { createLogger } from "@utils/logger";
 
@@ -35,6 +36,22 @@ evs.on("message", async (msg, log) => {
       );
     } catch (err) {
       log.error("Failed to execute", err);
+
+      try {
+        const trueErr = err instanceof Error ? err : new Error(err);
+        void msg.channel.send(
+          createGenericResponse({
+            author: msg.author,
+            colour: EmbedColours.Error,
+            footerNote: "This incident has been reported",
+          })
+            .setTitle(":x: Something went wrong!")
+            .setDescription(
+              "```" + `${trueErr.name}: ${trueErr.message}` + "```"
+            )
+        );
+        // eslint-disable-next-line no-empty
+      } catch {}
     }
   } catch (err) {
     log.error("Failed to handle message event", err);

@@ -4,7 +4,7 @@
   "description": "some bot, I actually need to exercise this skill called coding ig",
   "main": "./dist/main.js",
   "scripts": {
-    "start": "tsc && node .",
+    "start": "tsc && node --trace-warnings .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -12,6 +12,7 @@ export type Middleware<S, R> = (ctx: Context<S, R>) => Asyncable<unknown>;
 interface RunResult<S, R> {
   state: S;
   result: R;
+  ctx: Context<S, R>;
 }
 
 const clone = rfdc({ proto: true });
@@ -61,14 +62,11 @@ export class View<S, R> {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async execute(piece: Piece<S, R, any>, ctx: Context<S, R>) {
-    if (
-      !ctx.pieceStates.has(piece.id) &&
-      Object.getOwnPropertyNames(piece).includes("initialState")
-    ) {
+    if (!ctx.pieceStates.has(piece.id)) {
       ctx.pieceStates.set(
         piece.id,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        clone(this.pieceInitStates.get(piece.id)!)
+        clone(this.pieceInitStates.get(piece.id) ?? {})
       );
     }
 
@@ -90,34 +88,27 @@ export class View<S, R> {
 
   private run(msg: Message, initialState?: S): Promise<RunResult<S, R>> {
     const ctxPromise = deferred<R>();
-    const state = clone(initialState);
-    if (typeof state === "undefined") {
-      throw new Error("Failed to deep clone initial state.");
-    }
+    const state =
+      typeof initialState === "undefined" ? ({} as S) : clone(initialState);
 
     const ctx = new Context(this, msg, state, ctxPromise);
 
-    return new Promise((resolve, reject) => {
+    // eslint-disable-next-line no-async-promise-executor, @typescript-eslint/no-misused-promises
+    return new Promise(async (resolve, reject) => {
       ctxPromise
-        .then(result => resolve({ state, result }))
+        .then(result => resolve({ ctx, state, result }))
         .catch(reject)
         .finally(() => {
           ctx.finished = true;
-        });
-
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      void this.execute(this.pieces.get(kGlobalPiece)!, ctx)
-        .then(async () => {
-          for (const piece of this.pieces.values()) {
-            if (ctx.finished) break;
-            await this.execute(piece, ctx);
-          }
-
           for (const piece of this.pieces.values()) {
             piece.cleanup?.(ctx);
           }
-        })
-        .catch(ctxPromise.reject);
+        });
+
+      for (const piece of this.pieces.values()) {
+        if (ctx.finished) break;
+        await this.execute(piece, ctx);
+      }
     });
   }
 }
