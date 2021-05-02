@@ -1,5 +1,5 @@
 import { EventManager } from "@lib/event_manager";
-import { createGenericResponse, EmbedColours } from "@lib/msg_ux/embeds";
+import { createEmbed, EmbedColours } from "@lib/ux/embeds";
 import { config } from "@utils/config";
 import { createLogger } from "@utils/logger";
 
@@ -40,7 +40,7 @@ evs.on("message", async (msg, log) => {
       try {
         const trueErr = err instanceof Error ? err : new Error(err);
         void msg.channel.send(
-          createGenericResponse({
+          createEmbed({
             author: msg.author,
             colour: EmbedColours.Error,
             footerNote: "This incident has been reported",

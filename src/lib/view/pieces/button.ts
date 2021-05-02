@@ -95,7 +95,7 @@ export function button<S, R>(
       return ctx.reject(new Error("Can not use buttons without embed"));
     }
 
-    ctx.getPieceState(button).msg = embedState.msg;
+    ctx.getPieceState(piece).msg = embedState.msg;
   }
 
   function handle(ctx: Context<S, R>) {
@@ -105,15 +105,21 @@ export function button<S, R>(
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     state.collector!.on("collect", async (reaction, user) => {
       // TODO(@voltexene): Allow more configuration options.
+      const reactionEmoji = ReactionCollector.key(reaction);
       if (
-        ReactionCollector.key(reaction) !== emoji ||
-        user.id !== ctx.msg.author.id
+        user.id !== ctx.msg.author.id ||
+        !state.activeEmojis.includes(reactionEmoji)
       ) {
-        await reaction.remove().catch(ctx.reject);
-        return;
+        return await reaction.remove().catch(ctx.reject);
       }
 
-      fn(ctx);
+      if (reactionEmoji === emoji) {
+        try {
+          fn(ctx);
+        } catch (err) {
+          ctx.reject(err);
+        }
+      }
     });
   }
 
@@ -123,10 +129,15 @@ export function button<S, R>(
     if (!state.deleteMode && activeEmoji !== emoji) {
       if (typeof activeEmoji !== undefined) {
         await state.msg!.reactions.cache.get(activeEmoji)?.remove();
+        state.activeEmojis = [
+          ...state.activeEmojis.slice(0, idx),
+          ...state.activeEmojis.slice(idx + 1),
+        ];
       }
     }
 
     void state.msg!.react(emoji);
+    state.activeEmojis.push(emoji);
   }
 
   return piece;

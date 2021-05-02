@@ -81,28 +81,35 @@ export class View<S, R> {
 
   public build() {
     return {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore I have no idea what is happening here, but it works when ignored ¯\_(ツ)_/¯. - @voltexene
       run: this.run.bind(this),
       [kBuiltView]: this,
     };
   }
 
-  private run(msg: Message, initialState?: S): Promise<RunResult<S, R>> {
+  private run(
+    msg: Message,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    initialState: S extends object ? S : undefined
+  ): Promise<RunResult<S, R>> {
     const ctxPromise = deferred<R>();
-    const state =
-      typeof initialState === "undefined" ? ({} as S) : clone(initialState);
+    const state = (typeof initialState === "undefined"
+      ? {}
+      : clone(initialState)) as S;
 
     const ctx = new Context(this, msg, state, ctxPromise);
 
     // eslint-disable-next-line no-async-promise-executor, @typescript-eslint/no-misused-promises
     return new Promise(async (resolve, reject) => {
       ctxPromise
-        .then(result => resolve({ ctx, state, result }))
-        .catch(reject)
-        .finally(() => {
-          ctx.finished = true;
-          for (const piece of this.pieces.values()) {
-            piece.cleanup?.(ctx);
-          }
+        .then(async result => {
+          await cleanup.call(this);
+          return resolve({ ctx, state, result });
+        })
+        .catch(async reason => {
+          await cleanup.call(this);
+          return reject(reason);
         });
 
       for (const piece of this.pieces.values()) {
@@ -110,5 +117,15 @@ export class View<S, R> {
         await this.execute(piece, ctx);
       }
     });
+
+    async function cleanup(this: View<S, R>) {
+      ctx.finished = true;
+      const ranCleaners = new Set<symbol>();
+      for (const piece of [...this.pieces.values()].reverse()) {
+        if (ranCleaners.has(piece.id)) continue;
+        ranCleaners.add(piece.id);
+        await piece.cleanup?.(ctx);
+      }
+    }
   }
 }

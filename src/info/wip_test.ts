@@ -1,5 +1,5 @@
 import { Registry } from "@lib/cmds/registry";
-import { createGenericResponse, EmbedColours } from "@lib/msg_ux/embeds";
+import { createEmbed, EmbedColours } from "@lib/ux/embeds";
 
 import { Container } from "typedi";
 
@@ -9,7 +9,7 @@ registry.add({
   name: "wip",
   async run({ msg }) {
     const m = await msg.channel.send(
-      createGenericResponse({
+      createEmbed({
         colour: EmbedColours.Warning,
         author: msg.author,
         footerNote: "If you agree, you will not see this again",

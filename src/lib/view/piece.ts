@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Asyncable } from "@utils/util_types";
 
 import { Context } from "./context";
 import { Middleware, View } from "./view";
 
 export const kGlobalPiece = Symbol("view.pieces.*");
+
+export type NoState = Record<string | number | symbol, any>;
 
 type ConfigurePiece<S, R, PS> = (
   use: (...fns: Middleware<S, R>[]) => void,
@@ -20,15 +23,8 @@ export interface Piece<S, R, PS> {
   cleanup?: CleanupPiece<S, R>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyPiece = Piece<any, any, any>;
+export type AnyPiece = Piece<any, any, any>;
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export type PieceState<P extends AnyPiece> = P extends Piece<
-  any,
-  any,
-  /* eslint-enable @typescript-eslint/no-explicit-any */
-  infer PS
->
+export type PieceState<P extends AnyPiece> = P extends Piece<any, any, infer PS>
   ? PS
   : never;

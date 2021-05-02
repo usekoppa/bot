@@ -1,5 +1,3 @@
-// Utilities for use in commands.
-
 import { MessageEmbed, User } from "discord.js";
 
 import { getAvatarURL } from "./avatars";
@@ -11,13 +9,13 @@ export const enum EmbedColours {
   CriticalError = 0xa62626,
 }
 
-export interface GenericResponseOpts {
+export interface EmbedOpts {
   colour?: EmbedColours;
   author?: User;
   footerNote?: string;
 }
 
-export function createGenericResponse(opts: GenericResponseOpts) {
+export function createEmbed(opts: EmbedOpts) {
   let footerStr = "";
   if (opts.author) {
     footerStr = `Ran by ${opts.author.tag}`;

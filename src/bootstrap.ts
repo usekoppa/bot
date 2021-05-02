@@ -17,3 +17,23 @@ async function loadServices() {
     process.exit(1);
   });
 }
+
+process.on("warning", warn => {
+  log.warn("The process issued a warning");
+  log.warn(warn);
+});
+
+process.on("uncaughtException", error =>
+  log.error("An uncaught exception occured", error)
+);
+
+process.on("unhandledRejection", reason => {
+  log.pureError("An unhandled rejection occurred");
+  if (typeof reason !== "undefined" && reason !== null) {
+    log.pureError(reason);
+  } else {
+    log.warn(
+      "No additional information was provided in the unhanded rejection"
+    );
+  }
+});

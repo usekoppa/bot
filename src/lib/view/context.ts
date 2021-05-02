@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Deferred } from "@utils/deferred";
 
 import { Message } from "discord.js";
@@ -5,8 +6,9 @@ import { Message } from "discord.js";
 import { Piece, PieceState } from "./piece";
 import { View } from "./view";
 
+type PieceFactory<P> = (...args: any[]) => P;
+
 export class Context<S, R> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public pieceStates = new Map<symbol, any>();
   public finished = false;
   public resolve: Deferred<R>["resolve"];
@@ -22,32 +24,27 @@ export class Context<S, R> {
     this.reject = promise.reject;
   }
 
-  // TODO(@voltexene): Unfuck this up.
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public getPieceState<P extends Piece<S, R, any>>(
-    piece: P | ((...args: any[]) => P)
+    piece: P | PieceFactory<P>
   ): PieceState<P> {
-    let finalPiece = piece as P;
-    if (typeof piece === "function") {
-      finalPiece = piece();
-    }
-
-    return this.pieceStates.get(finalPiece.id);
+    return this.pieceStates.get(this.resolvePiece(piece).id);
   }
 
   /**
    * This gets the state of a piece after all of it's configurators have ran.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public getPieceConfigState<P extends Piece<S, R, any>>(
-    piece: P | ((...args: any[]) => P)
+    piece: P | PieceFactory<P>
   ): PieceState<P> {
+    return this.view.pieceInitStates.get(this.resolvePiece(piece).id);
+  }
+
+  private resolvePiece<P extends Piece<S, R, any>>(piece: P | PieceFactory<P>) {
     let finalPiece = piece as P;
     if (typeof piece === "function") {
       finalPiece = piece();
     }
 
-    return this.view.pieceInitStates.get(finalPiece.id);
+    return finalPiece;
   }
 }

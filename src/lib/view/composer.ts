@@ -1,4 +1,4 @@
-import { Piece } from "./piece";
+import { AnyPiece, Piece } from "./piece";
 import { View } from "./view";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -13,8 +13,7 @@ export function compose<S, R>(...compPieces: ComposerPieces<S, R>) {
   return view.build();
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function flatten<S, R>(pieces: ComposerPieces<S, R>): Piece<any, any, any>[] {
+function flatten<S, R>(pieces: ComposerPieces<S, R>): AnyPiece[] {
   return pieces.flatMap(piece => {
     return Array.isArray(piece) ? flatten(piece) : piece;
   });
