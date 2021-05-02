@@ -6,13 +6,13 @@ import { Container } from "typedi";
 const registry = Container.get(Registry);
 
 registry.add({
-  name: "pussy",
+  name: "prompt",
   async run({ msg }) {
-    const res = await prompt(msg, "Is pussy good?");
+    const res = await prompt(msg, "here is a question");
     if (res) {
-      return "yesss";
+      return "you said yes";
     } else {
-      return "aaaaaaaaaaaaaaaaaaaa";
+      return "I guess it's a no";
     }
   },
 });

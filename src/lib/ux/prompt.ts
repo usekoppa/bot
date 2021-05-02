@@ -1,5 +1,3 @@
-// import { Message, User } from "discord.js";
-
 import { compose } from "@view/composer";
 import { button, embed } from "@view/pieces";
 
