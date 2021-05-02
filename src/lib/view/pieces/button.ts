@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { KoppaClient } from "@lib/client";
 
 import { Message, ReactionCollector, User } from "discord.js";
@@ -28,6 +27,7 @@ export function button<S, R>(
 ): Piece<S, R, ButtonState> {
   const piece: Piece<S, R, ButtonState> = {
     id: kButton,
+    factory: button,
     initialState: {
       activeEmojis: [],
       emojis: [],
@@ -44,16 +44,20 @@ export function button<S, R>(
       use(getMessageForMenu);
 
       // Only add these middlewares if the piece hasn't been added in the past.
-      if (!view.pieces.has(kButton)) {
-        use(setupEmojiCollector, deleteMode);
-      }
+      if (!view.has(piece)) use(setupEmojiCollector, deleteMode);
 
       use(react.bind(null, emojiIdx), handle);
     },
     cleanup(ctx) {
-      const state = ctx.getPieceState(button);
+      const state = ctx.getPieceState(piece)!;
+      const embedState = ctx.getPieceState(embed)!;
       state.collector?.stop("cleanup");
-      void state.msg!.reactions.removeAll();
+
+      // This avoids a 404 DiscordAPIError for the message that would no longer
+      // exist at this point.
+      if (!embedState.opts.deleteOnCleanup) {
+        void state.msg!.reactions.removeAll();
+      }
     },
   };
 
@@ -62,8 +66,8 @@ export function button<S, R>(
   // is more efficient than deleting the ones that are
   // different from the current menu.
   async function deleteMode(ctx: Context<S, R>) {
-    const state = ctx.getPieceState(piece);
-    const configState = ctx.getPieceConfigState(piece);
+    const state = ctx.getPieceState(piece)!;
+    const configState = ctx.getConfiguredPieceState(piece)!;
     const totalMatching = state.activeEmojis.reduce((prev, cur, i) => {
       // Use config time, as it is actually the
       // this is the final initial state
@@ -80,7 +84,7 @@ export function button<S, R>(
   }
 
   function setupEmojiCollector(ctx: Context<S, R>) {
-    const state = ctx.getPieceState(piece);
+    const state = ctx.getPieceState(piece)!;
     const collector = (state.collector = state.msg!.createReactionCollector(
       (_, user: User) => user.id !== client.user?.id
     ));
@@ -95,11 +99,11 @@ export function button<S, R>(
       return ctx.reject(new Error("Can not use buttons without embed"));
     }
 
-    ctx.getPieceState(piece).msg = embedState.msg;
+    ctx.getPieceState(piece)!.msg = embedState.msg;
   }
 
   function handle(ctx: Context<S, R>) {
-    const state = ctx.getPieceState(piece);
+    const state = ctx.getPieceState(piece)!;
     // TODO(@voltexene): Handle disposals.
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -124,7 +128,7 @@ export function button<S, R>(
   }
 
   async function react(idx: number, ctx: Context<S, R>) {
-    const state = ctx.getPieceState(piece);
+    const state = ctx.getPieceState(piece)!;
     const activeEmoji = state.activeEmojis[idx];
     if (!state.deleteMode && activeEmoji !== emoji) {
       if (typeof activeEmoji !== undefined) {

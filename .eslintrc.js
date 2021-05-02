@@ -20,6 +20,7 @@ module.exports = {
   plugins: ["@typescript-eslint", "prettier", "simple-import-sort"],
   rules: {
     "prettier/prettier": "error",
+    "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-return": "off",
@@ -27,9 +28,9 @@ module.exports = {
       "error",
       {
         "ts-expect-error": "allow-with-description",
-        "ts-ignore": true,
-        "ts-nocheck": "allow-with-description",
-        "ts-check": true,
+        "ts-ignore": "allow-with-description",
+        "ts-nocheck": false,
+        "ts-check": false,
         minimumDescriptionLength: 3,
       },
     ],

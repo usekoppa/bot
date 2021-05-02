@@ -10,7 +10,7 @@ export function compose<S, R>(...compPieces: ComposerPieces<S, R>) {
 
   for (const piece of pieces) view.add(piece);
 
-  return view.build();
+  return view;
 }
 
 function flatten<S, R>(pieces: ComposerPieces<S, R>): AnyPiece[] {
