@@ -1,7 +1,7 @@
-import { EventManager } from "@lib/event_manager";
-import { createEmbed, EmbedColours } from "@lib/ux/embeds";
+import { EventManager } from "@core/event_manager";
 import { config } from "@utils/config";
 import { createLogger } from "@utils/logger";
+import { createErrorEmbed } from "@ux/embeds";
 
 import { Message, MessageOptions, TextChannel } from "discord.js";
 import { Container } from "typedi";
@@ -38,18 +38,7 @@ evs.on("message", async (msg, log) => {
       log.error("Failed to execute", err);
 
       try {
-        const trueErr = err instanceof Error ? err : new Error(err);
-        void msg.channel.send(
-          createEmbed({
-            author: msg.author,
-            colour: EmbedColours.Error,
-            footerNote: "This incident has been reported",
-          })
-            .setTitle(":x: Something went wrong!")
-            .setDescription(
-              "```" + `${trueErr.name}: ${trueErr.message}` + "```"
-            )
-        );
+        void msg.channel.send(createErrorEmbed(msg, err));
         // eslint-disable-next-line no-empty
       } catch {}
     }

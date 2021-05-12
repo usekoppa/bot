@@ -22,9 +22,9 @@ export function setDefaultName(newDefaultName: string) {
   defaultName = newDefaultName;
 }
 
-// TODO(@zorbyte): Use type-di and/or implement a mechanism to store loggers and prevent duplicate instances.
-//                 Debug log environment variable should allow scopes, to print logs for certain child loggers instead.
-//                 Logs should be written to a file with criteria for the types of logs to be written to the file
+// TODO(@voltexene): Use type-di and/or implement a mechanism to store loggers and prevent duplicate instances.
+//                   Debug log environment variable should allow scopes, to print logs for certain child loggers instead.
+//                   Logs should be written to a file with criteria for the types of logs to be written to the file
 
 // These overloads are so that the child creation function isn't usually visible.
 export function createLogger(name?: string): Logger;

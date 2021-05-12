@@ -27,9 +27,13 @@ export function embed<S, V>(
     initialState: { opts },
     configure(use) {
       use(async ctx => {
-        const emb = await fn(ctx);
         const state = ctx.getPieceState(piece)!;
-        state.msg = await ctx.msg.channel.send(emb);
+        const emb = await fn(ctx);
+        if (typeof state.msg === "undefined") {
+          state.msg = await ctx.msg.channel.send(emb);
+        } else {
+          state.msg = await state.msg.edit(emb);
+        }
       });
     },
     async cleanup(ctx) {

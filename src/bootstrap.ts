@@ -8,10 +8,12 @@ export async function bootstrap() {
 
 async function loadServices() {
   await Promise.all(
-    ["@lib/cmds/dispatcher", "./info", "./bot"].map(path => {
-      log.debug("Importing service", { path });
-      return import(path);
-    })
+    ["@cmds/dispatcher", "./info", "@core/generic_handlers", "@core/login"].map(
+      path => {
+        log.debug("Importing service", { path });
+        return import(path);
+      }
+    )
   ).catch(err => {
     log.error("Failed to load component", err);
     process.exit(1);
@@ -24,7 +26,7 @@ process.on("warning", warn => {
 });
 
 process.on("uncaughtException", error =>
-  log.error("An uncaught exception occured", error)
+  log.error("An uncaught exception occurred", error)
 );
 
 process.on("unhandledRejection", reason => {

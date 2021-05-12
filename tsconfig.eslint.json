@@ -1,9 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "include": [
-    "fuse.ts",
     ".eslintrc.js",
     ".prettierrc.js",
-    "src/**/*"
+    "src/**/*",
+    "packages/**/*",
+    "shims/**/*",
+    "tsconfig.json"
   ]
 }

@@ -1,4 +1,6 @@
 import { Deferred, deferred } from "@utils/deferred";
+import { Logger } from "@utils/logger";
+import { mergeMaps } from "@utils/merge_maps";
 
 import { Message } from "discord.js";
 import rfdc from "rfdc";
@@ -13,23 +15,56 @@ import {
 } from "./piece";
 import { kPieceInitialStates, kRunLifeCycle, View, ViewResult } from "./view";
 
-const clone = rfdc({ proto: true });
+const clone = rfdc({ proto: true, circles: true });
+
+export const kCleanupError = Symbol("context.cleanup.error");
+export const kCleanupErrorOccurred = Symbol("context.cleanup.error.occurred");
 
 export class Context<S, R> {
-  public finished = false;
+  public log: Logger;
   public resolve: Deferred<R>["resolve"];
   public reject: Deferred<R>["reject"];
 
   private pieceStates = new Map<symbol, AnyPieceState>();
 
+  #finished = false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  #cleanupError?: any;
+  #cleanupErrorOccurred = false;
+
   public constructor(
     public msg: Message,
     public state: S,
+    public readonly childID: number,
     private pieceInitialStates: Map<symbol, AnyPieceState>,
+    log: Logger,
     promise: Deferred<R>
   ) {
-    this.resolve = promise.resolve;
-    this.reject = promise.reject;
+    this.log = log.child(`view.${childID}`);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.resolve = (...args: any[]) => {
+      this.#finished = true;
+      promise.resolve(...args);
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.reject = (reason?: any) => {
+      if (this.#finished) {
+        this.log.error("Cleanup failure", reason);
+        this.#cleanupErrorOccurred = true;
+      } else {
+        this.#finished = true;
+        promise.reject(reason);
+      }
+    };
+  }
+
+  public has<P extends PieceWithAnyState<S, R>>(
+    piece: P | PieceFactory<P>
+  ): boolean {
+    const resolved = resolvePiece(piece);
+    return this.pieceInitialStates.has(resolved.id);
   }
 
   public async child<V extends View<S, unknown>>(
@@ -39,14 +74,19 @@ export class Context<S, R> {
     const ctx = new Context(
       this.msg,
       this.state,
-      mergePieceInitialStates(
+      this.childID + 1,
+      // The states of the current context take
+      // precedence over the initial states of the child context.
+      mergeMaps(
+        view[kPieceInitialStates],
         this.pieceInitialStates,
-        view[kPieceInitialStates]
+        this.pieceStates
       ),
+      this.log,
       childPromise
     );
 
-    await view[kRunLifeCycle](ctx, childPromise);
+    await view[kRunLifeCycle](ctx, childPromise, [...this.pieceStates.keys()]);
 
     return await childPromise;
   }
@@ -87,13 +127,16 @@ export class Context<S, R> {
     if (typeof state === "undefined") return;
     return clone(state);
   }
-}
 
-function mergePieceInitialStates(...[m1, m2]: Map<symbol, AnyPieceState>[]) {
-  const final = new Map(clone([...m1.entries()]));
-  for (const [key, val] of m2.entries()) {
-    if (!final.has(key)) final.set(key, val);
+  public get finished() {
+    return this.#finished;
   }
 
-  return final;
+  public get [kCleanupError]() {
+    return this.#cleanupError;
+  }
+
+  public get [kCleanupErrorOccurred]() {
+    return this.#cleanupErrorOccurred;
+  }
 }

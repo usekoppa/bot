@@ -30,15 +30,21 @@
     "target": "es2020",
     "skipLibCheck": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "baseUrl": "./src",
     "paths": {
-      "@utils/*": ["./lib/utils/*"],
-      "@view/*": ["./lib/view/*"],
-      "@lib/*": ["./lib/*"],
+      "@core/*": ["../packages/core/*"],
+      "@cmds/*": ["../packages/cmds/*"],
+      "@utils/*": ["../packages/utils/*"],
+      "@view/*": ["../packages/view/*"],
+      "@ux/*": ["../packages/ux/*"],
       "@root/*": ["./*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "shims/**/*",
+    "packages/**/*"
+  ],
   "exclude": ["node_modules"]
 }

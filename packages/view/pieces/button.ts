@@ -1,4 +1,4 @@
-import { KoppaClient } from "@lib/client";
+import { KoppaClient } from "@core/client";
 
 import { Message, ReactionCollector, User } from "discord.js";
 import { Container } from "typedi";
@@ -56,7 +56,7 @@ export function button<S, R>(
       // This avoids a 404 DiscordAPIError for the message that would no longer
       // exist at this point.
       if (!embedState.opts.deleteOnCleanup) {
-        void state.msg!.reactions.removeAll();
+        void state.msg!.reactions.removeAll().catch(ctx.reject);
       }
     },
   };
@@ -95,6 +95,7 @@ export function button<S, R>(
   function getMessageForMenu(ctx: Context<S, R>) {
     const embedState = ctx.getPieceState(embed);
 
+    // This pretty much assures that the embed state is defined at this point.
     if (!embedState) {
       return ctx.reject(new Error("Can not use buttons without embed"));
     }

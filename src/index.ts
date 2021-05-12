@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import "./lib/utils/register_aliases";
+import "./register_aliases";
 
 import { config } from "dotenv";
 

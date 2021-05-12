@@ -1,4 +1,4 @@
-import { KoppaClient } from "@lib/client";
+import { KoppaClient } from "@core/client";
 import { config } from "@utils/config";
 
 import { Container } from "typedi";

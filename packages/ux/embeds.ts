@@ -1,4 +1,4 @@
-import { MessageEmbed, User } from "discord.js";
+import { Message, MessageEmbed, User } from "discord.js";
 
 import { getAvatarURL } from "./avatars";
 
@@ -30,4 +30,16 @@ export function createEmbed(opts: EmbedOpts) {
   }
 
   return res;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createErrorEmbed(msg: Message, err: any) {
+  const trueErr = err instanceof Error ? err : new Error(err);
+  return createEmbed({
+    author: msg.author,
+    colour: EmbedColours.Error,
+    footerNote: "This incident has been reported",
+  })
+    .setTitle(":x: Something went wrong!")
+    .setDescription("```" + `${trueErr.name}: ${trueErr.message}` + "```");
 }

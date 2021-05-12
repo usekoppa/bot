@@ -2,7 +2,8 @@ import { join } from "path";
 
 import { addAliases } from "module-alias";
 
-import { readJsonSync } from "./read_json";
+// Since the aliases haven't been registered like this, we have to use the relative path.
+import { readJsonSync } from "../packages/utils/read_json";
 
 interface AliasesOfTsConfig {
   compilerOptions: {
@@ -11,7 +12,7 @@ interface AliasesOfTsConfig {
 }
 
 const tsConfig = readJsonSync<AliasesOfTsConfig>(
-  join(__dirname, "..", "..", "..", "tsconfig.json")
+  join(__dirname, "..", "..", "tsconfig.json")
 );
 
 addAliases(
@@ -20,7 +21,7 @@ addAliases(
       key.slice(0, -2),
 
       // Removes "./"
-      join(__dirname, "../../" + value[0].slice(2, -2)),
+      join(__dirname, "../" + value[0].slice(2, -2)),
     ])
   )
 );

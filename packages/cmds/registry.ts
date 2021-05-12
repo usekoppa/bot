@@ -5,14 +5,17 @@ import { Message, TextChannel } from "discord.js";
 import equal from "fast-deep-equal";
 import { Service } from "typedi";
 
-type Runner = (opts: {
+export interface RunnerOpts {
   msg: Message;
-
   // TODO(@zorbyte): This would be dynamically produced from the syntax usage tree.
   args: string[];
   callKey: string;
   log: Logger;
-}) => Asyncable<Parameters<TextChannel["send"]>[0]>;
+}
+
+type Runner = (
+  opts: RunnerOpts
+) => Asyncable<Parameters<TextChannel["send"]>[0]>;
 
 export interface Command {
   name: string;

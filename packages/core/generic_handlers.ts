@@ -1,9 +1,10 @@
-import { KoppaClient } from "@lib/client";
-import { EventManager } from "@lib/event_manager";
 import { config } from "@utils/config";
 import { createLogger } from "@utils/logger";
 
 import { Container } from "typedi";
+
+import { KoppaClient } from "./client";
+import { EventManager } from "./event_manager";
 
 const client = Container.get(KoppaClient);
 const log = createLogger("bot");

@@ -1,10 +1,11 @@
 import { Deferred, deferred } from "@utils/deferred";
+import { Logger } from "@utils/logger";
 import { Asyncable } from "@utils/util_types";
 
 import { Message } from "discord.js";
 import rfdc from "rfdc";
 
-import { Context } from "./context";
+import { Context, kCleanupError, kCleanupErrorOccurred } from "./context";
 import {
   AnyPieceState,
   kGlobalPiece,
@@ -31,7 +32,7 @@ export type ViewResult<C extends View<AnyState, unknown>> = C extends View<
   ? R
   : never;
 
-const clone = rfdc({ proto: true });
+const clone = rfdc({ proto: false, circles: true });
 
 export const kRunLifeCycle = Symbol("view.life_cycle.runner");
 export const kPieceInitialStates = Symbol("view.pieces.state.initial");
@@ -56,8 +57,10 @@ export class View<S, R> {
 
     // @ts-ignore Typescript doesn't like the fact that that I'm using .bind on a function with overloads.
     const use = this.use.bind(this, piece.id);
-    const state =
-      this.pieceInitialStates.get(piece.id) ?? clone(piece.initialState);
+    const state = Object.getOwnPropertyNames(piece).includes("initialState")
+      ? this.pieceInitialStates.get(piece.id) ?? clone(piece.initialState)
+      : ({} as Record<string, never>);
+
     piece.configure?.(use, state, this);
 
     this.pieceInitialStates.set(piece.id, state);
@@ -97,6 +100,7 @@ export class View<S, R> {
 
   public run(
     msg: Message,
+    log: Logger,
     // eslint-disable-next-line @typescript-eslint/ban-types
     initialState: S extends object ? S : undefined
   ): Promise<RunResult<S, R>> {
@@ -108,7 +112,9 @@ export class View<S, R> {
     const ctx = new Context(
       msg,
       state,
+      0,
       this.clonePieceInitialStates(),
+      log,
       ctxPromise
     );
 
@@ -123,20 +129,22 @@ export class View<S, R> {
     return this.clonePieceInitialStates();
   }
 
-  private runLifeCycle(ctx: Context<S, R>, promise: Deferred<R>) {
+  private runLifeCycle(
+    ctx: Context<S, R>,
+    promise: Deferred<R>,
+    cleanupExclusions: symbol[] = []
+  ) {
     this.ran = true;
 
     // eslint-disable-next-line no-async-promise-executor, @typescript-eslint/no-misused-promises
     return new Promise<RunResult<S, R>>(async (resolve, reject) => {
       promise
-        .then(async result => {
-          await this.cleanup(ctx).catch(reject);
-          return resolve({ state: ctx.state, result });
-        })
-        .catch(async reason => {
-          await this.cleanup(ctx).catch(reject);
-          return reject(reason);
-        });
+        .then(result =>
+          this.cleanup(ctx, cleanupExclusions)
+            .then(() => resolve({ state: ctx.state, result }))
+            .catch(reject)
+        )
+        .catch(reject);
 
       await this.runPieces(ctx);
     });
@@ -156,16 +164,16 @@ export class View<S, R> {
   }
 
   private clonePieceInitialStates() {
-    return new Map(clone([...this.pieceInitialStates.entries()]));
+    return clone(this.pieceInitialStates);
   }
 
-  private async cleanup(ctx: Context<S, R>) {
-    ctx.finished = true;
-    const ranCleaners = new Set<symbol>();
+  private async cleanup(ctx: Context<S, R>, exclusions: symbol[]) {
+    const ranCleaners = new Set<symbol>(exclusions);
     for (const piece of [...this.pieces.values()].reverse()) {
       if (ranCleaners.has(piece.id)) continue;
       ranCleaners.add(piece.id);
       await piece.cleanup?.(ctx);
+      if (ctx[kCleanupErrorOccurred]) throw ctx[kCleanupError];
     }
   }
 }

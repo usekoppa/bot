@@ -1,6 +1,6 @@
-import { KoppaClient } from "@lib/client";
-import { Registry } from "@lib/cmds/registry";
-import { createEmbed } from "@lib/ux/embeds";
+import { Registry } from "@cmds/registry";
+import { KoppaClient } from "@core/client";
+import { createEmbed } from "@ux/embeds";
 
 import { Container } from "typedi";
 
