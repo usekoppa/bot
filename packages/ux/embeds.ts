@@ -10,7 +10,6 @@ export const enum EmbedColours {
 }
 
 export interface EmbedOpts {
-  colour?: EmbedColours;
   author?: User;
   footerNote?: string;
 }
@@ -24,7 +23,7 @@ export function createEmbed(opts: EmbedOpts) {
 
   if (opts.footerNote) footerStr += opts.footerNote;
 
-  const res = new MessageEmbed().setColor(opts.colour ?? EmbedColours.Primary);
+  const res = new MessageEmbed().setColor(EmbedColours.Primary);
   if (footerStr) {
     res.setFooter(footerStr, opts.author ? getAvatarURL(opts.author) : void 0);
   }
@@ -37,9 +36,9 @@ export function createErrorEmbed(msg: Message, err: any) {
   const trueErr = err instanceof Error ? err : new Error(err);
   return createEmbed({
     author: msg.author,
-    colour: EmbedColours.Error,
     footerNote: "This incident has been reported",
   })
     .setTitle(":x: Something went wrong!")
+    .setColor(EmbedColours.Error)
     .setDescription("```" + `${trueErr.name}: ${trueErr.message}` + "```");
 }

@@ -1,5 +1,5 @@
 import { Registry } from "@cmds/registry";
-import { createEmbed, EmbedColours } from "@ux/embeds";
+import { createEmbed } from "@ux/embeds";
 import { compose } from "@view/composer";
 import { button, embed } from "@view/pieces";
 
@@ -11,7 +11,6 @@ const c = compose<Record<string, unknown>, boolean>(
   embed(ctx =>
     createEmbed({
       author: ctx.msg.author,
-      colour: EmbedColours.Primary,
     }).setDescription("This is a child prompt.")
   ),
   button("✅", ctx => ctx.resolve(true)),
@@ -22,7 +21,6 @@ const p = compose<Record<string, unknown>, boolean>(
   embed(ctx =>
     createEmbed({
       author: ctx.msg.author,
-      colour: EmbedColours.Primary,
     }).setDescription("This test's a child prompt.")
   ),
   button("✅", async ctx => {
