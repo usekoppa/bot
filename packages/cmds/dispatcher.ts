@@ -1,6 +1,4 @@
-import { EventManager } from "@core/event_manager";
-import { config } from "@utils/config";
-import { createLogger } from "@utils/logger";
+import { Logger } from "@utils/logger";
 import { createErrorEmbed } from "@ux/embeds";
 
 import { Message, MessageOptions, TextChannel } from "discord.js";
@@ -8,44 +6,42 @@ import { Container } from "typedi";
 
 import { Registry } from "./registry";
 
-const log = createLogger("cmds");
-const evs = new EventManager(log);
-
 const registry = Container.get(Registry);
 
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-evs.on("message", async (msg, log) => {
-  try {
-    // Ensures the user is not a bot to prevent spam and also ensures we only handle msgs that begin with the bot prefix.
-    if (msg.author.bot || !msg.content.startsWith(config.bot.prefix)) return;
-
-    const [callKey, args] = extractFromCommandString(
-      config.bot.prefix,
-      msg.content
-    );
-
-    const cmd = registry.find(callKey);
-    if (typeof cmd === "undefined") return;
-    const cmdLog = log.child(cmd.name);
-    cmdLog.debug("Command has been called", { callKey, args });
-
+export function dispatcher(defaultPrefix: string) {
+  return async function handler(msg: Message, log: Logger) {
     try {
-      const output = await cmd.run({ msg, args, callKey, log });
-      await handleOutput(msg, output).catch(err =>
-        log.error("Failed to handle output", err)
+      // Ensures the user is not a bot to prevent spam and also ensures we only handle msgs that begin with the bot prefix.
+      if (msg.author.bot || !msg.content.startsWith(defaultPrefix)) return;
+
+      const [callKey, args] = extractFromCommandString(
+        defaultPrefix,
+        msg.content
       );
-    } catch (err) {
-      log.error("Failed to execute", err);
+
+      const cmd = registry.find(callKey);
+      if (typeof cmd === "undefined") return;
+      const cmdLog = log.child(cmd.name);
+      cmdLog.debug("Command has been called", { callKey, args });
 
       try {
-        void msg.channel.send(createErrorEmbed(msg, err));
-        // eslint-disable-next-line no-empty
-      } catch {}
+        const output = await cmd.run({ msg, args, callKey, log });
+        await handleOutput(msg, output).catch(err =>
+          log.error("Failed to handle output", err)
+        );
+      } catch (err) {
+        log.error("Failed to execute", err);
+
+        try {
+          void msg.channel.send(createErrorEmbed(msg, err));
+          // eslint-disable-next-line no-empty
+        } catch {}
+      }
+    } catch (err) {
+      log.error("Failed to handle message event", err);
     }
-  } catch (err) {
-    log.error("Failed to handle message event", err);
-  }
-});
+  };
+}
 
 async function handleOutput(
   msg: Message,

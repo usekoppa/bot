@@ -1,10 +1,10 @@
+import { dispatcher } from "@cmds/dispatcher";
+import { KoppaClient } from "@core/client";
+import { EventManager } from "@core/event_manager";
 import { config } from "@utils/config";
 import { createLogger } from "@utils/logger";
 
 import { Container } from "typedi";
-
-import { KoppaClient } from "./client";
-import { EventManager } from "./event_manager";
 
 const client = Container.get(KoppaClient);
 const log = createLogger("bot");
@@ -18,6 +18,8 @@ evs.once("ready", log => {
 });
 
 // evs.on("debug", (msg, log) => log.debug(msg));
+
+evs.on("message", dispatcher(config.bot.prefix));
 
 evs.on("warn", (msg, log) => log.warn(msg));
 

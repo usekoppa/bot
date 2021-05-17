@@ -3,8 +3,8 @@ import "./register_aliases";
 
 import { config } from "dotenv";
 
-import { bootstrap } from "./bootstrap";
-
 config();
+
+import { bootstrap } from "./bootstrap";
 
 void bootstrap();
