@@ -1,5 +1,5 @@
 import { createLogger, Logger } from "@utils/logger";
-import { Asyncable } from "@utils/util_types";
+import { Asyncable } from "@utils/types";
 
 import { Message, TextChannel } from "discord.js";
 import equal from "fast-deep-equal";

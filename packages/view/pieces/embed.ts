@@ -1,4 +1,4 @@
-import { Asyncable } from "@utils/util_types";
+import { Asyncable } from "@utils/types";
 
 import { Message, MessageEmbed } from "discord.js";
 

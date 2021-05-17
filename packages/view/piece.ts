@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Asyncable } from "@utils/util_types";
+import { Asyncable } from "@utils/types";
 
 import { Context } from "./context";
 import { Middleware, View } from "./view";

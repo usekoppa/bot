@@ -1,9 +1,8 @@
-export function mergeMaps<K, V>(...[...maps]: Map<K, V>[]): Map<K, V> {
-  return new Map(
-    (function* () {
-      for (const map of maps.map(map => map.entries())) {
-        yield* map;
-      }
-    })()
-  );
+export function mergeMaps<K, V>(...[...maps]: Map<K, V>[]) {
+  const merged = new Map<K, V>();
+  for (const map of maps) {
+    for (const [key, value] of map) merged.set(key, value);
+  }
+
+  return merged;
 }

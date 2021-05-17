@@ -14,6 +14,7 @@ export interface ButtonState {
   emojis: string[];
   msg?: Message;
   collector?: ReactionCollector;
+  hasChildren: boolean;
   deleteMode: boolean;
 }
 
@@ -31,6 +32,7 @@ export function button<S, R>(
     initialState: {
       activeEmojis: [],
       emojis: [],
+      hasChildren: false,
       deleteMode: false,
     },
     configure: (use, state, view) => {
@@ -38,10 +40,13 @@ export function button<S, R>(
         throw new Error("Can not have >20 buttons on a message");
       }
 
-      const emojiIdx = state.emojis.push(emoji);
+      const emojiIdx = state.emojis.push(emoji) - 1;
 
-      // Gets the message to add the reactions to.
-      use(getMessageForMenu);
+      use(ctx => (ctx.getPieceState(piece)!.hasChildren = ctx.isChild));
+
+      // Gets the message to add the reactions to and clear the existing reactions that use the same emoji
+      // of users that are not the client user.
+      use(getMessageForMenu, clearOtherUsersReactions);
 
       // Only add these middlewares if the piece hasn't been added in the past.
       if (!view.has(piece)) use(setupEmojiCollector, deleteMode);
@@ -60,6 +65,28 @@ export function button<S, R>(
       }
     },
   };
+
+  function getMessageForMenu(ctx: Context<S, R>) {
+    const embedState = ctx.getPieceState(embed);
+
+    // This pretty much assures that the embed state is defined at this point.
+    if (!embedState) {
+      return ctx.reject(new Error("Can not use buttons without embed"));
+    }
+
+    ctx.getPieceState(piece)!.msg = embedState.msg;
+  }
+
+  async function clearOtherUsersReactions(ctx: Context<S, R>) {
+    const state = ctx.getPieceState(piece)!;
+    for (const emoji of state.activeEmojis) {
+      const reaction = state.msg!.reactions.cache.get(emoji);
+      console.log(reaction?.users);
+      (await reaction?.users.fetch())?.forEach(u => {
+        if (u.id !== client.user?.id) void reaction?.users.remove(u.id);
+      });
+    }
+  }
 
   // Check if we should use delete mode:
   // delete mode is when clearing all the reactions
@@ -85,22 +112,13 @@ export function button<S, R>(
 
   function setupEmojiCollector(ctx: Context<S, R>) {
     const state = ctx.getPieceState(piece)!;
-    const collector = (state.collector = state.msg!.createReactionCollector(
-      (_, user: User) => user.id !== client.user?.id
-    ));
+    if (typeof state.collector === "undefined") {
+      const collector = (state.collector = state.msg!.createReactionCollector(
+        (_, user: User) => user.id !== client.user?.id
+      ));
 
-    collector.setMaxListeners(2 + state.emojis.length);
-  }
-
-  function getMessageForMenu(ctx: Context<S, R>) {
-    const embedState = ctx.getPieceState(embed);
-
-    // This pretty much assures that the embed state is defined at this point.
-    if (!embedState) {
-      return ctx.reject(new Error("Can not use buttons without embed"));
+      collector.setMaxListeners(2 + state.emojis.length);
     }
-
-    ctx.getPieceState(piece)!.msg = embedState.msg;
   }
 
   function handle(ctx: Context<S, R>) {
@@ -118,7 +136,7 @@ export function button<S, R>(
         return await reaction.remove().catch(ctx.reject);
       }
 
-      if (reactionEmoji === emoji) {
+      if (reactionEmoji === emoji && state.activeEmojis.includes(emoji)) {
         try {
           fn(ctx);
         } catch (err) {
@@ -128,21 +146,19 @@ export function button<S, R>(
     });
   }
 
-  async function react(idx: number, ctx: Context<S, R>) {
+  function react(idx: number, ctx: Context<S, R>) {
     const state = ctx.getPieceState(piece)!;
     const activeEmoji = state.activeEmojis[idx];
     if (!state.deleteMode && activeEmoji !== emoji) {
-      if (typeof activeEmoji !== undefined) {
-        await state.msg!.reactions.cache.get(activeEmoji)?.remove();
-        state.activeEmojis = [
-          ...state.activeEmojis.slice(0, idx),
-          ...state.activeEmojis.slice(idx + 1),
-        ];
+      if (typeof activeEmoji !== "undefined") {
+        void state.msg!.reactions.cache.get(activeEmoji)?.remove();
+        state.activeEmojis.splice(idx, 1);
+      } else {
+        state.activeEmojis.push(emoji);
       }
     }
 
     void state.msg!.react(emoji);
-    state.activeEmojis.push(emoji);
   }
 
   return piece;

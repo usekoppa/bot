@@ -1,6 +1,6 @@
 import { Deferred, deferred } from "@utils/deferred";
 import { Logger } from "@utils/logger";
-import { Asyncable } from "@utils/util_types";
+import { Asyncable } from "@utils/types";
 
 import { Message } from "discord.js";
 import rfdc from "rfdc";

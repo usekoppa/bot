@@ -15,7 +15,7 @@ import {
 } from "./piece";
 import { kPieceInitialStates, kRunLifeCycle, View, ViewResult } from "./view";
 
-const clone = rfdc({ proto: true, circles: true });
+const clone = rfdc({ proto: false, circles: true });
 
 export const kCleanupError = Symbol("context.cleanup.error");
 export const kCleanupErrorOccurred = Symbol("context.cleanup.error.occurred");
@@ -24,6 +24,7 @@ export class Context<S, R> {
   public log: Logger;
   public resolve: Deferred<R>["resolve"];
   public reject: Deferred<R>["reject"];
+  public childRunning = false;
 
   private pieceStates = new Map<symbol, AnyPieceState>();
 
@@ -41,6 +42,8 @@ export class Context<S, R> {
     promise: Deferred<R>
   ) {
     this.log = log.child(`view.${childID}`);
+
+    if (this.isChild) this.pieceStates = pieceInitialStates;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.resolve = (...args: any[]) => {
@@ -60,6 +63,10 @@ export class Context<S, R> {
     };
   }
 
+  public get isChild() {
+    return this.childID > 0;
+  }
+
   public has<P extends PieceWithAnyState<S, R>>(
     piece: P | PieceFactory<P>
   ): boolean {
@@ -70,6 +77,7 @@ export class Context<S, R> {
   public async child<V extends View<S, unknown>>(
     view: V
   ): Promise<ViewResult<V>> {
+    this.childRunning = true;
     const childPromise = deferred<ViewResult<V>>();
     const ctx = new Context(
       this.msg,
@@ -88,7 +96,10 @@ export class Context<S, R> {
 
     await view[kRunLifeCycle](ctx, childPromise, [...this.pieceStates.keys()]);
 
-    return await childPromise;
+    const res = await childPromise;
+    this.childRunning = true;
+    // TODO: run the pieces of this level again.
+    return res;
   }
 
   public getPieceState<P extends AnyPiece>(
