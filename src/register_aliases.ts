@@ -20,8 +20,8 @@ addAliases(
     Object.entries(tsConfig.compilerOptions.paths).map(([key, value]) => [
       key.slice(0, -2),
 
-      // Removes "./"
-      join(__dirname, "../" + value[0].slice(2, -2)),
+      // Removes "./" and prepends "../" to the path value.
+      join(__dirname, `../${value[0].slice(2, -2)}`),
     ])
   )
 );
