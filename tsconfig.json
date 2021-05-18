@@ -7,11 +7,16 @@
     "alwaysStrict": true,
     "declaration": false,
     "sourceMap": false,
+    "importHelpers": true,
+    "downlevelIteration": true,
+    "noEmitHelpers": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "lib": ["esnext"],
+    "lib": [
+      "esnext"
+    ],
     "module": "commonjs",
     "moduleResolution": "node",
     "noEmitOnError": true,
@@ -33,12 +38,24 @@
     "rootDir": "./",
     "baseUrl": "./src",
     "paths": {
-      "@core/*": ["../packages/core/*"],
-      "@cmds/*": ["../packages/cmds/*"],
-      "@utils/*": ["../packages/utils/*"],
-      "@view/*": ["../packages/view/*"],
-      "@ux/*": ["../packages/ux/*"],
-      "@root/*": ["./*"]
+      "@core/*": [
+        "../packages/core/*"
+      ],
+      "@cmds/*": [
+        "../packages/cmds/*"
+      ],
+      "@utils/*": [
+        "../packages/utils/*"
+      ],
+      "@view/*": [
+        "../packages/view/*"
+      ],
+      "@ux/*": [
+        "../packages/ux/*"
+      ],
+      "@root/*": [
+        "./*"
+      ]
     }
   },
   "include": [
@@ -46,5 +63,7 @@
     "shims/**/*",
     "packages/**/*"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -9,20 +9,22 @@ import { createLogger } from "@utils/logger";
 
 import { Container } from "typedi";
 
+import { connect } from "../packages/db/connect";
+
 const client = Container.get(KoppaClient);
 const log = createLogger("bot");
 const evs = new EventManager(log);
 
 export async function bootstrap() {
-  const startTime = Date.now();
   await loadPlugins();
-  const endTime = Date.now() - startTime;
-  log.info(`Loaded plugins in ~${endTime}ms`);
   setupHandlers();
+  await connect("./koppa.db");
   await client.login(config.bot.token);
 }
 
 async function loadPlugins() {
+  log.info("Loading plugins");
+  const startTime = Date.now();
   const pluginPaths = await readdir(join(__dirname, "plugins"));
   await Promise.all(
     pluginPaths.map(path => {
@@ -33,6 +35,8 @@ async function loadPlugins() {
     log.error("Failed to load plugins", err);
     process.exit(1);
   });
+  const endTime = Date.now() - startTime;
+  log.info(`Loaded plugins in ~${endTime}ms`);
 }
 
 function setupHandlers() {
