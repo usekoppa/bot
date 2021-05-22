@@ -17,27 +17,28 @@ const log = createLogger("bot");
 const evs = new EventManager(log);
 
 export async function bootstrap() {
-  await loadPlugins();
+  await loadModules();
   setupClientHandlers();
   await connect("./koppa.db");
   await client.login(config.bot.token);
 }
 
-async function loadPlugins() {
-  log.info("Loading plugins");
+async function loadModules() {
+  log.info("Loading modules");
   const startTime = Date.now();
-  const pluginPaths = await readdir(join(__dirname, "plugins"));
+  const pluginPaths = await readdir(join(__dirname, "modules"));
   await Promise.all(
     pluginPaths.map(path => {
-      log.debug("Importing plugin", { path });
-      return import(`./plugins/${path}`);
+      log.debug("Importing module", { path });
+      return import(`./module/${path}`);
     })
   ).catch(err => {
-    log.error("Failed to load plugins", err);
+    log.error("Failed to load modules", err);
     process.exit(1);
   });
+
   const endTime = Date.now() - startTime;
-  log.info(`Loaded plugins in ~${endTime}ms`);
+  log.info(`Loaded modules in ~${endTime}ms`);
 }
 
 function setupClientHandlers() {
