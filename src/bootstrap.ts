@@ -30,7 +30,7 @@ async function loadModules() {
   await Promise.all(
     pluginPaths.map(path => {
       log.debug("Importing module", { path });
-      return import(`./module/${path}`);
+      return import(`./modules/${path}`);
     })
   ).catch(err => {
     log.error("Failed to load modules", err);
