@@ -4,7 +4,7 @@
     ".eslintrc.js",
     ".prettierrc.js",
     "src/**/*",
-    "packages/**/*",
+    "lib/**/*",
     "shims/**/*",
     "tsconfig.json"
   ]
