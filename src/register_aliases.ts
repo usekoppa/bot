@@ -3,7 +3,7 @@ import { join } from "path";
 import { addAliases } from "module-alias";
 
 // Since the aliases haven't been registered like this, we have to use the relative path.
-import { readJsonSync } from "../packages/utils/read_json";
+import { readJsonSync } from "../lib/utils/read_json";
 
 interface AliasesOfTsConfig {
   compilerOptions: {

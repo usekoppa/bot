@@ -36,19 +36,19 @@
     "rootDir": "./",
     "baseUrl": "./src",
     "paths": {
-      "@core/*": ["../packages/core/*"],
-      "@cmds/*": ["../packages/cmds/*"],
-      "@utils/*": ["../packages/utils/*"],
-      "@view/*": ["../packages/view/*"],
-      "@ux/*": ["../packages/ux/*"],
-      "@db/*": ["../packages/db/*"],
+      "@core/*": ["../lib/core/*"],
+      "@cmds/*": ["../lib/cmds/*"],
+      "@utils/*": ["../lib/utils/*"],
+      "@view/*": ["../lib/view/*"],
+      "@ux/*": ["../lib/ux/*"],
+      "@db/*": ["../lib/db/*"],
       "@root/*": ["./*"]
     }
   },
   "include": [
     "src/**/*",
     "shims/**/*",
-    "packages/**/*"
+    "lib/**/*"
   ],
   "exclude": ["node_modules"]
 }

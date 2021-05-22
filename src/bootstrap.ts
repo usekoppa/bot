@@ -8,7 +8,7 @@ import { createLogger } from "@utils/logger";
 
 import { Container } from "typedi";
 
-import { connect } from "../packages/db/connect";
+import { connect } from "../lib/db/connect";
 
 import { config } from "./config";
 
