@@ -1,4 +1,4 @@
-import { RunnerOpts } from "@cmds/registry";
+import { Context } from "@cmds/context";
 import { Logger } from "@utils/logger";
 import { compose } from "@view/composer";
 import { button, embed } from "@view/pieces";
@@ -25,30 +25,27 @@ const view = compose<PromptState, boolean>(
   button("❌", ctx => ctx.resolve(false))
 );
 
-export async function prompt(
-  opts: RunnerOpts,
-  question: string
-): Promise<boolean>;
+export async function prompt(ctx: Context, question: string): Promise<boolean>;
 export async function prompt(
   msg: Message,
   log: Logger,
   question: string
 ): Promise<boolean>;
 export async function prompt(
-  msgOrOpts: Message | RunnerOpts,
+  msgOrCtx: Message | Context,
   logOrQuestion: Logger | string,
   question?: string
 ) {
   let msg: Message;
   let log: Logger;
   let q: string;
-  if (msgOrOpts instanceof Message) {
-    msg = msgOrOpts;
+  if (msgOrCtx instanceof Message) {
+    msg = msgOrCtx;
     log = logOrQuestion as Logger;
     q = question!;
   } else {
-    msg = msgOrOpts.msg;
-    log = msgOrOpts.log;
+    msg = msgOrCtx.msg;
+    log = msgOrCtx.log;
     q = logOrQuestion as string;
   }
 

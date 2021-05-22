@@ -1,3 +1,4 @@
+import { Category } from "@cmds/categories";
 import { Registry } from "@cmds/registry";
 import { KoppaClient } from "@core/client";
 import { createEmbed } from "@ux/embeds";
@@ -10,6 +11,8 @@ const client = Container.get(KoppaClient);
 registry.add({
   name: "ping",
   aliases: ["p", "latency"],
+  category: Category.Information,
+  description: "Tells you if the bot is working and the latent response time",
   async run({ msg }) {
     const m = await msg.channel.send("Ping?");
     const pingTime = Math.abs(m.createdTimestamp - msg.createdTimestamp);

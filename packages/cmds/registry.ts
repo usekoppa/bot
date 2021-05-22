@@ -1,31 +1,9 @@
-import { createLogger, Logger } from "@utils/logger";
-import { Asyncable } from "@utils/types";
+import { createLogger } from "@utils/logger";
 
-import { Message, TextChannel } from "discord.js";
 import equal from "fast-deep-equal";
 import { Service } from "typedi";
 
-export interface RunnerOpts {
-  msg: Message;
-  // TODO(@zorbyte): This would be dynamically produced from the syntax usage tree.
-  args: string[];
-  callKey: string;
-  log: Logger;
-}
-
-type Runner = (
-  opts: RunnerOpts
-) => Asyncable<Parameters<TextChannel["send"]>[0]>;
-
-export interface Command {
-  name: string;
-  aliases?: string[];
-  description?: string;
-
-  // TODO(@zorbyte): This will depend on a syntax usage tree, that produces an easy to use representation to the user.
-  usage?: string;
-  run: Runner;
-}
+import { Command } from "./command";
 
 // The values of aliases are a string, which are then resolved to commands.
 type CommandResolvable = Command | string;
@@ -34,14 +12,16 @@ type CommandResolvable = Command | string;
 export class Registry {
   private log = createLogger("registry");
   private commands = new Map<string, CommandResolvable>();
+  #size = 0;
 
   public add(cmd: Command) {
+    this.log.debug(`Adding command ${cmd.name}`);
     if (this.has(cmd.name) || this.has(cmd)) {
       throw new Error(`Duplicate command ${cmd.name}`);
     }
 
-    this.log.debug(`Adding command ${cmd.name}`);
     this.commands.set(cmd.name, cmd);
+    this.#size += 1;
     for (const alias of cmd.aliases ?? []) this.commands.set(alias, cmd.name);
   }
 
@@ -65,6 +45,10 @@ export class Registry {
     }
 
     return resolvable;
+  }
+
+  public get size() {
+    return this.#size;
   }
 
   public *values() {

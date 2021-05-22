@@ -4,12 +4,13 @@ import { join } from "path";
 import { dispatcher } from "@cmds/dispatcher";
 import { KoppaClient } from "@core/client";
 import { EventManager } from "@core/event_manager";
-import { config } from "@utils/config";
 import { createLogger } from "@utils/logger";
 
 import { Container } from "typedi";
 
 import { connect } from "../packages/db/connect";
+
+import { config } from "./config";
 
 const client = Container.get(KoppaClient);
 const log = createLogger("bot");
@@ -17,7 +18,7 @@ const evs = new EventManager(log);
 
 export async function bootstrap() {
   await loadPlugins();
-  setupHandlers();
+  setupClientHandlers();
   await connect("./koppa.db");
   await client.login(config.bot.token);
 }
@@ -39,7 +40,7 @@ async function loadPlugins() {
   log.info(`Loaded plugins in ~${endTime}ms`);
 }
 
-function setupHandlers() {
+function setupClientHandlers() {
   evs.once("ready", log => {
     log.info("Logged into Discord as", client.user?.tag);
     setStatus();
@@ -47,7 +48,7 @@ function setupHandlers() {
 
   // evs.on("debug", (msg, log) => log.debug(msg));
 
-  evs.on("message", dispatcher(config.bot.prefix));
+  evs.on("message", dispatcher(config.bot.prefix, config.bot.reportsChannelId));
 
   evs.on("warn", (msg, log) => log.warn(msg));
 

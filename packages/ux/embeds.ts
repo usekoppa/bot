@@ -32,13 +32,19 @@ export function createEmbed(opts: EmbedOpts) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createErrorEmbed(msg: Message, err: any) {
-  const trueErr = err instanceof Error ? err : new Error(err);
-  return createEmbed({
-    author: msg.author,
-    footerNote: "This incident has been reported",
-  })
+export function createErrorEmbed(msg: Message, err?: any) {
+  const errEmb = createEmbed(msg)
     .setTitle(":x: Something went wrong!")
-    .setColor(EmbedColours.Error)
-    .setDescription("```" + `${trueErr.name}: ${trueErr.message}` + "```");
+    .setColor(EmbedColours.Error);
+
+  if (typeof err !== "undefined") {
+    const trueErr = err instanceof Error ? err : new Error(err);
+    errEmb.setDescription(
+      "```" + `${trueErr.name}: ${trueErr.message}` + "```"
+    );
+  } else {
+    errEmb.setDescription("This incident has been reported");
+  }
+
+  return errEmb;
 }

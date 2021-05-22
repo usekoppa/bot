@@ -1,8 +1,8 @@
-// TODO(@zorbyte): Use tokens from type-di for this.
 export const config = {
   bot: {
     token: getCriticalEnvVar("BOT_TOKEN"),
     prefix: "k:",
+    reportsChannelId: "845555781009014805",
   },
 
   db: {

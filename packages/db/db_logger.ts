@@ -95,7 +95,7 @@ export class CustomSimpleConsoleLogger implements Logger {
       this.options === "all" ||
       (Array.isArray(this.options) && this.options.indexOf("schema") !== -1)
     ) {
-      console.debug(message);
+      this.#log.debug(message);
     }
   }
 
@@ -103,7 +103,7 @@ export class CustomSimpleConsoleLogger implements Logger {
    * Logs events from the migrations run process.
    */
   logMigration(message: string, _queryRunner?: QueryRunner) {
-    console.debug(message);
+    this.#log.debug(message);
   }
 
   /**

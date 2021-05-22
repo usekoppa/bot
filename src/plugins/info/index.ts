@@ -1,3 +1,3 @@
-import "./ping";
-import "./prompt";
-import "./child";
+import "./ping.cmd";
+import "./info.cmd";
+import "./help.cmd";
