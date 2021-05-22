@@ -73,7 +73,7 @@ export class EventManager {
     listener: EventListener
   ) {
     const totalListeners = this.client.rawListeners(event).length + 1;
-    EventManager.log.debug("Added listener", { event, type, totalListeners });
+    EventManager.log.debug("Adding listener", { event, type, totalListeners });
 
     const wrapped = this.wrapListener(event, type, listener);
     this.client[type](event, wrapped as (...args: unknown[]) => void);
