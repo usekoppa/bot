@@ -79,7 +79,7 @@ function extractFromCommandString(
     .slice(prefix.length)
     .toLowerCase()
     .trim()
-    .split(/ /g);
+    .split(/\s+/g);
 
   return [callKey, args];
 }
