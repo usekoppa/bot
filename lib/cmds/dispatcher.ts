@@ -28,7 +28,15 @@ export function dispatcher(defaultPrefix: string, reportsChannelId: string) {
       cmdLog.debug("Command has been called", { callKey, args });
 
       try {
-        const ctx: Context = { msg, args, callKey, prefix, log };
+        const ctx: Context = {
+          msg,
+          // TODO(@voltexene): Write an argument parser.
+          args: {},
+          rawArgs: args,
+          callKey,
+          prefix,
+          log,
+        };
         const output = await cmd.run(ctx);
         await handleOutput(msg, output).catch(err =>
           log.error("Failed to handle output", err)

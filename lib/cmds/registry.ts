@@ -3,18 +3,19 @@ import { createLogger } from "@utils/logger";
 import equal from "fast-deep-equal";
 import { Service } from "typedi";
 
+import { Usage } from "./syntax/usage";
 import { Command } from "./command";
 
 // The values of aliases are a string, which are then resolved to commands.
-type CommandResolvable = Command | string;
+type CommandResolvable<U extends Usage> = Command<U> | string;
 
 @Service()
 export class Registry {
   private log = createLogger("registry");
-  private commands = new Map<string, CommandResolvable>();
+  private commands = new Map<string, CommandResolvable<Usage>>();
   #size = 0;
 
-  public add(cmd: Command) {
+  public add<U extends Usage>(cmd: Command<U>) {
     this.log.debug(`Adding command ${cmd.name}`);
     if (this.has(cmd.name) || this.has(cmd)) {
       throw new Error(`Duplicate command ${cmd.name}`);
@@ -30,7 +31,7 @@ export class Registry {
     return this.resolve(resolvable);
   }
 
-  public has(resolvable: CommandResolvable): boolean {
+  public has<U extends Usage>(resolvable: CommandResolvable<U>): boolean {
     if (typeof resolvable === "string") return this.commands.has(resolvable);
     for (const cmd of this.commands.values()) {
       if (equal(resolvable, cmd)) return true;
@@ -39,9 +40,11 @@ export class Registry {
     return false;
   }
 
-  public resolve(resolvable: CommandResolvable | undefined) {
+  public resolve<U extends Usage>(
+    resolvable: CommandResolvable<U> | undefined
+  ) {
     if (typeof resolvable === "string") {
-      return this.commands.get(resolvable) as Command | undefined;
+      return this.commands.get(resolvable) as Command<Usage> | undefined;
     }
 
     return resolvable;

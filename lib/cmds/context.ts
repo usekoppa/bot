@@ -2,10 +2,13 @@ import { Logger } from "@utils/logger";
 
 import { Message } from "discord.js";
 
-export interface Context {
+import { ParsedArguments } from "./syntax/parser";
+import { Usage, UsageTuple } from "./syntax/usage";
+
+export interface Context<U extends Usage = Usage> {
   msg: Message;
-  // TODO(@voltexene): This would be dynamically produced from the syntax usage tree.
-  args: string[];
+  args: ParsedArguments<UsageTuple<U>>;
+  rawArgs: string[];
   callKey: string;
   prefix: string;
   log: Logger;

@@ -17,3 +17,16 @@ export type UnionToTuple<T> = (
 ) extends (_: any) => infer W
   ? [...UnionToTuple<Exclude<T, W>>, W]
   : [];
+
+// https://github.com/millsp/ts-toolbelt/blob/a0d62d8cfcd28eab7132c225ba187556ca749b4d/sources/Function/Narrow.ts
+type NarrowBase<T> =
+  | (T extends [] ? T : never)
+  | (T extends string | number | bigint | boolean ? T : never)
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  | { [K in keyof T]: T[K] extends Function ? T[K] : NarrowBase<T[K]> };
+
+export type Narrow<T> = T extends [] ? T : NarrowBase<T>;
+
+export function narrow<T>(x: Narrow<T>): Narrow<T> {
+  return x;
+}
