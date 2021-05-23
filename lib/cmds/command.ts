@@ -13,7 +13,7 @@ export interface Command {
   category: Category;
   description: string;
 
-  // TODO(@zorbyte): This will depend on a syntax usage tree, that produces an easy to use representation to the user.
+  // TODO(@voltexene): This will depend on a syntax usage tree, that produces an easy to use representation to the user.
   usage?: string;
   run: Runner;
 }
