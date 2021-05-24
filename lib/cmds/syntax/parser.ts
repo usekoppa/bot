@@ -4,8 +4,8 @@ import { Usage, UsageTuple } from "./usage";
 
 export type Parser<T> = (opts: {
   msg: Message;
-  raw: string;
-  all: string[];
+  data: string;
+  raw: string[];
 }) => T | undefined;
 
 type Name<A> = A extends { name: infer N }

@@ -1,9 +1,10 @@
 import { Parser } from "./parser";
 
-export interface ArgumentNode<T = unknown> {
+export interface Argument<T = unknown> {
   name: string;
   greedy: boolean;
   optional: boolean;
+  pluralise: boolean;
   parse: Parser<T>;
 }
 
@@ -15,17 +16,23 @@ export function argument<
 >(
   name: N,
   parser: Parser<T>,
-  opts?: { optional?: O; greedy?: G }
+  opts?: {
+    optional?: O;
+    greedy?: G;
+    pluralise?: G extends true ? boolean : false;
+  }
 ): {
   name: N;
   greedy: G;
   optional: O;
+  pluralise: boolean;
   parse: Parser<T>;
 } {
   return {
     name,
     greedy: (opts?.greedy ?? false) as G,
     optional: (opts?.optional ?? false) as O,
+    pluralise: opts?.pluralise ?? false,
     parse: parser,
   };
 }
