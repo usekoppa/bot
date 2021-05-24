@@ -47,14 +47,20 @@ export function extractFromCommandString(
 //         value = val1,[ ]val2...
 //         we can determine if we encounter another transitive arg key
 //         by peaking ahead of the current word to see if there is an =
-//         character. In general, greedy arguments, will 
+//         character. In general, greedy arguments, will
 //         if we encounter another key, we will
-//         have to determine that 
+//         have to determine that
 //   2.MAYBE map transitive arguments to each other
-//   3. 
+//   3.
 
-// all combos:
-// []
+// beware of:
+// ...users ...users2
+// no way to determine boundaries, this should throw an error when constructing arguments
+// in the case of user side, say we have
+// ...users string ...users2
+// however the user decided to write the command with the flexible transitive syntax and does
+// users2=@mention @mention ...users
+// this would create a problem, this is why we use comma delimiters.
 export function parse(msg: Message, usage: Usage, raw: string) {
   let rawIdx = 0;
   usage.reduce((args, arg, idx) => {
