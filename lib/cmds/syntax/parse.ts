@@ -5,15 +5,15 @@ import { Usage } from "./usage";
 
 export function extractFromCommandString(
   prefix: string,
-  cmdStr: string
-): [callKey: string, args: string[]] {
-  const [callKey, ...args] = cmdStr
+  content: string
+): [callKey: string, args: string] {
+  const [callKey, ...args] = content
     .slice(prefix.length)
     .toLowerCase()
     .trim()
     .split(/\s+/g);
 
-  return [callKey, args];
+  return [callKey, args.join(" ")];
 }
 
 // A feature for the parser that shall be implemented at some point:
@@ -24,6 +24,8 @@ export function extractFromCommandString(
 //   k:ban user[s]=@mention,[ ]@mention,[ ]@mention [reason]
 //   k:ban reason=string <...user(s)>
 // Essentially, using a transitive argument will work regardless of position in the content string
+//
+// In consideration:
 // In addition, we should allow for the values of greedy transitive arguments to be associated with
 // each other (with optional indexes to allow more freedom for where the arguments can be placed) like so:
 //   k:ban user[s]=@mention, @mention, @mention reason[idx]=string
@@ -37,12 +39,37 @@ export function extractFromCommandString(
 // for best results.
 // This feature should be documented on the syntax manual, so that end users can use normal ordered methods without
 // having to do any extra reading.
-export function parse(msg: Message, usage: Usage, raw: string[]) {
+//
+// Algorithm details:
+//   1. Scan for all transitive arguments, the pattern to look for is:
+//      key[ ]=[ ]value
+//      if greedy:
+//         value = val1,[ ]val2...
+//         we can determine if we encounter another transitive arg key
+//         by peaking ahead of the current word to see if there is an =
+//         character. In general, greedy arguments, will 
+//         if we encounter another key, we will
+//         have to determine that 
+//   2.MAYBE map transitive arguments to each other
+//   3. 
+
+// all combos:
+// []
+export function parse(msg: Message, usage: Usage, raw: string) {
   let rawIdx = 0;
   usage.reduce((args, arg, idx) => {
     const nextArg: Argument | undefined = usage[idx + 1];
     const data = raw[rawIdx++];
     arg.parse({ msg, data, raw });
+
     return args;
   }, {} as Record<string, unknown>);
 }
+
+function consumeGreedy(
+  msg: Message,
+  data: string,
+  raw: string[],
+  arg: Argument,
+  nextArg: Argument
+): unknown[] {}
