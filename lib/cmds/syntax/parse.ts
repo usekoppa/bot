@@ -61,21 +61,25 @@ export function extractFromCommandString(
 // however the user decided to write the command with the flexible transitive syntax and does
 // users2=@mention @mention ...users
 // this would create a problem, this is why we use comma delimiters.
+const transGreedyArgs = /([^\s,=,,]+)(?:\s*=\s*)([^\s,=]+)(?:(?:,\s*|$)([^\s,=]+)){0,}/g;
 export function parse(msg: Message, usage: Usage, raw: string) {
   let rawIdx = 0;
   usage.reduce((args, arg, idx) => {
     const nextArg: Argument | undefined = usage[idx + 1];
     const data = raw[rawIdx++];
-    arg.parse({ msg, data, raw });
+    //arg.parse({ msg, data, raw });
 
     return args;
   }, {} as Record<string, unknown>);
 }
 
-function consumeGreedy(
-  msg: Message,
-  data: string,
-  raw: string[],
-  arg: Argument,
-  nextArg: Argument
-): unknown[] {}
+
+// function selectTransitiveGreedy() {}
+
+// function consumeGreedy(
+//   msg: Message,
+//   data: string,
+//   raw: string[],
+//   arg: Argument,
+//   nextArg: Argument
+// ): unknown[] {}
