@@ -3,30 +3,56 @@ export class StringConsumer {
 
   public constructor(public readonly raw: string) {}
 
+  public get position() {
+    return this.#pos;
+  }
+
+  public get current() {
+    return this.raw.slice(this.#pos);
+  }
+
   public read(amnt: number) {
+    amnt = Math.min(this.raw.length - this.#pos + 1, amnt);
     const slice = this.peak(amnt);
     this.#pos += amnt;
     return slice;
   }
 
-  public readWords(amnt: number): string[];
-  public readWords(amnt?: 1 | undefined): string | undefined;
-  public readWords(amnt = 1): string | undefined | string[] {
+  public readRest() {
+    const amnt = this.raw.length - this.#pos + 1;
+    const slice = this.peak(amnt);
+    this.#pos = this.raw.length - 1;
+    return slice;
+  }
+
+  public readWord(): string | undefined {
+    const [word] = this.readWords(1);
+    return word;
+  }
+
+  public readWords(amnt: number): string[] {
     const { pos, words } = this.peakWordsWithPos(amnt);
     this.#pos += pos;
 
-    return amnt === 1 ? words[0] : words;
+    return words;
   }
 
   public peak(amnt: number) {
     return this.raw.slice(this.#pos, this.#pos + amnt);
   }
 
-  public peakWords(amnt: number): string[];
-  public peakWords(amnt?: 1 | undefined): string | undefined;
-  public peakWords(amnt = 1): string | undefined | string[] {
-    const { words } = this.peakWordsWithPos(amnt);
-    return amnt === 1 ? words[0] : words;
+  public peakRest() {
+    const amnt = this.raw.length - this.#pos + 1;
+    return this.peak(amnt);
+  }
+
+  public peakWord() {
+    const [word] = this.peakWords(1);
+    return word;
+  }
+
+  public peakWords(amnt: number): string[] {
+    return this.peakWordsWithPos(amnt).words;
   }
 
   private peakWordsWithPos(amnt: number): { pos: number; words: string[] } {

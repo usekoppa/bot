@@ -1,7 +1,8 @@
 import { Message } from "discord.js";
 
 import { Argument } from "./argument";
-import { Usage } from "./usage";
+import { StringConsumer } from "./consumer";
+import { getArgumentString, Usage } from "./usage";
 
 export function extractFromCommandString(
   prefix: string,
@@ -61,25 +62,114 @@ export function extractFromCommandString(
 // however the user decided to write the command with the flexible transitive syntax and does
 // users2=@mention @mention ...users
 // this would create a problem, this is why we use comma delimiters.
-const transGreedyArgs = /([^\s,=,,]+)(?:\s*=\s*)([^\s,=]+)(?:(?:,\s*|$)([^\s,=]+)){0,}/g;
-export function parse(msg: Message, usage: Usage, raw: string) {
-  let rawIdx = 0;
-  usage.reduce((args, arg, idx) => {
-    const nextArg: Argument | undefined = usage[idx + 1];
-    const data = raw[rawIdx++];
-    //arg.parse({ msg, data, raw });
+// The following should throw an error:
+// sentence=...string ...string
+// there is no way to determine the boundary between the string arguments
+// verify that it is not ... foo=sentence <any>
+// verify that it is ... foo=sentence
+// unless:
+//  ... foo=sentence [any]
+//         =sentence
+// or:
+//  ... foo=sentence bar=any
+const pairsMatcher = /([^\s,=,,]+)(?:\s*=\s*)([^\s,=]+)(?:(?:,\s*|$)([^\s,=]+)){0,}/g;
+export function parse(
+  msg: Message,
+  usage: Usage,
+  content: string
+): { result: string[]; error?: string } {
+  // Short circuit.
+  if (usage.length === 0) return { result: [] };
 
-    return args;
-  }, {} as Record<string, unknown>);
+  let adjustedContent = content;
+  const adjustedUsage = [...usage];
+
+  const matches = [...content.matchAll(pairsMatcher)];
+
+  const collectedPairs: {
+    arg: Argument;
+    position: number;
+    data: string[];
+  }[] = [];
+
+  let indexOffset = 0;
+  for (let i = 0; i < matches.length; i++) {
+    let match: RegExpMatchArray;
+
+    // eslint-disable-next-line prefer-const
+    let [pairString, key, firstVal, ...values] = (match = matches[i]);
+    const firstValIdx = pairString.indexOf(firstVal);
+
+    const argIdx = adjustedUsage.findIndex(arg => arg.name === key);
+    if (argIdx < 0) continue;
+    const [arg] = adjustedUsage.splice(argIdx);
+
+    if (arg.sentence) {
+      let stopPoint = matches[i + 1]?.index;
+      if (typeof stopPoint !== "undefined") stopPoint -= indexOffset;
+      const consumed = adjustedContent.slice(firstValIdx, stopPoint);
+      values = [consumed];
+    } else if (!arg.greedy && values.length > 1) {
+      pairString = pairString.slice(0, firstValIdx + firstVal.length);
+      values = [firstVal];
+    }
+
+    if (typeof match.index === "undefined") {
+      const err = new Error("Match index is undefined");
+      // @ts-ignore Add this for diagnostic information.
+      err.match = err;
+      throw err;
+    }
+
+    adjustedContent =
+      adjustedContent.slice(0, match.index - indexOffset) +
+      adjustedContent.slice(
+        match.index -
+          indexOffset +
+          values.reduce((prev, val) => prev + val.length, 0)
+      );
+
+    collectedPairs.push({
+      arg,
+      position: match.index - indexOffset,
+      data: values,
+    });
+
+    indexOffset += match.index + 1;
+  }
+
+  const consumer = new StringConsumer(adjustedContent);
+  for (let i = 0; i < adjustedUsage.length; i++) {
+    const arg = adjustedUsage[i];
+    const pair = collectedPairs.find(
+      pair => pair.position === consumer.position
+    )!;
+
+    let value = "";
+
+    if (arg.sentence) {
+      if (pair.arg.sentence) {
+        if (arg.optional) continue;
+        const pairString = `${pair.arg.name}=${getArgumentString(pair.arg)}`;
+        return {
+          result: [],
+          error:
+            `\`\`\`${pairString} ${getArgumentString(arg)}}\n${" ".repeat(
+              pairString.length
+            )}^\`\`\`` +
+            "You seemed to have used an argument pair that expected a sentence, prior to a positional sentence argument.",
+        };
+      }
+
+      if (i === adjustedUsage.length - 1) {
+        value = consumer.readRest();
+      } else {
+        // TODO: The rest.
+      }
+    }
+
+    const word = consumer.readWord();
+  }
+
+  return { result: [] };
 }
-
-
-// function selectTransitiveGreedy() {}
-
-// function consumeGreedy(
-//   msg: Message,
-//   data: string,
-//   raw: string[],
-//   arg: Argument,
-//   nextArg: Argument
-// ): unknown[] {}
