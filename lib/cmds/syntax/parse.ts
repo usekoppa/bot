@@ -1,8 +1,8 @@
 import { Message } from "discord.js";
 
-import { Argument } from "./argument";
 import { StringConsumer } from "./consumer";
-import { getArgumentString, Usage } from "./usage";
+import { getParameterString, Parameter } from "./parameter";
+import { Usage } from "./usage";
 
 export function extractFromCommandString(
   prefix: string,
@@ -46,7 +46,7 @@ export function extractFromCommandString(
 //      key[ ]=[ ]value
 //      if greedy:
 //         value = val1,[ ]val2...
-//         we can determine if we encounter another transitive arg key
+//         we can determine if we encounter another transitive param key
 //         by peaking ahead of the current word to see if there is an =
 //         character. In general, greedy arguments, will
 //         if we encounter another key, we will
@@ -77,9 +77,9 @@ export function parse(
   msg: Message,
   usage: Usage,
   content: string
-): { result: string[]; error?: string } {
+): { result: Record<string, any>; error?: string } {
   // Short circuit.
-  if (usage.length === 0) return { result: [] };
+  if (usage.length === 0) return { result: {} };
 
   let adjustedContent = content;
   const adjustedUsage = [...usage];
@@ -87,9 +87,9 @@ export function parse(
   const matches = [...content.matchAll(pairsMatcher)];
 
   const collectedPairs: {
-    arg: Argument;
+    param: Parameter;
     position: number;
-    data: string[];
+    args: string[];
   }[] = [];
 
   let indexOffset = 0;
@@ -97,21 +97,21 @@ export function parse(
     let match: RegExpMatchArray;
 
     // eslint-disable-next-line prefer-const
-    let [pairString, key, firstVal, ...values] = (match = matches[i]);
-    const firstValIdx = pairString.indexOf(firstVal);
+    let [pair, key, firstArg, ...args] = (match = matches[i]);
+    const firstArgIdx = pair.indexOf(firstArg);
 
-    const argIdx = adjustedUsage.findIndex(arg => arg.name === key);
-    if (argIdx < 0) continue;
-    const [arg] = adjustedUsage.splice(argIdx);
+    const paramIdx = adjustedUsage.findIndex(param => param.name === key);
+    if (paramIdx < 0) continue;
+    const [param] = adjustedUsage.splice(paramIdx);
 
-    if (arg.sentence) {
+    if (param.sentence) {
       let stopPoint = matches[i + 1]?.index;
       if (typeof stopPoint !== "undefined") stopPoint -= indexOffset;
-      const consumed = adjustedContent.slice(firstValIdx, stopPoint);
-      values = [consumed];
-    } else if (!arg.greedy && values.length > 1) {
-      pairString = pairString.slice(0, firstValIdx + firstVal.length);
-      values = [firstVal];
+      const consumed = adjustedContent.slice(firstArgIdx, stopPoint);
+      args = [consumed];
+    } else if (!param.greedy && args.length > 1) {
+      if (args.length > 1) pair = pair.slice(0, firstArgIdx + firstArg.length);
+      args = [firstArg];
     }
 
     if (typeof match.index === "undefined") {
@@ -126,13 +126,13 @@ export function parse(
       adjustedContent.slice(
         match.index -
           indexOffset +
-          values.reduce((prev, val) => prev + val.length, 0)
+          args.reduce((prev, arg) => prev + arg.length, 0)
       );
 
     collectedPairs.push({
-      arg,
+      param,
       position: match.index - indexOffset,
-      data: values,
+      args,
     });
 
     indexOffset += match.index + 1;
@@ -140,24 +140,26 @@ export function parse(
 
   const consumer = new StringConsumer(adjustedContent);
   for (let i = 0; i < adjustedUsage.length; i++) {
-    const arg = adjustedUsage[i];
+    const param = adjustedUsage[i];
     const pair = collectedPairs.find(
       pair => pair.position === consumer.position
     )!;
-
     let value = "";
 
-    if (arg.sentence) {
-      if (pair.arg.sentence) {
-        if (arg.optional) continue;
-        const pairString = `${pair.arg.name}=${getArgumentString(pair.arg)}`;
+    if (param.sentence) {
+      if (pair.param.sentence) {
+        if (param.optional) continue;
+        const pairString = `${pair.param.name}=${getParameterString(
+          pair.param
+        )}`;
+
         return {
-          result: [],
+          result: {},
           error:
-            `\`\`\`${pairString} ${getArgumentString(arg)}}\n${" ".repeat(
+            `\`\`\`${pairString} ${getParameterString(param)}}\n${" ".repeat(
               pairString.length
             )}^\`\`\`` +
-            "You seemed to have used an argument pair that expected a sentence, prior to a positional sentence argument.",
+            "Cannot use pair parameters that expect a sentence prior to a positional sentence parameter",
         };
       }
 
@@ -171,5 +173,5 @@ export function parse(
     const word = consumer.readWord();
   }
 
-  return { result: [] };
+  return { result: {} };
 }

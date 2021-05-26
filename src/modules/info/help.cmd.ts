@@ -1,7 +1,7 @@
 import { Category, categoryEmojis } from "@cmds/categories";
 import { Command } from "@cmds/command";
 import { Registry } from "@cmds/registry";
-import { argument } from "@cmds/syntax/argument";
+import { argument } from "@cmds/syntax/parameter";
 import { getUsageString } from "@cmds/syntax/usage";
 import { createEmbed } from "@ux/embeds";
 

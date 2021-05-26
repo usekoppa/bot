@@ -1,8 +1,8 @@
 import { UnionToTuple } from "@utils/types";
 
-import { Argument } from "./argument";
+import { getParameterString, Parameter } from "./parameter";
 
-export type Usage = Argument[];
+export type Usage = Parameter[];
 
 export type UsageTuple<U extends Usage> = U extends (infer A)[]
   ? UnionToTuple<A>
@@ -10,23 +10,7 @@ export type UsageTuple<U extends Usage> = U extends (infer A)[]
 
 export function getUsageString(usage: Usage) {
   let usageString = "";
-  for (const arg of usage) usageString += `${getArgumentString(arg)} `;
+  for (const param of usage) usageString += `${getParameterString(param)} `;
 
   return usageString.trimRight();
-}
-
-export function getArgumentString(arg: Argument) {
-  let key =
-    arg.name.endsWith("s") && arg.pluralise
-      ? `${arg.name.slice(0, -1)}(s)`
-      : arg.name;
-
-  if (arg.greedy) key += "...";
-  if (arg.optional) {
-    key = `[${key}]`;
-  } else {
-    key = `<${key}>`;
-  }
-
-  return key;
 }

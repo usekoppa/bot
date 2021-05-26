@@ -1,6 +1,6 @@
 import { Parser } from "./parser";
 
-export interface Argument<T = unknown> {
+export interface Parameter<T = unknown> {
   name: string;
   greedy: boolean;
   optional: boolean;
@@ -9,7 +9,7 @@ export interface Argument<T = unknown> {
   parse: Parser<T>;
 }
 
-export function argument<
+export function parameter<
   T,
   N extends string,
   G extends boolean = false,
@@ -31,7 +31,7 @@ export function argument<
   pluralise: boolean;
   parse: Parser<T>;
 } {
-  const arg = {
+  const param = {
     name,
     greedy: (opts?.greedy ?? false) as G,
     optional: (opts?.optional ?? false) as O,
@@ -40,9 +40,25 @@ export function argument<
     parse: parser,
   };
 
-  if (arg.greedy && arg.sentence) {
-    throw new Error("An argument can not be greedy and a sentence");
+  if (param.greedy && param.sentence) {
+    throw new Error("A parameter can not be greedy and a sentence");
   }
 
-  return arg;
+  return param;
+}
+
+export function getParameterString(param: Parameter) {
+  let key =
+    param.name.endsWith("s") && param.pluralise
+      ? `${param.name.slice(0, -1)}(s)`
+      : param.name;
+
+  if (param.greedy) key += "...";
+  if (param.optional) {
+    key = `[${key}]`;
+  } else {
+    key = `<${key}>`;
+  }
+
+  return key;
 }

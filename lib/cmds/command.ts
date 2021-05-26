@@ -13,7 +13,7 @@ type Runner<U extends Usage> = (
 export interface Command<U extends Usage = Usage> {
   name: string;
   aliases?: string[];
-  category: Category;
+  category?: Category;
   description: string;
   usage?: U;
   run: Runner<U>;

@@ -28,15 +28,15 @@ export type WrappedClientEventListener<K extends keyof ClientEvents> = (
 export class EventManager {
   private static log = createLogger("evs");
 
-  private client = Container.get(KoppaClient);
+  #client = Container.get(KoppaClient);
 
-  public constructor(public moduleLogger: Logger) {}
+  constructor(public moduleLogger: Logger) {}
 
-  public on<K extends keyof ClientEvents>(
+  on<K extends keyof ClientEvents>(
     event: K,
     listener: ClientEventListener<K>
   ): WrappedClientEventListener<K>;
-  public on<E extends string, L extends EventListener>(
+  on<E extends string, L extends EventListener>(
     event: Exclude<E, keyof ClientEvents>,
     listener: L
   ): WrappedEventListener<L> {
@@ -64,7 +64,7 @@ export class EventManager {
     event: Exclude<S, keyof ClientEvents>,
     wrapped: (...args: unknown[]) => void
   ) {
-    this.client.off(event, wrapped);
+    this.#client.off(event, wrapped);
   }
 
   private addListener(
@@ -72,11 +72,11 @@ export class EventManager {
     type: "on" | "once",
     listener: EventListener
   ) {
-    const totalListeners = this.client.rawListeners(event).length + 1;
+    const totalListeners = this.#client.rawListeners(event).length + 1;
     EventManager.log.debug("Adding listener", { event, type, totalListeners });
 
     const wrapped = this.wrapListener(event, type, listener);
-    this.client[type](event, wrapped as (...args: unknown[]) => void);
+    this.#client[type](event, wrapped as (...args: unknown[]) => void);
 
     return wrapped;
   }
