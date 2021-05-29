@@ -2,6 +2,7 @@ import { readdir } from "fs/promises";
 import { join } from "path";
 
 import { CommandRegistry } from "@cmds/registry";
+import { exists } from "@utils/exists";
 import { createLogger } from "@utils/logger";
 
 import { FSWatcher, watch } from "chokidar";
@@ -102,6 +103,7 @@ export class PluginManager {
           return;
         }
 
+        await this.callSubdirs(pluginPath);
         this.add(plugin);
         this.#paths.set(plugin, pluginPath);
       })
@@ -120,6 +122,21 @@ export class PluginManager {
     const pl = this.get(plugin);
     const manager = new EventManager(pl.log);
     manager.off(name, listener);
+  }
+
+  private async callSubdirs(path: string) {
+    const paths = ["cmds", "events"];
+    await Promise.all(
+      paths.map(async dirPath => {
+        const absolute = join(path, dirPath);
+        if (await exists(absolute)) {
+          const dirFiles = await readdir(absolute);
+          await Promise.all(
+            dirFiles.map(fileName => import(join(absolute, fileName)))
+          );
+        }
+      })
+    );
   }
 
   private add(plugin: Plugin) {

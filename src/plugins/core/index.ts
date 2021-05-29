@@ -10,5 +10,3 @@ export const CorePlugin = plugin(
       global = true;
     }
 );
-
-import "./cmds";
