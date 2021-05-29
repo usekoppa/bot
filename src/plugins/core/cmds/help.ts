@@ -3,6 +3,7 @@ import { Command } from "@cmds/command";
 import { CommandRegistry } from "@cmds/registry";
 import { parameter } from "@cmds/syntax/parameter";
 import { getUsageString } from "@cmds/syntax/usage";
+import { blank } from "@ux/blank";
 import { createEmbed } from "@ux/embeds";
 
 import { MessageEmbed } from "discord.js-light";
@@ -51,7 +52,7 @@ CorePlugin.command({
       })
         .setTitle(":question: Help")
         .setDescription(
-          `Use \`${ctx.prefix}help [command]\` for more help on a specific command`
+          `Use \`${ctx.prefix}help [command]\` for more help on a specific command\n${blank}`
         );
 
       // Explicitly defined so that there is an order.

@@ -5,7 +5,7 @@ export const CorePlugin = plugin(
   Plugin =>
     class extends Plugin {
       name = "Core";
-      description = "Core features that come with the bot.";
+      description = "Core features that come with the bot";
       category = Category.Information;
       global = true;
     }
