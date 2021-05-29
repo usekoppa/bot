@@ -11,4 +11,3 @@ categoryEmojis.set(Category.Information, ":information_source:");
 categoryEmojis.set(Category.Moderation, ":zap:");
 categoryEmojis.set(Category.Tools, ":tools:");
 categoryEmojis.set(Category.Fun, ":tada:");
-

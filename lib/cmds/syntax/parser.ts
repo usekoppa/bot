@@ -4,7 +4,7 @@ import { Usage, UsageTuple } from "./usage";
 
 export type Parser<T> = (opts: {
   msg: Message;
-  consumer: StringConstructor;
+  arg: string;
   raw: string[];
 }) => T | undefined;
 

@@ -5,6 +5,7 @@ import { createErrorEmbed } from "@ux/embeds";
 import { Message, MessageOptions, TextChannel } from "discord.js";
 import { Container } from "typedi";
 
+import { parse } from "./syntax/parse";
 import { CommandContext } from "./context";
 import { CommandRegistry } from "./registry";
 
@@ -31,8 +32,11 @@ export function dispatcher(defaultPrefix: string, reportsChannelId: string) {
       try {
         const ctx: CommandContext = {
           msg,
-          // TODO(@zorbyte): Write an argument parser.
-          args: {},
+          // TODO(@zorbyte): Handle errors
+          args:
+            typeof cmd.usage !== "undefined"
+              ? parse(msg, cmd.usage, args.join(" ")).result
+              : {},
           rawArgs: args,
           callKey,
           prefix,

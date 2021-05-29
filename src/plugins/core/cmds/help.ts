@@ -60,6 +60,7 @@ CorePlugin.command({
         [Category.Information]: "",
         [Category.Moderation]: "",
         [Category.Tools]: "",
+        [Category.Fun]: "",
       };
 
       for (const cmd of registry) {
@@ -82,7 +83,12 @@ CorePlugin.command({
         categoryInfos[cmd.category] = `${categoryInfo}${lineBreak}${cmdInfo}`;
       }
 
-      for (const [category, info] of Object.entries(categoryInfos)) {
+      let i = 0;
+      const infosEntries = Object.entries(categoryInfos);
+      // eslint-disable-next-line prefer-const
+      for (let [category, info] of infosEntries) {
+        i++;
+
         let emoji = categoryEmojis.get(category as Category) ?? "";
         if (emoji === "" && !unmappedCategoryEmojis.has(category)) {
           ctx.log.warn(`Category ${category} does not have an emoji assigned`);
@@ -92,6 +98,7 @@ CorePlugin.command({
         }
 
         if (info === "") continue;
+        if (i < infosEntries.length) info += `\n${blank}`;
 
         emb.addField(`${emoji}${category}`, info);
       }

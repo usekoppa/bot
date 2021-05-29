@@ -1,4 +1,4 @@
-// import { Message } from "discord.js";
+import { Message } from "discord.js";
 
 import { StringConsumer } from "./consumer";
 import { getParameterString, Parameter } from "./parameter";
@@ -43,7 +43,7 @@ export function extractFromCommandString(
 const pairsMatcher =
   /([^\s,=,,]+)(?:\s*=\s*)([^\s,=]+)(?:(?:,\s*|$)([^\s,=]+)){0,}/g;
 export function parse(
-  // msg: Message,
+  msg: Message,
   usage: Usage,
   content: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -108,6 +108,8 @@ export function parse(
     indexOffset += match.index + 1;
   }
 
+  const parsed: Record<string, unknown> = {};
+
   const consumer = new StringConsumer(adjustedContent);
   for (let i = 0; i < adjustedUsage.length; i++) {
     const param = adjustedUsage[i];
@@ -115,7 +117,8 @@ export function parse(
       pair => pair.position === consumer.position
     )!;
 
-    // let value = "";
+    let value = "";
+    let data: unknown;
 
     if (param.sentence) {
       if (pair.param.sentence) {
@@ -135,14 +138,30 @@ export function parse(
       }
 
       if (i === adjustedUsage.length - 1) {
-        //     value = consumer.readRest();
-      } else {
-        // TODO: The rest.
+        value = consumer.readRest();
       }
+    } else if (param.greedy) {
+      data = [];
+      let arg: string | undefined;
+      while (typeof (arg = consumer.peakWord()) !== "undefined") {
+        const parsed = param.parse({
+          msg,
+          arg,
+          raw: adjustedContent.split(/\s+/g),
+        });
+
+        void consumer.readWord();
+
+        (data as unknown[]).push(parsed);
+      }
+    } else {
+      data = value === "" ? consumer.readWord() : value;
     }
 
-    // const word = consumer.readWord();
+    parsed[param.name] = data;
+
+    // TODO: Do the rest of the parser.
   }
 
-  return { result: {} };
+  return { result: parsed };
 }
