@@ -13,39 +13,63 @@ import { connect } from "../lib/db/connect";
 import { config } from "./config";
 
 const client = Container.get(KoppaClient);
-const manager = Container.get(PluginManager);
-const log = createLogger("bot");
-const evs = new EventManager(log);
+const plManager = Container.get(PluginManager);
+const log = createLogger();
+const evManager = new EventManager(log);
 
 export async function bootstrap() {
-  await manager.loadDir(join(__dirname, "plugins"));
+  await plManager.loadDir(join(__dirname, "plugins"));
   setupClientHandlers();
   await connect("./koppa.db");
   await client.login(config.bot.token);
 }
 
 function setupClientHandlers() {
-  evs.once("ready", log => {
-    log.info("Logged into Discord as", client.user?.tag);
-    setStatus();
+  evManager.add({
+    type: "once",
+    name: "ready",
+    run(ctx) {
+      ctx.log.info("Logged into Discord as", client.user?.tag);
+      setStatus();
+    },
   });
 
   // evs.on("debug", (msg, log) => log.debug(msg));
 
-  evs.on("message", dispatcher(config.bot.prefix, config.bot.reportsChannelId));
+  evManager.add({
+    type: "on",
+    name: "message",
+    run: dispatcher(config.bot.prefix, config.bot.reportsChannelId),
+  });
 
-  evs.on("warn", (msg, log) => log.warn(msg));
+  evManager.add({
+    type: "on",
+    name: "warn",
+    run(ctx) {
+      ctx.log.warn(ctx.info);
+    },
+  });
 
-  evs.on("error", (err, log) => log.error("Client emitted an error", err));
+  evManager.add({
+    type: "on",
+    name: "error",
+    run(ctx) {
+      ctx.log.error("Client emitted an error", ctx.reason);
+    },
+  });
 
-  evs.on("shardReconnecting", (id, log) => {
-    log.warn(`Shard is reconnecting`, { id });
-    setStatus();
+  evManager.add({
+    type: "on",
+    name: "shardReconnecting",
+    run(ctx) {
+      ctx.log.warn(`Shard is reconnecting`, { id: ctx.id });
+      setStatus();
+    },
   });
 }
 
 function setStatus() {
-  // TODO(@voltexene): Make this more dynamic.
+  // TODO(@zorbyte): Make this more dynamic.
   client.user?.setActivity(`Koppa - ${config.bot.prefix}help`);
 }
 

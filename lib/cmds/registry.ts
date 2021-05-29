@@ -16,9 +16,9 @@ export class CommandRegistry {
   #size = 0;
 
   add<U extends Usage>(cmd: Command<U>) {
-    this.#log.debug(`Adding command ${cmd.name}`);
+    this.#log.debug("Adding command", { name: cmd.name });
     if (this.has(cmd.name) || this.has(cmd)) {
-      throw new Error(`Duplicate command ${cmd.name}`);
+      throw new Error(`Duplicate command "${cmd.name}"`);
     }
 
     this.#commands.set(cmd.name, cmd);

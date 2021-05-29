@@ -123,11 +123,11 @@ export function button<S, R>(
 
   function handle(ctx: Context<S, R>) {
     const state = ctx.getPieceState(piece)!;
-    // TODO(@voltexene): Handle disposals.
+    // TODO(@zorbyte): Handle disposals.
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     state.collector!.on("collect", async (reaction, user) => {
-      // TODO(@voltexene): Allow more configuration options.
+      // TODO(@zorbyte): Allow more configuration options.
       const reactionEmoji = ReactionCollector.key(reaction);
       if (
         user.id !== ctx.msg.author.id ||

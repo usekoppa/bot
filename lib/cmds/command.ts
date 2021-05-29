@@ -4,10 +4,10 @@ import { PermissionString, TextChannel } from "discord.js";
 
 import { Usage } from "./syntax/usage";
 import { Category } from "./categories";
-import { Context } from "./context";
+import { CommandContext } from "./context";
 
 type Runner<U extends Usage> = (
-  ctx: Context<U>
+  ctx: CommandContext<U>
 ) => Asyncable<Parameters<TextChannel["send"]>[0]>;
 
 export interface Command<U extends Usage = Usage> {

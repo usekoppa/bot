@@ -15,7 +15,7 @@ const registry = Container.get(CommandRegistry);
 const client = Container.get(KoppaClient);
 
 const { version } = readJsonSync<{ version: string }>(
-  join(__dirname, "..", "..", "..", "..", "package.json")
+  join(__dirname, "..", "..", "..", "..", "..", "package.json")
 );
 
 CorePlugin.command({

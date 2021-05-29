@@ -29,7 +29,7 @@ export interface ClientEvents {
   channelCreate: { channel: Channel };
   channelDelete: { channel: Channel | PartialDMChannel };
   channelPinsUpdate: { channel: Channel | PartialDMChannel; time: Date };
-  channelUpdate: { oldChannel: Channel | undefined; newChannel: Channel };
+  channelUpdate: { oldChannel: Channel | null; newChannel: Channel };
   debug: { info: string };
   warn: { info: string };
   // disconnect: [any, number];
@@ -56,7 +56,7 @@ export interface ClientEvents {
     speaking: Readonly<Speaking>;
   };
   guildMemberUpdate: {
-    oldMember: GuildMember | PartialGuildMember | undefined;
+    oldMember: GuildMember | PartialGuildMember | null;
     newMember: GuildMember;
   };
   guildUpdate: { oldGuild: Guild; newGuild: Guild };
@@ -73,10 +73,10 @@ export interface ClientEvents {
     user: User | PartialUser;
   };
   messageUpdate: {
-    oldMsg: Message | PartialMessage | undefined;
+    oldMsg: Message | PartialMessage | null;
     newMsg: Message | PartialMessage;
   };
-  presenceUpdate: { oldPresence: Presence | undefined; newPresence: Presence };
+  presenceUpdate: { oldPresence: Presence | null; newPresence: Presence };
   rateLimit: { rateLimit: RateLimitData };
   ready: Record<string, any>;
   invalidated: Record<string, any>;

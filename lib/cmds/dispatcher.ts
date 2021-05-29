@@ -1,23 +1,24 @@
 import { KoppaClient } from "@core/client";
-import { Logger } from "@utils/logger";
+import { EventContext } from "@core/context";
 import { createErrorEmbed } from "@ux/embeds";
 
 import { Message, MessageOptions, TextChannel } from "discord.js";
 import { Container } from "typedi";
 
-import { Context } from "./context";
+import { CommandContext } from "./context";
 import { CommandRegistry } from "./registry";
 
 const registry = Container.get(CommandRegistry);
 const client = Container.get(KoppaClient);
 
 export function dispatcher(defaultPrefix: string, reportsChannelId: string) {
-  return async function handler(msg: Message, log: Logger) {
+  return async function handler(ctx: EventContext<"message">) {
+    const { msg, log } = ctx;
     try {
       // Ensures the user is not a bot to prevent spam and also ensures we only handle msgs that begin with the bot prefix.
       if (msg.author.bot || !msg.content.startsWith(defaultPrefix)) return;
 
-      // TODO(@voltexene): Get the prefix from the guild doc.
+      // TODO(@zorbyte): Get the prefix from the guild doc.
       const prefix = defaultPrefix;
 
       const [callKey, args] = extractFromCommandString(prefix, msg.content);
@@ -28,9 +29,9 @@ export function dispatcher(defaultPrefix: string, reportsChannelId: string) {
       cmdLog.debug("Command has been called", { callKey, args });
 
       try {
-        const ctx: Context = {
+        const ctx: CommandContext = {
           msg,
-          // TODO(@voltexene): Write an argument parser.
+          // TODO(@zorbyte): Write an argument parser.
           args: {},
           rawArgs: args,
           callKey,

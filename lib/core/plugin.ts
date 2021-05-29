@@ -65,6 +65,8 @@ export function plugin<P extends ImplementedBasePlugin>(
 
     #log?: Logger;
 
+    static [kPlugin] = true;
+
     get log(): Logger {
       if (typeof this.#log === "undefined") {
         const self = manager.get(ctedPlugin);
@@ -110,7 +112,7 @@ export function plugin<P extends ImplementedBasePlugin>(
   }
 
   ctedPlugin = fn(
-    BasePlugin as unknown as typeof BasePlugin
+    Plugin as unknown as typeof BasePlugin
   ) as ImplementedPluginCtor<P> & typeof Plugin;
 
   return ctedPlugin;

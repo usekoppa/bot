@@ -10,10 +10,9 @@ import { Container, Service } from "typedi";
 
 import { EventManager, WrappedEventListener } from "./event_manager";
 import { Events } from "./events";
-import { BasePlugin, kPlugin, Plugin, PluginInstance } from "./plugin";
+import { kPlugin, Plugin, PluginInstance } from "./plugin";
 
 const registry = Container.get(CommandRegistry);
-const manager = Container.get(EventManager);
 
 @Service()
 export class PluginManager {
@@ -89,13 +88,19 @@ export class PluginManager {
         const pluginExports = await import(pluginPath);
         let plugin: Plugin | undefined;
         for (const pluginExport of Object.values(pluginExports)) {
-          if (pluginExport instanceof BasePlugin) {
-            plugin = pluginExport as unknown as Plugin;
+          if (
+            typeof pluginExport === "function" &&
+            (pluginExport as Plugin)[kPlugin]
+          ) {
+            plugin = pluginExport as Plugin;
             break;
           }
         }
 
-        if (typeof plugin === "undefined") return;
+        if (typeof plugin === "undefined") {
+          this.#log.warn("Plugin did not have a valid plugin export", { file });
+          return;
+        }
 
         this.add(plugin);
         this.#paths.set(plugin, pluginPath);
@@ -112,15 +117,17 @@ export class PluginManager {
   off(plugin: Plugin, name: keyof Events) {
     const listener = this.#events.get(plugin)?.[name];
     if (typeof listener === "undefined") return;
+    const pl = this.get(plugin);
+    const manager = new EventManager(pl.log);
     manager.off(name, listener);
   }
 
   private add(plugin: Plugin) {
     const pl = new plugin();
-    pl.commands.forEach(cmd => {
-      cmd.pluginName = pl.name;
-      registry.add(cmd);
-    });
+    this.#plugins.set(plugin, pl);
+    pl.commands.forEach(registry.add.bind(registry));
+
+    const manager = new EventManager(pl.log);
 
     pl.events.forEach(event => {
       const listener = manager.add(event);
@@ -132,8 +139,6 @@ export class PluginManager {
 
       this.#events.set(plugin, events);
     });
-
-    this.#plugins.set(plugin, pl);
   }
 
   private async onChange(path: string) {

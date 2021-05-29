@@ -8,7 +8,6 @@ import { clientEventsMap } from "./client_events";
 import { EventContext } from "./context";
 import { Event } from "./event";
 import { Events, EventsMap, eventsMap } from "./events";
-// import { ClientEventMap, clientEventMap } from "./client_events";
 
 type EventValues<N extends keyof Events> = UnionToTuple<
   {
@@ -28,11 +27,11 @@ export class EventManager {
   constructor(public moduleLogger: Logger) {}
 
   add<N extends keyof Events>(event: Event<N>): WrappedEventListener<N> {
-    const totalListeners = this.#client.rawListeners(event.name).length + 1;
+    const newTotal = this.#client.rawListeners(event.name).length + 1;
     EventManager.log.debug("Adding listener", {
       name: event.name,
       type: event.type,
-      totalListeners,
+      newTotal,
     });
 
     const wrapped = this.wrapListener(event);
@@ -45,6 +44,8 @@ export class EventManager {
   }
 
   off<N extends keyof Events>(name: N, listener: WrappedEventListener<N>) {
+    const newTotal = this.#client.rawListeners(name).length;
+    EventManager.log.debug("Removing listener", { name, newTotal });
     this.#client.removeListener(
       name,
       listener as unknown as (...args: unknown[]) => void
@@ -62,14 +63,14 @@ export class EventManager {
         type: event.type,
       });
 
-      const ctx = { log: childLogger } as EventContext & Events[N];
+      const ctx = { log: childLogger } as EventContext<N>;
       for (let i = 0; i < args.length; i++) {
         const name = Object.getOwnPropertyNames(eventsMap).includes(event.name)
           ? eventsMap[event.name as keyof EventsMap][i]
           : clientEventsMap[event.name][i];
 
         // @ts-ignore No idea, but please shut up.
-        ctx[name as unknown as keyof typeof ctx] = args[i];
+        ctx[name as keyof EventContext<N>] = args[i];
       }
 
       await event.run(ctx);

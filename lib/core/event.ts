@@ -4,7 +4,7 @@ import { EventContext } from "./context";
 import { Events } from "./events";
 
 export type EventListener<N extends keyof Events> = (
-  ctx: EventContext & Events[N]
+  ctx: EventContext<N>
 ) => Asyncable<void>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

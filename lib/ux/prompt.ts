@@ -1,4 +1,4 @@
-import { Context } from "@cmds/context";
+import { CommandContext } from "@cmds/context";
 import { Logger } from "@utils/logger";
 import { compose } from "@view/composer";
 import { button, embed } from "@view/pieces";
@@ -25,14 +25,17 @@ const view = compose<PromptState, boolean>(
   button("❌", ctx => ctx.resolve(false))
 );
 
-export async function prompt(ctx: Context, question: string): Promise<boolean>;
+export async function prompt(
+  ctx: CommandContext,
+  question: string
+): Promise<boolean>;
 export async function prompt(
   msg: Message,
   log: Logger,
   question: string
 ): Promise<boolean>;
 export async function prompt(
-  msgOrCtx: Message | Context,
+  msgOrCtx: Message | CommandContext,
   logOrQuestion: Logger | string,
   question?: string
 ) {
