@@ -3,11 +3,14 @@ import { join } from "path";
 import { Category } from "@cmds/categories";
 import { Registry } from "@cmds/registry";
 import { KoppaClient } from "@core/client";
+import { PluginRegistry } from "@core/plugin_manager";
 import { readJsonSync } from "@utils/read_json";
 import { createEmbed } from "@ux/embeds";
 
 import ms from "ms";
 import { Container } from "typedi";
+
+import { CorePlugin } from "..";
 
 const registry = Container.get(Registry);
 const client = Container.get(KoppaClient);
@@ -16,7 +19,7 @@ const { version } = readJsonSync<{ version: string }>(
   join(__dirname, "..", "..", "..", "..", "package.json")
 );
 
-registry.add({
+CorePlugin.command({
   name: "info",
   aliases: ["about", "statistics", "stats"],
   category: Category.Information,

@@ -1,14 +1,14 @@
 import { Category } from "@cmds/categories";
-import { Registry } from "@cmds/registry";
 import { KoppaClient } from "@core/client";
 import { createEmbed } from "@ux/embeds";
 
 import { Container } from "typedi";
 
-const registry = Container.get(Registry);
+import { CorePlugin } from "..";
+
 const client = Container.get(KoppaClient);
 
-registry.add({
+CorePlugin.command({
   name: "ping",
   aliases: ["p", "latency"],
   category: Category.Information,

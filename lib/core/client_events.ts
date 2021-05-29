@@ -97,7 +97,7 @@ export interface ClientEvents {
   shardResume: { id: number; replayedEvents: number };
 }
 
-type ClientEventMap = {
+export type ClientEventMap = {
   [E in keyof ClientEvents]: UnionToTuple<keyof ClientEvents[E]>;
 };
 

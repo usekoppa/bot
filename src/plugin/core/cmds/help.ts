@@ -1,11 +1,11 @@
 import { Category, categoryEmojis } from "@cmds/categories";
 import { Command } from "@cmds/command";
 import { Registry } from "@cmds/registry";
-import { argument } from "@cmds/syntax/parameter";
+import { parameter } from "@cmds/syntax/parameter";
 import { getUsageString } from "@cmds/syntax/usage";
 import { createEmbed } from "@ux/embeds";
 
-import { MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js-light";
 import { Container } from "typedi";
 
 const registry = Container.get(Registry);
@@ -14,7 +14,7 @@ const unmappedCategoryEmojis = new Set<string>();
 
 registry.add({
   name: "help",
-  usage: [argument("command", () => "h", { optional: true, greedy: false })],
+  usage: [parameter("command", () => "h", { optional: true })],
   aliases: ["h", "commands", "cmds", "usage"],
   category: Category.Information,
   description: "Provides a list of commands to use with the bot",

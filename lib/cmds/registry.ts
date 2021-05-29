@@ -10,7 +10,7 @@ import { Command } from "./command";
 type CommandResolvable<U extends Usage> = Command<U> | string;
 
 @Service()
-export class Registry {
+export class CommandRegistry {
   #log = createLogger("registry");
   #commands = new Map<string, CommandResolvable<Usage>>();
   #size = 0;

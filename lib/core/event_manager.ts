@@ -5,6 +5,7 @@ import { ClientEvents } from "discord.js";
 import { Container } from "typedi";
 
 import { KoppaClient } from "./client";
+// import { ClientEventMap, clientEventMap } from "./client_events";
 
 type EventListener = (...args: [...unknown[], Logger]) => Asyncable<void>;
 
@@ -44,11 +45,11 @@ export class EventManager {
     return wrapped;
   }
 
-  public once<K extends keyof ClientEvents>(
+  once<K extends keyof ClientEvents>(
     event: K,
     listener: ClientEventListener<K>
   ): WrappedClientEventListener<K>;
-  public once<E extends string, L extends EventListener>(
+  once<E extends string, L extends EventListener>(
     event: Exclude<E, keyof ClientEvents>,
     listener: L
   ): WrappedEventListener<L> {
@@ -56,11 +57,11 @@ export class EventManager {
     return wrapped;
   }
 
-  public off<K extends keyof ClientEvents>(
+  off<K extends keyof ClientEvents>(
     event: K,
     wrapped: WrappedClientEventListener<K>
   ): void;
-  public off<S extends string>(
+  off<S extends string>(
     event: Exclude<S, keyof ClientEvents>,
     wrapped: (...args: unknown[]) => void
   ) {
@@ -90,6 +91,16 @@ export class EventManager {
 
     return async (...args: unknown[]) => {
       EventManager.log.debug("Listener called", { event, type });
+
+      // const ctx = { log: childLogger };
+      // for (let i = 0; i < args.length; i++) {
+      //   args[i] = clientEventMap[event as keyof ClientEventMap][i];
+      // }
+
+      // for (const arg of args) {
+      //   ctx[]
+      // }
+
       await listener(...args, childLogger);
     };
   }

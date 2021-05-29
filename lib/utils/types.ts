@@ -7,6 +7,8 @@ export type PromiseResult<P extends Promise<unknown>> = P extends Promise<
   ? T
   : never;
 
+export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+
 // https://github.com/Microsoft/TypeScript/issues/13298#issuecomment-707364842
 export type UnionToTuple<T> = (
   (T extends any ? (t: T) => T : never) extends infer U

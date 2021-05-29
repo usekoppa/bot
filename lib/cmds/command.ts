@@ -1,6 +1,6 @@
 import { Asyncable } from "@utils/types";
 
-import { TextChannel } from "discord.js";
+import { PermissionString, TextChannel } from "discord.js";
 
 import { Usage } from "./syntax/usage";
 import { Category } from "./categories";
@@ -12,8 +12,11 @@ type Runner<U extends Usage> = (
 
 export interface Command<U extends Usage = Usage> {
   name: string;
+  pluginName: string;
+  permissions: number;
+  botPermissions: PermissionString[];
   aliases?: string[];
-  category?: Category;
+  category: Category;
   description: string;
   usage?: U;
   run: Runner<U>;

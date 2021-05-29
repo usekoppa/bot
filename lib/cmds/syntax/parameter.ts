@@ -9,24 +9,20 @@ export interface Parameter<T = unknown> {
   parse: Parser<T>;
 }
 
-export function parameter<
-  T,
-  N extends string,
-  G extends boolean = false,
-  O extends boolean = false
->(
+export function parameter<T, N extends string, G = false, O = false>(
   name: N,
   parser: Parser<T>,
   opts?: {
     greedy?: G;
     optional?: O;
     sentence?: boolean;
-    pluralise?: G extends true ? boolean : false;
+    pluralise?: G extends false ? false : boolean;
   }
 ): {
   name: N;
-  greedy: G;
-  optional: O;
+  // Stupid workarounds.
+  greedy: G extends false ? false : true;
+  optional: O extends false ? false : true;
   sentence: boolean;
   pluralise: boolean;
   parse: Parser<T>;
@@ -44,7 +40,8 @@ export function parameter<
     throw new Error("A parameter can not be greedy and a sentence");
   }
 
-  return param;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return param as any;
 }
 
 export function getParameterString(param: Parameter) {

@@ -1,9 +1,9 @@
-import { readdir } from "fs/promises";
 import { join } from "path";
 
 import { dispatcher } from "@cmds/dispatcher";
 import { KoppaClient } from "@core/client";
 import { EventManager } from "@core/event_manager";
+import { PluginManager } from "@core/plugin_manager";
 import { createLogger } from "@utils/logger";
 
 import { Container } from "typedi";
@@ -13,32 +13,15 @@ import { connect } from "../lib/db/connect";
 import { config } from "./config";
 
 const client = Container.get(KoppaClient);
+const manager = Container.get(PluginManager);
 const log = createLogger("bot");
 const evs = new EventManager(log);
 
 export async function bootstrap() {
-  await loadModules();
+  await manager.loadDir(join(__dirname, "plugins"));
   setupClientHandlers();
   await connect("./koppa.db");
   await client.login(config.bot.token);
-}
-
-async function loadModules() {
-  log.info("Loading modules");
-  const startTime = Date.now();
-  const pluginPaths = await readdir(join(__dirname, "modules"));
-  await Promise.all(
-    pluginPaths.map(path => {
-      log.debug("Importing module", { path });
-      return import(`./modules/${path}`);
-    })
-  ).catch(err => {
-    log.error("Failed to load modules", err);
-    process.exit(1);
-  });
-
-  const endTime = Date.now() - startTime;
-  log.info(`Loaded modules in ~${endTime}ms`);
 }
 
 function setupClientHandlers() {
@@ -62,7 +45,7 @@ function setupClientHandlers() {
 }
 
 function setStatus() {
-  // TODO(@zorbyte): Make this more dynamic.
+  // TODO(@voltexene): Make this more dynamic.
   client.user?.setActivity(`Koppa - ${config.bot.prefix}help`);
 }
 

@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+// import { Message } from "discord.js";
 
 import { StringConsumer } from "./consumer";
 import { getParameterString, Parameter } from "./parameter";
@@ -40,43 +40,13 @@ export function extractFromCommandString(
 // for best results.
 // This feature should be documented on the syntax manual, so that end users can use normal ordered methods without
 // having to do any extra reading.
-//
-// Algorithm details:
-//   1. Scan for all transitive arguments, the pattern to look for is:
-//      key[ ]=[ ]value
-//      if greedy:
-//         value = val1,[ ]val2...
-//         we can determine if we encounter another transitive param key
-//         by peaking ahead of the current word to see if there is an =
-//         character. In general, greedy arguments, will
-//         if we encounter another key, we will
-//         have to determine that
-//   2.MAYBE map transitive arguments to each other
-//   3.
-
-// beware of:
-// ...users ...users2
-// no way to determine boundaries, this should throw an error when constructing arguments
-// in the case of user side, say we have
-// ...users string ...users2
-// however the user decided to write the command with the flexible transitive syntax and does
-// users2=@mention @mention ...users
-// this would create a problem, this is why we use comma delimiters.
-// The following should throw an error:
-// sentence=...string ...string
-// there is no way to determine the boundary between the string arguments
-// verify that it is not ... foo=sentence <any>
-// verify that it is ... foo=sentence
-// unless:
-//  ... foo=sentence [any]
-//         =sentence
-// or:
-//  ... foo=sentence bar=any
-const pairsMatcher = /([^\s,=,,]+)(?:\s*=\s*)([^\s,=]+)(?:(?:,\s*|$)([^\s,=]+)){0,}/g;
+const pairsMatcher =
+  /([^\s,=,,]+)(?:\s*=\s*)([^\s,=]+)(?:(?:,\s*|$)([^\s,=]+)){0,}/g;
 export function parse(
-  msg: Message,
+  // msg: Message,
   usage: Usage,
   content: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): { result: Record<string, any>; error?: string } {
   // Short circuit.
   if (usage.length === 0) return { result: {} };
@@ -144,7 +114,8 @@ export function parse(
     const pair = collectedPairs.find(
       pair => pair.position === consumer.position
     )!;
-    let value = "";
+
+    // let value = "";
 
     if (param.sentence) {
       if (pair.param.sentence) {
@@ -164,13 +135,13 @@ export function parse(
       }
 
       if (i === adjustedUsage.length - 1) {
-        value = consumer.readRest();
+        //     value = consumer.readRest();
       } else {
         // TODO: The rest.
       }
     }
 
-    const word = consumer.readWord();
+    // const word = consumer.readWord();
   }
 
   return { result: {} };
