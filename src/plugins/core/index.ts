@@ -1,5 +1,5 @@
 import { Category } from "@cmds/categories";
-import { kPlugin, plugin } from "@core/plugin";
+import { plugin } from "@core/plugin";
 
 export const CorePlugin = plugin(
   Plugin =>
@@ -10,5 +10,3 @@ export const CorePlugin = plugin(
       global = true;
     }
 );
-
-export default { [kPlugin]: CorePlugin };

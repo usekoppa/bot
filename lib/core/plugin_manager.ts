@@ -8,14 +8,18 @@ import { FSWatcher, watch } from "chokidar";
 import { Collection } from "discord.js";
 import { Container, Service } from "typedi";
 
-import { kPlugin, Plugin, PluginInstance } from "./plugin";
+import { EventManager, WrappedEventListener } from "./event_manager";
+import { Events } from "./events";
+import { BasePlugin, kPlugin, Plugin, PluginInstance } from "./plugin";
 
 const registry = Container.get(CommandRegistry);
+const manager = Container.get(EventManager);
 
 @Service()
 export class PluginManager {
   #log = createLogger();
   #plugins = new Map<Plugin, PluginInstance>();
+  #events = new Map<Plugin, Record<keyof Events, WrappedEventListener>>();
   #paths = new Collection<Plugin, string>();
   #path?: string;
   #hasLoaded = false;
@@ -55,6 +59,8 @@ export class PluginManager {
       path = this.#paths.get(plugin)!;
     }
 
+    if (typeof plugin === "undefined" || typeof path === "undefined") return;
+
     const pl = this.get(plugin);
     await pl.cleanup?.();
 
@@ -79,10 +85,20 @@ export class PluginManager {
     await Promise.all(
       pluginPaths.map(async file => {
         this.#log.debug("Importing plugin", { file });
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        const plugin = (await import(join(path, file)))[kPlugin] as Plugin;
+        const pluginPath = join(path, file);
+        const pluginExports = await import(pluginPath);
+        let plugin: Plugin | undefined;
+        for (const pluginExport of Object.values(pluginExports)) {
+          if (pluginExport instanceof BasePlugin) {
+            plugin = pluginExport as unknown as Plugin;
+            break;
+          }
+        }
+
+        if (typeof plugin === "undefined") return;
+
         this.add(plugin);
-        this.#paths;
+        this.#paths.set(plugin, pluginPath);
       })
     ).catch(err => {
       this.#log.error("Failed to load plugins", err);
@@ -93,9 +109,30 @@ export class PluginManager {
     this.#log.info(`Loaded plugins in ~${endTime}ms`);
   }
 
+  off(plugin: Plugin, name: keyof Events) {
+    const listener = this.#events.get(plugin)?.[name];
+    if (typeof listener === "undefined") return;
+    manager.off(name, listener);
+  }
+
   private add(plugin: Plugin) {
     const pl = new plugin();
-    pl.commands.forEach(registry.add.bind(registry));
+    pl.commands.forEach(cmd => {
+      cmd.pluginName = pl.name;
+      registry.add(cmd);
+    });
+
+    pl.events.forEach(event => {
+      const listener = manager.add(event);
+      const events =
+        this.#events.get(plugin) ??
+        ({} as Record<keyof Events, WrappedEventListener>);
+
+      events[event.name] = listener;
+
+      this.#events.set(plugin, events);
+    });
+
     this.#plugins.set(plugin, pl);
   }
 

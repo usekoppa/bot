@@ -1,29 +1,23 @@
 import { createLogger, Logger } from "@utils/logger";
-import { Asyncable } from "@utils/types";
+import { UnionToTuple } from "@utils/types";
 
-import { ClientEvents } from "discord.js";
 import { Container } from "typedi";
 
 import { KoppaClient } from "./client";
+import { clientEventsMap } from "./client_events";
+import { EventContext } from "./context";
+import { Event } from "./event";
+import { Events, EventsMap, eventsMap } from "./events";
 // import { ClientEventMap, clientEventMap } from "./client_events";
 
-type EventListener = (...args: [...unknown[], Logger]) => Asyncable<void>;
+type EventValues<N extends keyof Events> = UnionToTuple<
+  {
+    [V in keyof Events[N]]: Events[N][V];
+  }
+>;
 
-type ClientEventListener<K extends keyof ClientEvents> = (
-  ...args: [...ClientEvents[K], Logger]
-) => Asyncable<void>;
-
-export type WrappedEventListener<L extends EventListener> = (
-  // LL is the potential logger type.
-  ...args: Parameters<L> extends [...infer ParamsWithoutLog, infer LL]
-    ? LL extends Logger
-      ? ParamsWithoutLog
-      : Parameters<L>
-    : unknown[]
-) => Promise<void>;
-
-export type WrappedClientEventListener<K extends keyof ClientEvents> = (
-  ...args: ClientEvents[K]
+export type WrappedEventListener<N extends keyof Events = keyof Events> = (
+  ...args: EventValues<N>
 ) => Promise<void>;
 
 export class EventManager {
@@ -33,75 +27,52 @@ export class EventManager {
 
   constructor(public moduleLogger: Logger) {}
 
-  on<K extends keyof ClientEvents>(
-    event: K,
-    listener: ClientEventListener<K>
-  ): WrappedClientEventListener<K>;
-  on<E extends string, L extends EventListener>(
-    event: Exclude<E, keyof ClientEvents>,
-    listener: L
-  ): WrappedEventListener<L> {
-    const wrapped = this.addListener(event, "on", listener);
-    return wrapped;
-  }
+  add<N extends keyof Events>(event: Event<N>): WrappedEventListener<N> {
+    const totalListeners = this.#client.rawListeners(event.name).length + 1;
+    EventManager.log.debug("Adding listener", {
+      name: event.name,
+      type: event.type,
+      totalListeners,
+    });
 
-  once<K extends keyof ClientEvents>(
-    event: K,
-    listener: ClientEventListener<K>
-  ): WrappedClientEventListener<K>;
-  once<E extends string, L extends EventListener>(
-    event: Exclude<E, keyof ClientEvents>,
-    listener: L
-  ): WrappedEventListener<L> {
-    const wrapped = this.addListener(event, "once", listener);
-    return wrapped;
-  }
-
-  off<K extends keyof ClientEvents>(
-    event: K,
-    wrapped: WrappedClientEventListener<K>
-  ): void;
-  off<S extends string>(
-    event: Exclude<S, keyof ClientEvents>,
-    wrapped: (...args: unknown[]) => void
-  ) {
-    this.#client.off(event, wrapped);
-  }
-
-  private addListener(
-    event: string,
-    type: "on" | "once",
-    listener: EventListener
-  ) {
-    const totalListeners = this.#client.rawListeners(event).length + 1;
-    EventManager.log.debug("Adding listener", { event, type, totalListeners });
-
-    const wrapped = this.wrapListener(event, type, listener);
-    this.#client[type](event, wrapped as (...args: unknown[]) => void);
+    const wrapped = this.wrapListener(event);
+    this.#client[event.type](
+      event.name,
+      wrapped as unknown as (...args: unknown[]) => void
+    );
 
     return wrapped;
   }
 
-  private wrapListener(
-    event: string,
-    type: "on" | "once",
-    listener: EventListener
-  ) {
-    const childLogger = this.moduleLogger.child(event);
+  off<N extends keyof Events>(name: N, listener: WrappedEventListener<N>) {
+    this.#client.removeListener(
+      name,
+      listener as unknown as (...args: unknown[]) => void
+    );
+  }
 
-    return async (...args: unknown[]) => {
-      EventManager.log.debug("Listener called", { event, type });
+  private wrapListener<N extends keyof Events>(
+    event: Event<N>
+  ): WrappedEventListener<N> {
+    const childLogger = this.moduleLogger.child(event.name);
 
-      // const ctx = { log: childLogger };
-      // for (let i = 0; i < args.length; i++) {
-      //   args[i] = clientEventMap[event as keyof ClientEventMap][i];
-      // }
+    return async (...args) => {
+      EventManager.log.debug("Listener called", {
+        name: event.name,
+        type: event.type,
+      });
 
-      // for (const arg of args) {
-      //   ctx[]
-      // }
+      const ctx = { log: childLogger } as EventContext & Events[N];
+      for (let i = 0; i < args.length; i++) {
+        const name = Object.getOwnPropertyNames(eventsMap).includes(event.name)
+          ? eventsMap[event.name as keyof EventsMap][i]
+          : clientEventsMap[event.name][i];
 
-      await listener(...args, childLogger);
+        // @ts-ignore No idea, but please shut up.
+        ctx[name as unknown as keyof typeof ctx] = args[i];
+      }
+
+      await event.run(ctx);
     };
   }
 }

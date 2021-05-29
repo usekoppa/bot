@@ -6,9 +6,9 @@ import { Message, MessageOptions, TextChannel } from "discord.js";
 import { Container } from "typedi";
 
 import { Context } from "./context";
-import { Registry } from "./registry";
+import { CommandRegistry } from "./registry";
 
-const registry = Container.get(Registry);
+const registry = Container.get(CommandRegistry);
 const client = Container.get(KoppaClient);
 
 export function dispatcher(defaultPrefix: string, reportsChannelId: string) {

@@ -1,5 +1,5 @@
 import { Logger } from "@utils/logger";
 
-export interface Context {
+export interface EventContext {
   log: Logger;
 }

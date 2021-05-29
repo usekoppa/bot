@@ -1,6 +1,6 @@
 import { Category, categoryEmojis } from "@cmds/categories";
 import { Command } from "@cmds/command";
-import { Registry } from "@cmds/registry";
+import { CommandRegistry } from "@cmds/registry";
 import { parameter } from "@cmds/syntax/parameter";
 import { getUsageString } from "@cmds/syntax/usage";
 import { createEmbed } from "@ux/embeds";
@@ -8,15 +8,16 @@ import { createEmbed } from "@ux/embeds";
 import { MessageEmbed } from "discord.js-light";
 import { Container } from "typedi";
 
-const registry = Container.get(Registry);
+import { CorePlugin } from "..";
+
+const registry = Container.get(CommandRegistry);
 
 const unmappedCategoryEmojis = new Set<string>();
 
-registry.add({
+CorePlugin.command({
   name: "help",
   usage: [parameter("command", () => "h", { optional: true })],
   aliases: ["h", "commands", "cmds", "usage"],
-  category: Category.Information,
   description: "Provides a list of commands to use with the bot",
   run(ctx) {
     const { command } = ctx.args;

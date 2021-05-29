@@ -5,19 +5,18 @@ import { createLogger, Logger } from "@utils/logger";
 import { Asyncable } from "@utils/types";
 
 import { PermissionString } from "discord.js-light";
-import Container from "typedi";
+import { Container } from "typedi";
 
 import { DefaultPermissions } from "../perms/permissions";
 
-import { Event, Events } from "./events";
-import { PluginCommand } from "./plugin_commands";
+import { PluginCommand } from "./command";
+import { Event } from "./event";
+import { Events } from "./events";
 import { PluginManager } from "./plugin_manager";
-
-const manager = Container.get(PluginManager);
 
 export const kPlugin = Symbol("plugin");
 
-abstract class BasePlugin {
+export abstract class BasePlugin {
   abstract name: string;
   abstract category: Category;
   abstract description: string;
@@ -56,6 +55,8 @@ export function plugin<P extends ImplementedBasePlugin>(
   // eslint is having a fit
   // eslint-disable-next-line prefer-const
   let ctedPlugin: ImplementedPluginCtor<P> & typeof Plugin;
+
+  const manager = Container.get(PluginManager);
 
   class Plugin extends BasePlugin {
     name = "BasePlugin";
@@ -96,7 +97,7 @@ export function plugin<P extends ImplementedBasePlugin>(
     }
 
     static event<N extends keyof Events>(event: Event<N>) {
-      events.push(event);
+      events.push(event as unknown as Event);
     }
 
     get events() {
@@ -115,5 +116,11 @@ export function plugin<P extends ImplementedBasePlugin>(
   return ctedPlugin;
 }
 
-export type Plugin = ReturnType<typeof plugin>;
+type PluginWithFunction = ReturnType<typeof plugin>;
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export interface Plugin extends Omit<PluginWithFunction, keyof Function> {
+  new (): InstanceType<PluginWithFunction>;
+}
+
 export type PluginInstance = InstanceType<Plugin>;

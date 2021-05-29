@@ -97,11 +97,11 @@ export interface ClientEvents {
   shardResume: { id: number; replayedEvents: number };
 }
 
-export type ClientEventMap = {
+export type ClientEventsMap = {
   [E in keyof ClientEvents]: UnionToTuple<keyof ClientEvents[E]>;
 };
 
-export const clientEventMap: ClientEventMap = {
+export const clientEventsMap: ClientEventsMap = {
   channelCreate: ["channel"],
   channelDelete: ["channel"],
   channelPinsUpdate: ["channel", "time"],
