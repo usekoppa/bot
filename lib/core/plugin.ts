@@ -23,6 +23,7 @@ export abstract class BasePlugin {
 
   permissions = DefaultPermissions.User;
 
+  // sdf
   global = false;
   enabled = true;
   botPermissions: PermissionString[] = [];
