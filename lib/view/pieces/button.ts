@@ -81,7 +81,6 @@ export function button<S, R>(
     const state = ctx.getPieceState(piece)!;
     for (const emoji of state.activeEmojis) {
       const reaction = state.msg!.reactions.cache.get(emoji);
-      console.log(reaction?.users);
       (await reaction?.users.fetch())?.forEach(u => {
         if (u.id !== client.user?.id) void reaction?.users.remove(u.id);
       });

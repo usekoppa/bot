@@ -16,6 +16,9 @@ export const config = {
     host: process.env.API_HOST ?? "localhost",
     port: process.env.API_PORT ?? 3000,
   },
+
+  // Hot plugin reloading.
+  hpr: !!(process.env.HPR ?? false),
 };
 
 // Alias to keep linting consistent.

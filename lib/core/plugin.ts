@@ -18,14 +18,25 @@ export const kPlugin = Symbol("plugin");
 
 export abstract class BasePlugin {
   abstract name: string;
+
+  // The category that this plugin is associated and the
+  // default category for its commands.
   abstract category: Category;
+
+  // Information about the plugin.
   abstract description: string;
 
+  // Assuming the user uses the default permissions scheme,
+  // this would be the default permissions to use the command.
   permissions = DefaultPermissions.User;
 
-  // sdf
+  // A global plugin can not be disabled.
   global = false;
+
+  // If the plugin is enabled by default.
   enabled = true;
+
+  // The permissions the bot needs to run a command in the plugin, or for the plugin to work in general.
   botPermissions: PermissionString[] = [];
 
   get log(): Logger {
@@ -50,8 +61,12 @@ export function plugin<P extends ImplementedBasePlugin>(
   fn: (Plugin: BasePluginCtor) => ImplementedPluginCtor<P>
 ) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const events: Event[] = [];
-  const commands: Command[] = [];
+  let events: Event[] = [];
+  let commands: Command[] = [];
+
+  // You have no idea how fucking retarded this is.
+  if (events.length > 0) events = [];
+  if (commands.length > 0) commands = [];
 
   // eslint is having a fit
   // eslint-disable-next-line prefer-const
@@ -66,16 +81,9 @@ export function plugin<P extends ImplementedBasePlugin>(
 
     #log?: Logger;
 
+    // This is used for when the plugins are loaded by reading the plugins directory.
+    // It checks the export and whether they have the kPlugin symbol on them or not.
     static [kPlugin] = true;
-
-    get log(): Logger {
-      if (typeof this.#log === "undefined") {
-        const self = manager.get(ctedPlugin);
-        this.#log = createLogger(self.name);
-      }
-
-      return this.#log;
-    }
 
     static command<U extends Usage>(cmd: PluginCommand<U>) {
       commands.push({
@@ -99,16 +107,26 @@ export function plugin<P extends ImplementedBasePlugin>(
       });
     }
 
+    // Registers an event for this plugin.
     static event<N extends keyof Events>(event: Event<N>) {
       events.push(event as unknown as Event);
+    }
+
+    get commands() {
+      return commands;
     }
 
     get events() {
       return events;
     }
 
-    get commands() {
-      return commands;
+    get log(): Logger {
+      if (typeof this.#log === "undefined") {
+        const self = manager.get(ctedPlugin);
+        this.#log = createLogger("plugins", { childNames: [self.name] });
+      }
+
+      return this.#log;
     }
   }
 

@@ -17,11 +17,11 @@ export class KoppaClient extends Client {
     super(clientOptions);
   }
 
-  // @ts-expect-error: Skid protection pretty much, saying its for security is a bit of a stretch.
-  public get token() {
-    return null;
-  }
+  // // @ts-expect-error: Skid protection pretty much, saying its for security is a bit of a stretch.
+  // public get token() {
+  //   return null;
+  // }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  public set token(_) {}
+  // // eslint-disable-next-line @typescript-eslint/no-empty-function
+  // public set token(_) {}
 }

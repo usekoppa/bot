@@ -42,7 +42,8 @@
       "@view/*": ["../lib/view/*"],
       "@ux/*": ["../lib/ux/*"],
       "@db/*": ["../lib/db/*"],
-      "@root/*": ["./*"]
+      "@plugins/*": ["../src/plugins/*"],
+      "@root/*": ["../src/*"]
     }
   },
   "include": [

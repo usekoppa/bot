@@ -1,5 +1,7 @@
 import { bold, cyan, gray, green, magenta, red, yellow } from "chalk";
 
+import { level } from "./debug";
+
 const METHOD_COLOURS = {
   debug: gray,
   info: cyan,
@@ -17,10 +19,11 @@ export interface Logger extends LoggerMethods {
 }
 
 let defaultName = "";
-
 export function setDefaultName(newDefaultName: string) {
   defaultName = newDefaultName;
 }
+
+const defaultDebugEnabled = level >= 1;
 
 // TODO(@zorbyte): Use type-di and/or implement a mechanism to store loggers and prevent duplicate instances.
 //                 Debug log environment variable should allow scopes, to print logs for certain child loggers instead.
@@ -28,14 +31,20 @@ export function setDefaultName(newDefaultName: string) {
 
 // These overloads are so that the child creation function isn't usually visible.
 export function createLogger(name?: string): Logger;
-export function createLogger(name: string, childNames: string[]): Logger;
-export function createLogger(name = defaultName, childNames?: string[]) {
-  const knownChildNames = childNames ?? [];
+export function createLogger(
+  name: string,
+  opts: { childNames?: string[]; debugEnabled?: boolean }
+): Logger;
+export function createLogger(
+  name = defaultName,
+  opts?: { childNames?: string[]; debugEnabled?: boolean }
+) {
+  const knownChildNames = opts?.childNames ?? [];
+  const debugEnabled = opts?.debugEnabled ?? defaultDebugEnabled;
 
   // If a logger has a blank name and has children,
   // take the first child name as the main name.
   if (name === "" && knownChildNames.length) name = knownChildNames.pop() ?? "";
-  const debugEnabled = !!process.env.DEBUG_LOG;
   const displayName = [name, ...knownChildNames]
     .filter(name => name !== "")
     .map(name => green(name))
@@ -62,7 +71,10 @@ export function createLogger(name = defaultName, childNames?: string[]) {
     },
     pureError: writeLog.bind(null, displayName, "error"),
     child(...childNames: string[]) {
-      return createLogger(name, [...knownChildNames, ...childNames]);
+      return createLogger(name, {
+        debugEnabled,
+        childNames: [...knownChildNames, ...childNames],
+      });
     },
   };
 

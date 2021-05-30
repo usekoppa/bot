@@ -4,6 +4,8 @@ import { getParameterString, Parameter } from "./parameter";
 
 export type Usage = Parameter[];
 
+// Since the usage as supplied to a function would be a union of various types,
+// we separate it back into a Tuple.
 export type UsageTuple<U extends Usage> = U extends (infer A)[]
   ? UnionToTuple<A>
   : never;

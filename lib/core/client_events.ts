@@ -101,6 +101,8 @@ export type ClientEventsMap = {
   [E in keyof ClientEvents]: UnionToTuple<keyof ClientEvents[E]>;
 };
 
+// This allows us to reduce an array of arguments that the client event emitter
+// supplies into an object which ultimately becomes the context.
 export const clientEventsMap: ClientEventsMap = {
   channelCreate: ["channel"],
   channelDelete: ["channel"],

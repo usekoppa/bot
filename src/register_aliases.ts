@@ -15,6 +15,8 @@ const tsConfig = readJsonSync<AliasesOfTsConfig>(
   join(__dirname, "..", "..", "tsconfig.json")
 );
 
+// Registers aliases for the @ prefixed imports.
+// They are configured in the tsconfig.json file.
 addAliases(
   Object.fromEntries(
     Object.entries(tsConfig.compilerOptions.paths).map(([key, value]) => [

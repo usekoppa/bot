@@ -1,3 +1,4 @@
+import { level } from "@utils/debug";
 import { createLogger, Logger } from "@utils/logger";
 import { UnionToTuple } from "@utils/types";
 
@@ -19,12 +20,20 @@ export type WrappedEventListener<N extends keyof Events = keyof Events> = (
   ...args: EventValues<N>
 ) => Promise<void>;
 
+// This is a useful abstraction to create use the client event emitter with extra features
+// such as the production of an object from an emitted event.
 export class EventManager {
-  private static log = createLogger("evs");
+  private static log = createLogger("events", {
+    debugEnabled: level >= 2,
+  });
 
   #client = Container.get(KoppaClient);
 
   constructor(public moduleLogger: Logger) {}
+
+  emit<N extends keyof Events>(event: N, ...args: EventValues<N>) {
+    this.#client.emit(event as string, ...(args as unknown[]));
+  }
 
   add<N extends keyof Events>(event: Event<N>): WrappedEventListener<N> {
     const newTotal = this.#client.rawListeners(event.name).length + 1;

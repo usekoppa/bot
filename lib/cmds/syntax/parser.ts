@@ -8,12 +8,16 @@ export type Parser<T> = (opts: {
   raw: string[];
 }) => T | undefined;
 
+// We have to do it this way because TypeScript will try and intersect all the Parameter types
+// together because A extends Parameter but the N itself does not, only the string aspect of it does,
+// thus we are left with vague types that are not literals.
 type Name<A> = A extends { name: infer N }
   ? N extends string
     ? N
     : never
   : never;
 
+// The same problem as before is evident here, so we have to use the same workaround.
 type ParsedValue<A> = A extends {
   greedy: infer G;
   optional: infer O;

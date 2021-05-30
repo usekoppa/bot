@@ -4,7 +4,7 @@ import { plugin } from "@core/plugin";
 export const FunPlugin = plugin(
   Plugin =>
     class extends Plugin {
-      name = "fun";
+      name = "Fun";
       description = "Fun commands";
       category = Category.Fun;
     }

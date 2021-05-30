@@ -1,3 +1,5 @@
+// StringConsumer allows you to read a string in controlled ways with a position
+// to keep track of how much of the string you have exhausted.
 export class StringConsumer {
   #pos = 0;
 

@@ -16,7 +16,11 @@ export class CommandRegistry {
   #size = 0;
 
   add<U extends Usage>(cmd: Command<U>) {
-    this.#log.debug("Adding command", { name: cmd.name });
+    this.#log.debug("Adding command", {
+      name: cmd.name,
+      plugin: cmd.pluginName,
+    });
+
     if (this.has(cmd.name) || this.has(cmd)) {
       throw new Error(`Duplicate command "${cmd.name}"`);
     }
@@ -24,6 +28,13 @@ export class CommandRegistry {
     this.#commands.set(cmd.name, cmd);
     this.#size += 1;
     for (const alias of cmd.aliases ?? []) this.#commands.set(alias, cmd.name);
+  }
+
+  remove(cmd: Command) {
+    this.#commands.delete(cmd.name);
+    for (const alias of cmd.aliases ?? []) {
+      this.#commands.delete(alias);
+    }
   }
 
   find(key: string) {

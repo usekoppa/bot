@@ -4,8 +4,10 @@ import { dispatcher } from "@cmds/dispatcher";
 import { KoppaClient } from "@core/client";
 import { EventManager } from "@core/event_manager";
 import { PluginManager } from "@core/plugin_manager";
+import { level } from "@utils/debug";
 import { createLogger } from "@utils/logger";
 
+import ms from "ms";
 import { Container } from "typedi";
 
 import { connect } from "../lib/db/connect";
@@ -14,27 +16,56 @@ import { config } from "./config";
 
 const client = Container.get(KoppaClient);
 const plManager = Container.get(PluginManager);
-const log = createLogger();
+const log = createLogger("bot");
 const evManager = new EventManager(log);
 
 export async function bootstrap() {
-  await plManager.loadDir(join(__dirname, "plugins"));
-  setupClientHandlers();
-  await connect("./koppa.db");
-  await client.login(config.bot.token);
+  try {
+    const startTime = Date.now();
+    await plManager.load(join(__dirname, "plugins"));
+    // if (config.hpr) plManager.watch();
+    setupClientHandlers(startTime);
+    await connect("./koppa.db");
+    await client.login(config.bot.token);
+  } catch (err) {
+    log.error("Failed to bootstrap", err);
+    process.exit(1);
+  }
 }
 
-function setupClientHandlers() {
+function setupClientHandlers(startTime: number) {
   evManager.add({
-    type: "once",
+    type: "on",
     name: "ready",
     run(ctx) {
-      ctx.log.info("Logged into Discord as", client.user?.tag);
+      ctx.log.info("First login completed", {
+        time: `~${ms(Date.now() - startTime)}`,
+      });
+    },
+  });
+
+  evManager.add({
+    type: "on",
+    name: "ready",
+    run(ctx) {
+      ctx.log.info("Logged into Discord", {
+        id: client.user?.id,
+        tag: client.user?.tag,
+      });
+
       setStatus();
     },
   });
 
-  // evs.on("debug", (msg, log) => log.debug(msg));
+  if (level >= 3) {
+    evManager.add({
+      type: "on",
+      name: "debug",
+      run(ctx) {
+        ctx.log.debug("Discord.js debug log emitted", { info: ctx.info });
+      },
+    });
+  }
 
   evManager.add({
     type: "on",
@@ -63,7 +94,6 @@ function setupClientHandlers() {
     name: "shardReconnecting",
     run(ctx) {
       ctx.log.warn(`Shard is reconnecting`, { id: ctx.id });
-      setStatus();
     },
   });
 }
