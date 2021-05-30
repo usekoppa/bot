@@ -13,18 +13,23 @@ export type PromiseResult<P extends Promise<unknown>> = P extends Promise<
 // Makes a specific entry (K) in an object (T) optional.
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
-// https://github.com/Microsoft/TypeScript/issues/13298#issuecomment-707364842
-// The best way I could describe how this works is the following:
-// Imagine a Venn diagram (two overlapping circles) where
-// A U B, (A overlaps B, or A union B, or in TS that would be A | B).
-// You then removed the wings of it just to leave an oval behind.
-// This is called A ∩ B, (A intersects B, or in TS that would be A & B).
-// The next step is to use the following bug in typescript to get B by itself:
-//   type C = ((arg: any) => true) & ((arg: any) => false);
-//   type D = C extends (arg: any) => infer R ? R : never; // false
-// Now that we have B by itself, we can return [...UnionToTuple<Exclude<A | B, B>>, B].
-// Note that Exclude<A | B, B> removes the type B from the type A | B.
-// We also run UnionToTuple<A> again as A could be a union in itself (A = D | E for example).
+/**
+ * @typedef UnionToTuple converts a union to a tuple.
+ *
+ * @description
+ * The best way I could describe how this works is the following:
+ * Imagine a Venn diagram (two overlapping circles) where
+ * A U B, (A overlaps B, or A union B, or in TS that would be A | B).
+ * You then removed the wings of it just to leave an oval behind.
+ * This is called A ∩ B, (A intersects B, or in TS that would be A & B).
+ * The next step is to use the following bug in typescript to get B by itself:
+ *   type C = ((arg: any) => true) & ((arg: any) => false);
+ *   type D = C extends (arg: any) => infer R ? R : never; // false
+ * Now that we have B by itself, we can return [...UnionToTuple<Exclude<A | B, B>>, B].
+ * Note that Exclude<A | B, B> removes the type B from the type A | B.
+ * We also run UnionToTuple<A> again as A could be a union in itself (A = D | E for example).
+ * [Source](https://github.com/Microsoft/TypeScript/issues/13298#issuecomment-707364842)
+ */
 export type UnionToTuple<T> = (
   (T extends any ? (t: T) => T : never) extends infer U
     ? (U extends any ? (u: U) => any : never) extends (v: infer V) => any
