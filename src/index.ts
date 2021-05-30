@@ -1,9 +1,10 @@
 import "reflect-metadata";
-import "./register_aliases";
 
 import { config as dotenv } from "dotenv";
 
 dotenv();
+
+import "./register_aliases";
 
 import { bootstrap } from "./bootstrap";
 

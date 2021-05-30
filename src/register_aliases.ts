@@ -12,7 +12,7 @@ interface AliasesOfTsConfig {
 }
 
 const tsConfig = readJsonSync<AliasesOfTsConfig>(
-  join(__dirname, "..", "..", "tsconfig.json")
+  join(process.cwd(), "tsconfig.json")
 );
 
 // Registers aliases for the @ prefixed imports.

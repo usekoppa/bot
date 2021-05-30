@@ -19,6 +19,7 @@ export const config = {
 
   // Hot plugin reloading.
   hpr: !!(process.env.HPR ?? false),
+  dev: process.env.NODE_ENV === "development",
 };
 
 // Alias to keep linting consistent.
