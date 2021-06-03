@@ -19,8 +19,13 @@ export function dispatcher(defaultPrefix: string, reportsChannelId: string) {
   return async function handler(ctx: EventContext<"message">) {
     const { msg, log } = ctx;
     try {
-      // Ensures the user is not a bot to prevent spam and also ensures we only handle msgs that begin with the bot prefix.
-      if (msg.author.bot || !msg.content.startsWith(defaultPrefix)) return;
+      // Ensures the user is not a bot to prevent spam and also ensures we only handle messages that begin with the bot
+      // prefix.
+      if (
+        msg.author.bot ||
+        !msg.content.toLowerCase().startsWith(defaultPrefix.toLowerCase())
+      )
+        return;
 
       // TODO(@zorbyte): Get the prefix from the guild doc.
       const prefix = defaultPrefix;
