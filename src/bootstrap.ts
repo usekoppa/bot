@@ -5,7 +5,7 @@ import { KoppaClient } from "@core/client";
 import { EventManager } from "@core/event_manager";
 import { PluginManager } from "@core/plugin_manager";
 import { level } from "@utils/debug";
-import { createLogger } from "@utils/logger";
+import { createLogger, setProdMode } from "@utils/logger";
 
 import ms from "ms";
 import { Container } from "typedi";
@@ -13,6 +13,8 @@ import { Container } from "typedi";
 import { connect } from "../lib/db/connect";
 
 import { config } from "./config";
+
+setProdMode(!config.dev);
 
 const client = Container.get(KoppaClient);
 const plManager = Container.get(PluginManager);

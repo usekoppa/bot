@@ -79,6 +79,7 @@ export function parse(
     if (typeof sentence !== "undefined" && param.sentence) {
       const val = parseArg(sentence, param);
       if (!param.optional && typeof val === "undefined") {
+        console.log("is this getting triggered");
         return createParsingError({
           reason: notOptional,
           index: result.index,
@@ -92,8 +93,10 @@ export function parse(
       !param.optional
     ) {
       return createParsingError({
-        reason: notOptional,
-        index: result.index,
+        reason: `Invalid argument: Was expecting a ${
+          param.sentence ? "sentence" : param.parser.name
+        }.`,
+        index: result.index + Math.max(0, match.indexOf("=")),
         param,
       });
     } else if (param.greedy) {
@@ -184,10 +187,7 @@ export function parse(
         const nextParam = usage[i + 1];
         const noNext = typeof nextParam === "undefined";
         if (noNext) value = consumer.readRest();
-        if (
-          (noNext && typeof value === "undefined") ||
-          typeof word === "undefined"
-        ) {
+        if (noNext && (typeof word === "undefined" || word === "")) {
           if (!param.optional) {
             return createParsingError({
               reason: notOptional,
@@ -202,11 +202,11 @@ export function parse(
         }
 
         if (noNext) {
-          arg = `${word}${value as string}`;
+          arg = `${word!}${(value as string | undefined) ?? ""}`;
           break;
         }
 
-        const nextParamVal = nextParam.parser.parse(ctx, word);
+        const nextParamVal = nextParam.parser.parse(ctx, word!);
         if (typeof nextParamVal === "undefined") {
           // This is so we include various forms of whitespace.
           arg += consumer.raw.slice(posBeforeWord, consumer.position);

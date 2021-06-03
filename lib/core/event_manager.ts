@@ -66,7 +66,7 @@ export class EventManager {
   ): WrappedEventListener<N> {
     const childLogger = this.moduleLogger.child(event.name);
 
-    return async (...args) => {
+    return async function wrappedListener(...args) {
       EventManager.log.debug("Listener called", {
         name: event.name,
         type: event.type,

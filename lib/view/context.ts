@@ -2,7 +2,7 @@ import { Deferred, deferred } from "@utils/deferred";
 import { Logger } from "@utils/logger";
 import { mergeMaps } from "@utils/merge_maps";
 
-import { Message } from "discord.js";
+import { Message } from "discord.js-light";
 import rfdc from "rfdc";
 
 import {

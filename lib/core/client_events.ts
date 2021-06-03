@@ -23,7 +23,7 @@ import {
   TextChannel,
   User,
   VoiceState,
-} from "discord.js";
+} from "discord.js-light";
 
 export interface ClientEvents {
   channelCreate: { channel: Channel };

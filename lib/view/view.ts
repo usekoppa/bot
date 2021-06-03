@@ -2,7 +2,7 @@ import { Deferred, deferred } from "@utils/deferred";
 import { Logger } from "@utils/logger";
 import { Asyncable } from "@utils/types";
 
-import { Message } from "discord.js";
+import { Message } from "discord.js-light";
 import rfdc from "rfdc";
 
 import { Context, kCleanupError, kCleanupErrorOccurred } from "./context";
@@ -105,9 +105,9 @@ export class View<S, R> {
     initialState: S extends object ? S : undefined
   ): Promise<RunResult<S, R>> {
     const ctxPromise = deferred<R>();
-    const state = (typeof initialState === "undefined"
-      ? {}
-      : clone(initialState)) as S;
+    const state = (
+      typeof initialState === "undefined" ? {} : clone(initialState)
+    ) as S;
 
     const ctx = new Context(
       msg,

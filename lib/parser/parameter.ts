@@ -1,4 +1,4 @@
-import { CommandContext, NoArgsCommandContext } from "@cmds/context";
+import { NoArgsCommandContext } from "@cmds/context";
 
 import { Parser } from "./parser";
 
@@ -22,7 +22,7 @@ export function parameter<T, N extends string, G = false, O = false>(
     sentence?: boolean;
     aliases?: string[];
     pluralise?: G extends false ? false : boolean;
-    default?: (ctx: CommandContext) => T;
+    default?: (ctx: NoArgsCommandContext) => T;
   }
 ): {
   name: N;
@@ -33,7 +33,7 @@ export function parameter<T, N extends string, G = false, O = false>(
   pluralise: boolean;
   aliases: string[];
   parser: Parser<T>;
-  default?: (ctx: CommandContext) => T;
+  default?: (ctx: NoArgsCommandContext) => T;
 } {
   const param = {
     name,

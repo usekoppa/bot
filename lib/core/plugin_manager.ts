@@ -7,7 +7,7 @@ import { exists } from "@utils/exists";
 import { createLogger } from "@utils/logger";
 
 import { FSWatcher, watch } from "chokidar";
-import { Collection } from "discord.js";
+import { Collection } from "discord.js-light";
 import ms from "ms";
 import { Container, Service } from "typedi";
 

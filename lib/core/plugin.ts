@@ -1,6 +1,6 @@
 import { Category } from "@cmds/categories";
 import { Command } from "@cmds/command";
-import { Usage } from "../lib/syntax/usage";
+import { Usage } from "@parser/usage";
 import { createLogger, Logger } from "@utils/logger";
 import { Asyncable } from "@utils/types";
 
