@@ -2,7 +2,7 @@ import { Asyncable } from "@utils/types";
 
 import { PermissionString, TextChannel } from "discord.js";
 
-import { Usage } from "./syntax/usage";
+import { Usage } from "../parser/usage";
 import { Category } from "./categories";
 import { CommandContext } from "./context";
 

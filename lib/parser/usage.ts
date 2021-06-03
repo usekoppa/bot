@@ -16,3 +16,19 @@ export function getUsageString(usage: Usage) {
 
   return usageString.trimRight();
 }
+
+export function validateUsage(usage: Usage) {
+  let prevParam: Parameter | undefined;
+  for (const param of usage) {
+    if (
+      typeof prevParam !== "undefined" &&
+      param.parser.prohibitedAntecedents?.includes(prevParam.parser.name)
+    ) {
+      throw new Error(
+        `A parameter of parser ${param.parser.name} can not have an antecedent of ${prevParam.parser.name}`
+      );
+    }
+
+    prevParam = param;
+  }
+}

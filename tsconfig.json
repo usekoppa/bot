@@ -38,6 +38,7 @@
     "paths": {
       "@core/*": ["../lib/core/*"],
       "@cmds/*": ["../lib/cmds/*"],
+      "@parser/*": ["../lib/parser/*"],
       "@utils/*": ["../lib/utils/*"],
       "@view/*": ["../lib/view/*"],
       "@ux/*": ["../lib/ux/*"],

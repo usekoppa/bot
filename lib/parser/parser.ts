@@ -1,12 +1,18 @@
-import { Message } from "discord.js";
+import { NoArgsCommandContext } from "@cmds/context";
+import { Asyncable } from "@utils/types";
 
 import { Usage, UsageTuple } from "./usage";
 
-export type Parser<T> = (opts: {
-  msg: Message;
-  arg: string;
-  raw: string[];
-}) => T | undefined;
+export type Parse<T> = (
+  ctx: NoArgsCommandContext,
+  arg: string
+) => Asyncable<T | undefined>;
+
+export interface Parser<T> {
+  name: string;
+  parse: Parse<T>;
+  prohibitedAntecedents?: string[];
+}
 
 // We have to do it this way because TypeScript will try and intersect all the Parameter types
 // together because A extends Parameter but the N itself does not, only the string aspect of it does,

@@ -1,12 +1,16 @@
+import { CommandContext, NoArgsCommandContext } from "@cmds/context";
+
 import { Parser } from "./parser";
 
 export interface Parameter<T = unknown> {
   name: string;
+  aliases?: string[];
   greedy: boolean;
   optional: boolean;
   sentence: boolean;
   pluralise: boolean;
-  parse: Parser<T>;
+  parser: Parser<T>;
+  default?: (ctx: NoArgsCommandContext) => T;
 }
 
 export function parameter<T, N extends string, G = false, O = false>(
@@ -16,7 +20,9 @@ export function parameter<T, N extends string, G = false, O = false>(
     greedy?: G;
     optional?: O;
     sentence?: boolean;
+    aliases?: string[];
     pluralise?: G extends false ? false : boolean;
+    default?: (ctx: CommandContext) => T;
   }
 ): {
   name: N;
@@ -25,7 +31,9 @@ export function parameter<T, N extends string, G = false, O = false>(
   optional: O extends false ? false : true;
   sentence: boolean;
   pluralise: boolean;
+  aliases: string[];
   parse: Parser<T>;
+  default?: (ctx: CommandContext) => T;
 } {
   const param = {
     name,
@@ -34,6 +42,7 @@ export function parameter<T, N extends string, G = false, O = false>(
     sentence: opts?.sentence ?? false,
     pluralise: opts?.pluralise ?? false,
     parse: parser,
+    default: opts?.default,
   };
 
   if (param.greedy && param.sentence) {

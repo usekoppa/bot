@@ -1,5 +1,5 @@
 import { Command } from "@cmds/command";
-import { Usage } from "@cmds/syntax/usage";
+import { Usage } from "../lib/syntax/usage";
 import { Optional } from "@utils/types";
 
 // These properties are generally handled by the plugin.

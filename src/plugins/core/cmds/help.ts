@@ -1,8 +1,8 @@
 import { Category, categoryEmojis } from "@cmds/categories";
 import { Command } from "@cmds/command";
 import { CommandRegistry } from "@cmds/registry";
-import { parameter } from "@cmds/syntax/parameter";
-import { getUsageString } from "@cmds/syntax/usage";
+import { parameter } from "@parser/parameter";
+import { getUsageString } from "@parser/usage";
 import { blank } from "@ux/blank";
 import { createEmbed } from "@ux/embeds";
 

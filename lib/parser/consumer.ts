@@ -24,6 +24,7 @@ export class StringConsumer {
     const amnt = this.raw.length - this.#pos + 1;
     const slice = this.peak(amnt);
     this.#pos = this.raw.length - 1;
+    if (slice === "") return;
     return slice;
   }
 
@@ -43,12 +44,14 @@ export class StringConsumer {
     return this.raw.slice(this.#pos, this.#pos + amnt);
   }
 
-  public peakRest() {
+  public peakRest(): string | undefined {
     const amnt = this.raw.length - this.#pos + 1;
-    return this.peak(amnt);
+    const slice = this.peak(amnt);
+    if (slice === "") return;
+    return slice;
   }
 
-  public peakWord() {
+  public peakWord(): string | undefined {
     const [word] = this.peakWords(1);
     return word;
   }
@@ -58,7 +61,7 @@ export class StringConsumer {
   }
 
   private peakWordsWithPos(amnt: number): { pos: number; words: string[] } {
-    const words = this.raw.split(/\s/g);
+    const words = this.raw.split(/\s+/g);
     let pos = 0;
     const collected: string[] = [];
     for (const word of words) {

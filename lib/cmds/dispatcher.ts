@@ -1,12 +1,14 @@
 import { KoppaClient } from "@core/client";
 import { EventContext } from "@core/context";
+import { Usage } from "@parser/usage";
 import { createErrorEmbed } from "@ux/embeds";
 
 import { Message, MessageOptions, TextChannel } from "discord.js";
 import { Container } from "typedi";
 
-import { parse } from "./syntax/parse";
-import { CommandContext } from "./context";
+import { parse } from "../parser/parse";
+
+import { CommandContext, NoArgsCommandContext } from "./context";
 import { CommandRegistry } from "./registry";
 
 const registry = Container.get(CommandRegistry);
@@ -30,18 +32,19 @@ export function dispatcher(defaultPrefix: string, reportsChannelId: string) {
       cmdLog.debug("Command has been called", { callKey, args });
 
       try {
-        const ctx: CommandContext = {
+        const ctx: NoArgsCommandContext = {
           msg,
-          // TODO(@zorbyte): Handle errors
-          args:
-            typeof cmd.usage !== "undefined"
-              ? parse(msg, cmd.usage, args.join(" ")).result
-              : {},
           rawArgs: args,
           callKey,
           prefix,
           log,
         };
+
+        (ctx as unknown as CommandContext).args =
+          typeof cmd.usage !== "undefined"
+            ? parse(ctx, cmd.usage, args.join(" ")).result
+            : {};
+
         const output = await cmd.run(ctx);
         await handleOutput(msg, output).catch(err =>
           log.error("Failed to handle output", err)

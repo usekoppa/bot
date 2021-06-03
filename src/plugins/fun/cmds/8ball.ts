@@ -1,7 +1,7 @@
 import { format } from "util";
 
-import { parameter } from "@cmds/syntax/parameter";
-import { stringParser } from "@cmds/syntax/parsers/string";
+import { parameter } from "@parser/parameter";
+import { stringParser } from "@parser/parsers/string";
 
 import { FunPlugin } from "..";
 
