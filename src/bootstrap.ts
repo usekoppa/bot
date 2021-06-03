@@ -35,7 +35,7 @@ export async function bootstrap() {
 
 function setupClientHandlers(startTime: number) {
   evManager.add({
-    type: "on",
+    type: "once",
     name: "ready",
     run(ctx) {
       ctx.log.info("First login completed", {
