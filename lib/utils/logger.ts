@@ -1,6 +1,8 @@
 import { createWriteStream, existsSync, mkdirSync } from "fs";
 import { inspect } from "util";
 
+import { config } from "@root/config";
+
 import { bold, cyan, gray, green, magenta, red, yellow } from "chalk";
 
 import { level } from "./debug";
@@ -78,6 +80,10 @@ export function createLogger(
     },
   };
 
+  if (!config.dev && !existsSync("logs/")) {
+    mkdirSync("logs/");
+  }
+
   return loggerObj;
 }
 
@@ -90,7 +96,7 @@ function writeLog(displayName: string, key: LevelNames, ...args: unknown[]) {
   console[callableKey as "log"](...call);
 
   // Only write to logs/ when it's a warning or an error
-  if (["error", "warn"].includes(key)) {
+  if (!config.dev && ["error", "warn"].includes(key)) {
     if (!existsSync("logs/")) mkdirSync("logs/");
 
     const stream = createWriteStream(
