@@ -61,14 +61,12 @@ export class StringConsumer {
   }
 
   private peakWordsWithPos(amnt: number): { pos: number; words: string[] } {
-    const words = this.raw.split(/\s+/g);
+    const words = this.raw.split(/\s/g);
     let pos = 0;
     const collected: string[] = [];
     for (const word of words) {
-      if (pos >= this.#pos) {
-        collected.push(word);
-        if (amnt === collected.length) break;
-      }
+      if (amnt === collected.length) break;
+      if (pos >= this.#pos) collected.push(word);
 
       pos += word.length + 1;
     }

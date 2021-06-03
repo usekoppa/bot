@@ -1,3 +1,5 @@
+import { inspect } from "util";
+
 import { Message, MessageEmbed, User } from "discord.js";
 
 import { getAvatarURL } from "./avatars";
@@ -39,9 +41,7 @@ export function createErrorEmbed(msg: Message, err?: any) {
 
   if (typeof err !== "undefined") {
     const trueErr = err instanceof Error ? err : new Error(err);
-    errEmb.setDescription(
-      "```" + `${trueErr.name}: ${trueErr.message}` + "```"
-    );
+    errEmb.setDescription("```" + inspect(trueErr) + "```");
   } else {
     errEmb.setDescription("This incident has been reported");
   }

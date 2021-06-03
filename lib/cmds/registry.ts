@@ -4,6 +4,7 @@ import equal from "fast-deep-equal";
 import { Service } from "typedi";
 
 import { Usage } from "../parser/usage";
+
 import { Command } from "./command";
 
 // The values of aliases are a string, which are then resolved to commands.

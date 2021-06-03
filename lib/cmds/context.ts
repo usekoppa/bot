@@ -8,7 +8,7 @@ import { Usage, UsageTuple } from "../parser/usage";
 export interface CommandContext<U extends Usage = Usage> {
   msg: Message;
   args: ParsedArguments<UsageTuple<U>>;
-  rawArgs: string[];
+  content: string;
   callKey: string;
   prefix: string;
   log: Logger;

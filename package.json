@@ -1,6 +1,6 @@
 {
   "name": "koppa",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Koppa's your all-purpose Discord multi-tool 🛠",
   "main": "./dist/src/index.js",
   "scripts": {

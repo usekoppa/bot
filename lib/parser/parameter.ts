@@ -4,7 +4,7 @@ import { Parser } from "./parser";
 
 export interface Parameter<T = unknown> {
   name: string;
-  aliases?: string[];
+  aliases: string[];
   greedy: boolean;
   optional: boolean;
   sentence: boolean;
@@ -32,7 +32,7 @@ export function parameter<T, N extends string, G = false, O = false>(
   sentence: boolean;
   pluralise: boolean;
   aliases: string[];
-  parse: Parser<T>;
+  parser: Parser<T>;
   default?: (ctx: CommandContext) => T;
 } {
   const param = {
@@ -41,7 +41,8 @@ export function parameter<T, N extends string, G = false, O = false>(
     optional: (opts?.optional ?? false) as O,
     sentence: opts?.sentence ?? false,
     pluralise: opts?.pluralise ?? false,
-    parse: parser,
+    aliases: opts?.aliases ?? [],
+    parser,
     default: opts?.default,
   };
 

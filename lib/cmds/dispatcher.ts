@@ -1,12 +1,13 @@
 import { KoppaClient } from "@core/client";
 import { EventContext } from "@core/context";
+import { ParsedArguments } from "@parser/parser";
 import { Usage } from "@parser/usage";
-import { createErrorEmbed } from "@ux/embeds";
+import { createEmbed, createErrorEmbed, EmbedColours } from "@ux/embeds";
 
-import { Message, MessageOptions, TextChannel } from "discord.js";
+import { Message, MessageOptions, TextChannel } from "discord.js-light";
 import { Container } from "typedi";
 
-import { parse } from "../parser/parse";
+import { extractContentStrings, parse } from "../parser/parse";
 
 import { CommandContext, NoArgsCommandContext } from "./context";
 import { CommandRegistry } from "./registry";
@@ -24,26 +25,40 @@ export function dispatcher(defaultPrefix: string, reportsChannelId: string) {
       // TODO(@zorbyte): Get the prefix from the guild doc.
       const prefix = defaultPrefix;
 
-      const [callKey, args] = extractFromCommandString(prefix, msg.content);
+      const [callKey, content] = extractContentStrings(prefix, msg.content);
 
       const cmd = registry.find(callKey);
       if (typeof cmd === "undefined") return;
       const cmdLog = log.child(cmd.name);
-      cmdLog.debug("Command has been called", { callKey, args });
+      cmdLog.debug("Command has been called", { callKey, content });
 
       try {
-        const ctx: NoArgsCommandContext = {
+        const ctxNoArgs: NoArgsCommandContext = {
           msg,
-          rawArgs: args,
+          content,
           callKey,
           prefix,
           log,
         };
 
-        (ctx as unknown as CommandContext).args =
-          typeof cmd.usage !== "undefined"
-            ? parse(ctx, cmd.usage, args.join(" ")).result
-            : {};
+        const { args, error } = parse(ctxNoArgs, cmd.usage, content);
+
+        if (error) {
+          // TODO: Send a nice embed.
+          const argErrorEmb = createEmbed({ author: msg.author })
+            .setTitle("Argument error")
+            .setColor(EmbedColours.Error)
+            .setDescription(
+              `The argument \`${error.name}\` for command **${cmd.name}** was incorrect:\n${error.reason}`
+            );
+
+          return void msg.channel.send(argErrorEmb);
+        }
+
+        const ctx: CommandContext = {
+          args: args as ParsedArguments<Usage>,
+          ...ctxNoArgs,
+        };
 
         const output = await cmd.run(ctx);
         await handleOutput(msg, output).catch(err =>
@@ -77,17 +92,4 @@ async function handleOutput(
   }
 
   await msg.channel.send(output);
-}
-
-function extractFromCommandString(
-  prefix: string,
-  cmdStr: string
-): [callKey: string, args: string[]] {
-  const [callKey, ...args] = cmdStr
-    .slice(prefix.length)
-    .toLowerCase()
-    .trim()
-    .split(/\s+/g);
-
-  return [callKey, args];
 }

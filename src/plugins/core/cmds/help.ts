@@ -2,6 +2,7 @@ import { Category, categoryEmojis } from "@cmds/categories";
 import { Command } from "@cmds/command";
 import { CommandRegistry } from "@cmds/registry";
 import { parameter } from "@parser/parameter";
+import { stringParser } from "@parser/parsers/string";
 import { getUsageString } from "@parser/usage";
 import { blank } from "@ux/blank";
 import { createEmbed } from "@ux/embeds";
@@ -17,7 +18,9 @@ const unmappedCategoryEmojis = new Set<string>();
 
 CorePlugin.command({
   name: "help",
-  usage: [parameter("command", () => "h", { optional: true })],
+  usage: [
+    parameter("command", stringParser, { optional: true, aliases: ["cmd"] }),
+  ],
   aliases: ["h", "commands", "cmds", "usage"],
   description: "Provides a list of commands to use with the bot",
   run(ctx) {
