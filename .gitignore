@@ -1,7 +1,7 @@
 dist/
+logs/
 node_modules/
 .vscode/
 .env
 tsconfig.tsbuildinfo
-koppa.db
-koppa.db-*
+koppa.db*
