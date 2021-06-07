@@ -1,6 +1,6 @@
 import { NoArgsCommandContext } from "@cmds/context";
+import { StringConsumer } from "@utils/string_consumer";
 
-import { StringConsumer } from "./consumer";
 import { getParameterString, Parameter } from "./parameter";
 import { getUsageString, Usage } from "./usage";
 
@@ -17,51 +17,177 @@ export function extractContentStrings(
   return [callKey, rest.join(" ").trim()];
 }
 
-// A feature for the parser that shall be implemented at some point:
-// Suppose we have:
-//   k:ban <...user(s)> [reason]
-// we should allow the following too:
-//   k:ban user[s]=@mention [reason]
-//   k:ban user[s]=@mention,[ ]@mention,[ ]@mention [reason]
-//   k:ban reason="string" <...user(s)>
-// Essentially, using a transitive argument will work regardless of position in the content string
-//
-// In consideration:
-// In addition, we should allow for the values of greedy transitive arguments to be associated with
-// each other (with optional indexes to allow more freedom for where the arguments can be placed) like so:
-//   k:ban user[s]=@mention, @mention, @mention reason[idx]=string
-//   e.g.
-//     k:ban users=@person1, @person2, @person3 reason=dick reason=stupid reason=dumb
-//     k:ban users=@person1, @person2, @person3 reason2=stupid reason1=dick reason3=dumb
-// This allows the user to use the arguments similar to how they would with slash commands, except without using
-// slash commands because they kinda suck.
-// If the user opts to use slash commands, they have the option to do so, as another set of functions in the bot
-// will be able to handle and negotiate interactions (this is a TODO) but otherwise they can use text based commands
-// for best results.
-// This feature should be documented on the syntax manual, so that end users can use normal ordered methods without
-// having to do any extra reading.
-
-const notOptional = "This argument is not optional.";
-
 // group 1 = key name
 // group 2 = quotation mark type (ignore it)
 // group 3 = sentence content (if any)
 // group 4 = comma separated list
-const pairMatcher =
+const pairsMatcher =
   /(?:(\w+)(?:\s*=\s*)(?:("|'{1,})(?:([^"'\\]+))*\2|((?:(?:\w)(?:,\s?[^\s])*)*)))/g;
+
+interface ParseError {
+  name: string;
+  reason: string;
+}
+
+interface ParseResult {
+  args: Record<string, unknown>;
+  error?: ParseError;
+}
+
+export function parse2(
+  ctx: NoArgsCommandContext,
+  content: string
+): ParseResult {
+  // eslint-disable-next-line prettier/prettier
+  const { cmd: { usage } } = ctx;
+
+  // Short circuit if there is no usage for ths command.
+  if (typeof usage === "undefined" || usage.length === 0) {
+    return { args: {} };
+  }
+}
+
+function parsePairedArguments(ctx: NoArgsCommandContext, content: string) {
+  const matches = [...content.matchAll(pairsMatcher)];
+  for (const match of matches) parsePairedArgument(ctx, match, content);
+}
+
+interface ParsePairedArgResult {
+  value: unknown;
+  error?: ParseError;
+}
+
+function parsePairedArgument(
+  ctx: NoArgsCommandContext,
+  match: RegExpMatchArray,
+  content: string
+) {
+  const usage = ctx.cmd.usage!;
+  const [matchingString, key, quoteMark, sentence, listString] = match;
+  const param = usage.find(
+    p =>
+      p.aliases.includes(key) ||
+      p.name === key ||
+      (p.pluralise && `${p.name}s` === key)
+  );
+
+  // There is no value for this if the parameter does not exist, hence
+  // this should be parsed as part of the positional arguments instead.
+  if (typeof param === "undefined") return { value: void 0 };
+
+  // We need to know the index of where this match was made for errors to work correctly.
+  if (typeof match.index === "undefined") {
+    ctx.log.pureError(match);
+    throw new Error("Result index is undefined for some unknown reason");
+  }
+
+  let value: unknown;
+
+  if (typeof sentence !== "undefined" && sentence !== "") {
+    if (!param.sentence) {
+      return {
+        // This error would look like:
+        // ... key="some sentence that doesn't belong" ...
+        //         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Expected type "${param.parser.name}" here
+        // but found type "sentence" instead.
+        error: pairError({
+          offendingString: `${quoteMark}${sentence}${quoteMark}`,
+          invalidType: "sentence",
+          matchingString,
+          param,
+        }),
+      };
+    }
+
+    value = parseArg(ctx, sentence, param);
+  } else if (typeof listString !== "undefined" && listString !== "") {
+    if (!param.greedy) {
+      return {
+        // This error would look like:
+        // ... key=thing,thing2,thing3,thing4 ...
+        //         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Expected *one* item of type "${param.parser.name}" here
+        // but found a list of [`type "${infer type}"` | "values"] instead.
+        error: pairError({
+          offendingString: listString,
+          invalidType: "list",
+          matchingString,
+          param,
+        }),
+      };
+    }
+
+    const list = listString.split(/,+/g).map(item => item.trim());
+    const values: unknown[] = [];
+
+    for (const item of list) {
+      const val = param.parser.parse(ctx, item);
+      if (typeof val === "undefined") {
+        return {
+          // This error would look like:
+          // ... key=thing,thing2,invalid,thing4 ...
+          //                      ~~~~~~~
+          // Expected type "${param.parser.name}"" here
+          // but found [`type ${infer type}` | "something else"] instead.
+          error: pairError({
+            idx: matchingString.indexOf(listString) + listString.indexOf(item),
+            offendingString: item,
+            matchingString,
+            param,
+          }),
+        };
+      }
+
+      values.push(val);
+    }
+
+    value = values;
+  }
+
+  return { value };
+}
+
+function checkArgForNullErrors() {}
+
+function pairError(opts: {
+  idx?: number;
+  matchingString: string;
+  // With the offending string, we should search through the
+  // parsers to find what was most likely supplied and then in
+  // the error say that the user provided that type as opposed
+  // to the expected type. We don't have to do this but it is
+  // very nice for the UX. It likely won't have a large
+  // performance penalty.
+  offendingString: string;
+  invalidType?: "list" | "sentence";
+  param: Parameter;
+}) {
+  opts.idx = opts.idx ?? opts.matchingString.indexOf(opts.offendingString);
+  let reason = `... ${opts.matchingString} ...\n`;
+
+  // Add 4 because of the "... ".
+  reason += " ".repeat(opts.idx + 4);
+  reason += "~".repeat(opts.offendingString.length);
+  reason += "\n";
+  reason += `Expected ${opts.invalidType === "list" ? "a single " : ""}${
+    param.parser.name
+  }`;
+}
 
 export function parse(
   ctx: NoArgsCommandContext,
   usage: Usage | undefined,
   content: string
 ): { args: Record<string, unknown>; error?: { name: string; reason: string } } {
-  if (typeof usage === "undefined" || usage.length === 0) return { args: {} };
-  const results = [...content.matchAll(pairMatcher)];
+  const results = [...content.matchAll(pairsMatcher)];
   const args: Record<string, unknown> = {};
   const resultRanges: [number, number][] = [];
   const consumedParamNames: string[] = [];
   let newContent = content;
+
   for (const result of results) {
+    let val: unknown | unknown[] | undefined;
     const [match, key, , sentence, list] = result;
     const paramIdx = usage.findIndex(
       param => param.aliases.includes(key) || param.name === key
@@ -71,23 +197,17 @@ export function parse(
 
     const param = usage[paramIdx];
 
+    // We need to know the index of where this match was made for errors to work correctly.
     if (typeof result.index === "undefined") {
       ctx.log.pureError(result);
       throw new Error("Result index is undefined for some unknown reason");
     }
 
     if (typeof sentence !== "undefined" && param.sentence) {
-      const val = parseArg(sentence, param);
-      if (!param.optional && typeof val === "undefined") {
-        console.log("is this getting triggered");
-        return createParsingError({
-          reason: notOptional,
-          index: result.index,
-          param,
-        });
+      val = parseArg(sentence, param);
+      if (val === parseError) {
+        return createRequiredArgError(param, result.index);
       }
-
-      args[param.name] = val;
     } else if (
       (typeof list === "undefined" || list === "") &&
       !param.optional
@@ -100,33 +220,12 @@ export function parse(
         param,
       });
     } else if (param.greedy) {
-      const listItems = list.split(/,+/g).map(item => item.trim());
-      let final: unknown[] | undefined = [];
-      for (const item of listItems) {
-        const val = param.parser.parse(ctx, item);
-        if (typeof val === "undefined" || param.sentence) {
-          return createParsingError({
-            reason: `Invalid argument: Was expecting a ${
-              param.sentence ? "sentence" : param.parser.name
-            }.`,
-            index: result.index + Math.max(0, match.indexOf(item)),
-            param,
-          });
-        }
-
-        final.push(val);
-      }
-
       if (final.length === 0) {
         final = param.default?.(ctx) as unknown[];
 
         if (typeof final === "undefined" || final.length === 0) {
           if (!param.optional) {
-            return createParsingError({
-              reason: notOptional,
-              index: result.index,
-              param,
-            });
+            return createRequiredArgError(param, result.index);
           }
 
           final = [];
@@ -135,27 +234,29 @@ export function parse(
 
       args[param.name] = final;
     } else {
-      const val = list[0];
+      // If a key=value argument is present and it is not a list,
+      // we resolve it to a single value as the regex parses
+      // the value as a list all the time anyway.
+      const val = parseArg(list[0], param);
 
-      if (typeof val === "undefined" || val === "") {
+      if (typeof val === "undefined") {
         const equalsIdx = result.index + Math.max(match.indexOf("="), 0);
         if (!param.optional) {
-          return createParsingError({
-            reason: notOptional,
-            index: equalsIdx,
-            param,
-          });
+          return createRequiredArgError(param, equalsIdx);
         } else {
-          return createParsingError({
-            reason: `Invalid argument: No value supplied.`,
-            index: equalsIdx,
-            param,
-          });
+          return createRequiredArgError(param, equalsIdx);
         }
       }
-
-      args[param.name] = val;
     }
+
+    if (val === missingArgError) {
+      return createRequiredArgError(
+        param,
+        result.index + Math.max(match.indexOf("="), 0)
+      );
+    }
+
+    args[param.name] = val;
 
     resultRanges.push([result.index, result.index + match.length]);
     consumedParamNames.push(param.name);
@@ -178,60 +279,15 @@ export function parse(
       arg = "";
     }
 
+    // Start parsing the positional arguments that are left over.
     for (;;) {
       let value: unknown;
       const posBeforeWord = consumer.position;
       const word = consumer.readWord();
 
+      // Parse sentences.
       if (param.sentence) {
-        const nextParam = usage[i + 1];
-        const noNext = typeof nextParam === "undefined";
-        if (noNext) value = consumer.readRest();
-        if (noNext && (typeof word === "undefined" || word === "")) {
-          if (!param.optional) {
-            return createParsingError({
-              reason: notOptional,
-              index: determineContentIndex(consumer.position),
-              param,
-            });
-          }
-
-          arg = nextParam.default?.(ctx);
-
-          break;
-        }
-
-        if (noNext) {
-          arg = `${word!}${(value as string | undefined) ?? ""}`;
-          break;
-        }
-
-        const nextParamVal = nextParam.parser.parse(ctx, word!);
-        if (typeof nextParamVal === "undefined") {
-          // This is so we include various forms of whitespace.
-          arg += consumer.raw.slice(posBeforeWord, consumer.position);
-        } else {
-          break;
-        }
       } else {
-        if (typeof word === "undefined") {
-          value = !param.greedy ? param.default?.(ctx) : void 0;
-          if (typeof value === "undefined" && param.optional) continue;
-        }
-
-        value = typeof word === "undefined" ? void 0 : parseArg(word, param);
-
-        if (typeof value === "undefined") {
-          if (!param.optional) {
-            return createParsingError({
-              reason: notOptional,
-              index: determineContentIndex(consumer.position),
-              param,
-            });
-          } else {
-            break;
-          }
-        }
       }
 
       if (param.greedy) {
@@ -247,39 +303,141 @@ export function parse(
 
   return { args };
 
-  function determineContentIndex(pos: number) {
-    for (const [start, end] of resultRanges) {
-      if (pos <= start) return pos;
-      pos += end;
+  function createRequiredArgError(param: Parameter, index: number) {
+    return createParsingError({
+      usage: usage!,
+      reason: "This argument is required.",
+      content,
+      index,
+      param,
+    });
+  }
+}
+
+function parseKeyedGreedyArg() {
+  const listItems = list.split(/,+/g).map(item => item.trim());
+  const final: unknown[] | undefined = [];
+  for (const item of listItems) {
+    const val = param.parser.parse(ctx, item);
+    if (typeof val === "undefined" || param.sentence) {
+      return createParsingError({
+        reason: `Invalid argument: Was expecting a ${
+          param.sentence ? "sentence" : param.parser.name
+        }.`,
+        index: result.index + Math.max(0, match.indexOf(item)),
+        param,
+      });
     }
 
-    return pos;
+    final.push(val);
   }
 
-  function parseArg(arg: string, param: Parameter) {
-    return param.parser.parse(ctx, arg) ?? param.default?.(ctx);
+  return final;
+}
+
+function parsePositionalArg() {
+  if (typeof word === "undefined") {
+    value = !param.greedy ? param.default?.(ctx) : void 0;
+    if (typeof value === "undefined" && param.optional) continue;
   }
 
-  function createParsingError(opts: {
-    reason: string;
-    index: number;
-    param: Parameter;
-  }) {
-    const name = getParameterString(opts.param);
-    let errContentStr = content;
-    if (errContentStr === "") {
-      errContentStr = getUsageString(usage!);
-      opts.index = errContentStr.indexOf(name);
+  value = typeof word === "undefined" ? void 0 : parseArg(word, param);
+
+  if (typeof value === "undefined") {
+    if (!param.optional) {
+      return createParsingError({
+        reason: notOptional,
+        index: determineContentIndex(consumer.position),
+        param,
+      });
+    } else {
+      break;
+    }
+  }
+}
+
+function parsePositionalGreedyArg() {}
+
+function parsePositionalSentenceArg() {
+  // We use the next param so that we can gradually consume a sentence until
+  // an argument that satisfies the next positional parameter is found.
+  const nextParam = usage[i + 1];
+  const noNext = typeof nextParam === "undefined";
+  if (noNext) value = consumer.readRest();
+  if (noNext && (typeof word === "undefined" || word === "")) {
+    if (!param.optional) {
+      return createRequiredArgError(
+        param,
+        determineContentIndex(consumer.position)
+      );
     }
 
-    return {
-      args: {},
-      error: {
-        name,
-        reason: `\`\`\`${errContentStr}\n${" ".repeat(opts.index)}^\n${
-          opts.reason
-        }\`\`\``,
-      },
-    };
+    arg = nextParam.default?.(ctx);
+
+    break;
   }
+
+  if (noNext) {
+    arg = `${word!}${(value as string | undefined) ?? ""}`;
+    break;
+  }
+
+  const nextParamVal = nextParam.parser.parse(ctx, word!);
+  if (typeof nextParamVal === "undefined") {
+    // This is so we include various forms of whitespace.
+    arg += consumer.raw.slice(posBeforeWord, consumer.position);
+  } else {
+    break;
+  }
+}
+
+function parseKeyedSentenceArg() {}
+
+function determineContentIndex(pos: number, resultRanges: [number, number][]) {
+  for (const [start, end] of resultRanges) {
+    if (pos <= start) return pos;
+    pos += end;
+  }
+
+  return pos;
+}
+
+function createParsingError(opts: {
+  usage: Usage;
+  reason: string;
+  content: string;
+  index: number;
+  param: Parameter;
+}) {
+  const name = getParameterString(opts.param);
+  let errContentStr = opts.content;
+  if (errContentStr === "") {
+    errContentStr = getUsageString(opts.usage);
+    opts.index = errContentStr.indexOf(name);
+  }
+
+  return {
+    args: {},
+    error: {
+      name,
+      reason: `\`\`\`${errContentStr}\n${" ".repeat(opts.index)}^\n${
+        opts.reason
+      }\`\`\``,
+    },
+  };
+}
+
+function parseArg(
+  ctx: NoArgsCommandContext,
+  str: string | undefined,
+  param: Parameter
+): unknown | symbol | undefined {
+  if (typeof str === "undefined" || str === "") {
+    if (param.optional) return param.default?.(ctx) ?? missingArgError;
+    return missingArgError;
+  }
+
+  return param.parser.parse(ctx, str) ?? param.optional
+    ? void 0
+    : missingArgError;
 }

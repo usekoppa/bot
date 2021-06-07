@@ -6,6 +6,7 @@ export interface Parameter<T = unknown> {
   name: string;
   aliases: string[];
   greedy: boolean;
+  pairable: boolean;
   optional: boolean;
   sentence: boolean;
   pluralise: boolean;
@@ -19,6 +20,7 @@ export function parameter<T, N extends string, G = false, O = false>(
   opts?: {
     greedy?: G;
     optional?: O;
+    pairable?: boolean;
     sentence?: boolean;
     aliases?: string[];
     pluralise?: G extends false ? false : boolean;
@@ -29,6 +31,7 @@ export function parameter<T, N extends string, G = false, O = false>(
   // Stupid workarounds.
   greedy: G extends false ? false : true;
   optional: O extends false ? false : true;
+  pairable: boolean;
   sentence: boolean;
   pluralise: boolean;
   aliases: string[];
@@ -39,6 +42,7 @@ export function parameter<T, N extends string, G = false, O = false>(
     name,
     greedy: (opts?.greedy ?? false) as G,
     optional: (opts?.optional ?? false) as O,
+    pairable: opts?.pairable ?? true,
     sentence: opts?.sentence ?? false,
     pluralise: opts?.pluralise ?? false,
     aliases: opts?.aliases ?? [],

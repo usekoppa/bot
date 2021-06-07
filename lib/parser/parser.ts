@@ -6,7 +6,7 @@ import { Usage, UsageTuple } from "./usage";
 export type Parse<T> = (
   ctx: NoArgsCommandContext,
   arg: string
-) => Asyncable<T | undefined>;
+) => Asyncable<T | symbol | undefined>;
 
 export interface Parser<T> {
   name: string;
@@ -27,12 +27,12 @@ type Name<A> = A extends { name: infer N }
 type ParsedValue<A> = A extends {
   greedy: infer G;
   optional: infer O;
-  parse: Parser<infer T>;
+  parser: Parser<infer T>;
 }
   ? (G extends true ? T[] : T) | (O extends true ? undefined : never)
   : never;
 
-export type ParsedArguments<U> = U extends UsageTuple<Usage>
+export type Arguments<U> = U extends UsageTuple<Usage>
   ? {
       [K in Exclude<keyof U, keyof []> as Name<U[K]>]: ParsedValue<U[K]>;
     }

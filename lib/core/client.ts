@@ -2,6 +2,7 @@ import { Client, ClientOptions, Intents } from "discord.js-light";
 import { Service } from "typedi";
 
 export const clientOptions: ClientOptions = {
+  disableMentions: "everyone",
   ws: {
     intents: [
       Intents.FLAGS.GUILDS,

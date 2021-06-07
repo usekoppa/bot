@@ -1,13 +1,12 @@
 import { KoppaClient } from "@core/client";
 import { EventContext } from "@core/context";
-import { ParsedArguments } from "@parser/parser";
+import { extractContentStrings, parse } from "@parser/parse";
+import { Arguments } from "@parser/parser";
 import { Usage } from "@parser/usage";
 import { createEmbed, createErrorEmbed, EmbedColours } from "@ux/embeds";
 
 import { Message, MessageOptions, TextChannel } from "discord.js-light";
 import { Container } from "typedi";
-
-import { extractContentStrings, parse } from "../parser/parse";
 
 import { CommandContext, NoArgsCommandContext } from "./context";
 import { CommandRegistry } from "./registry";
@@ -40,6 +39,7 @@ export function dispatcher(defaultPrefix: string, reportsChannelId: string) {
       try {
         const ctxNoArgs: NoArgsCommandContext = {
           msg,
+          cmd,
           content,
           callKey,
           prefix,
@@ -50,7 +50,10 @@ export function dispatcher(defaultPrefix: string, reportsChannelId: string) {
 
         if (error) {
           // TODO: Send a nice embed.
-          const argErrorEmb = createEmbed({ author: msg.author })
+          const argErrorEmb = createEmbed({
+            author: msg.author,
+            footerNote: `For more information, run '${prefix}man syntax'`,
+          })
             .setTitle("Argument error")
             .setColor(EmbedColours.Error)
             .setDescription(
@@ -61,7 +64,7 @@ export function dispatcher(defaultPrefix: string, reportsChannelId: string) {
         }
 
         const ctx: CommandContext = {
-          args: args as ParsedArguments<Usage>,
+          args: args as Arguments<Usage>,
           ...ctxNoArgs,
         };
 

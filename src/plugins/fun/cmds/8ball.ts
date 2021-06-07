@@ -1,9 +1,19 @@
-import { format } from "util";
-
 import { parameter } from "@parser/parameter";
 import { stringParser } from "@parser/parsers/string";
+import { numDigits } from "@utils/num_digits";
+import { xmur3 } from "@utils/xmur3";
 
 import { FunPlugin } from "..";
+
+const resps = [
+  "this is a response",
+  "here's another bitch",
+  "a resp",
+  "aaaaaa",
+  "sheeesh",
+  "asdlfkj",
+];
+const noOfRespLenDigits = numDigits(resps.length);
 
 FunPlugin.command({
   name: "8ball",
@@ -13,6 +23,9 @@ FunPlugin.command({
     parameter("question", stringParser, { sentence: true, aliases: ["q"] }),
   ],
   run(ctx) {
-    return `bitch = ${format(ctx.args)}`;
+    const seed = xmur3(ctx.args.question);
+    const lastXDigits = seed % 10 ** noOfRespLenDigits;
+    const respIdx = lastXDigits % resps.length;
+    return resps[respIdx];
   },
 });
