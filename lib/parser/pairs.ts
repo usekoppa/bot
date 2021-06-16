@@ -1,6 +1,6 @@
 import { NoArgsCommandContext } from "@cmds/context";
 
-import { pairError, ParseError } from "./errors";
+import { pairError } from "./errors";
 
 // group 1 = key name
 // group 2 = quotation mark type (ignore it)
@@ -28,16 +28,10 @@ export function parsePairs(ctx: NoArgsCommandContext, content: string) {
   return { args, content };
 }
 
-interface ParsePairedArgResult {
-  name?: string;
-  value?: unknown;
-  error?: ParseError;
-}
-
 function parsePairedArgument(
   ctx: NoArgsCommandContext,
   match: RegExpMatchArray
-): ParsePairedArgResult {
+) {
   const usage = ctx.cmd.usage!;
   const [matchingString, key, quoteMark, sentence, listString] = match;
   const param = usage.find(
