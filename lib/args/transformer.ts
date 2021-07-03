@@ -3,14 +3,14 @@ import { Asyncable } from "@utils/types";
 
 import { Usage, UsageTuple } from "./usage";
 
-export type Parse<T> = (
+export type Transform<T> = (
   ctx: NoArgsCommandContext,
-  arg: string
+  arg: unknown
 ) => Asyncable<T | symbol | undefined>;
 
-export interface Parser<T> {
+export interface Transformer<T> {
   name: string;
-  parse: Parse<T>;
+  transform: Transform<T>;
   prohibitedAntecedents?: string[];
 }
 
@@ -24,16 +24,16 @@ type Name<A> = A extends { name: infer N }
   : never;
 
 // The same problem as before is evident here, so we have to use the same workaround.
-type ParsedValue<A> = A extends {
+type TransformedValue<A> = A extends {
   greedy: infer G;
   optional: infer O;
-  parser: Parser<infer T>;
+  parser: Transformer<infer T>;
 }
   ? (G extends true ? T[] : T) | (O extends true ? undefined : never)
   : never;
 
 export type Arguments<U> = U extends UsageTuple<Usage>
   ? {
-      [K in Exclude<keyof U, keyof []> as Name<U[K]>]: ParsedValue<U[K]>;
+      [K in Exclude<keyof U, keyof []> as Name<U[K]>]: TransformedValue<U[K]>;
     }
   : never;

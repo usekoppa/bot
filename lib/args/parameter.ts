@@ -1,6 +1,6 @@
 import { NoArgsCommandContext } from "@cmds/context";
 
-import { Parser } from "./parser";
+import { Transformer } from "./transformer";
 
 export interface Parameter<T = unknown> {
   name: string;
@@ -10,13 +10,13 @@ export interface Parameter<T = unknown> {
   optional: boolean;
   sentence: boolean;
   pluralise: boolean;
-  parser: Parser<T>;
+  transformer: Transformer<T>;
   default?: (ctx: NoArgsCommandContext) => T;
 }
 
 export function parameter<T, N extends string, G = false, O = false>(
   name: N,
-  parser: Parser<T>,
+  transformer: Transformer<T>,
   opts?: {
     greedy?: G;
     optional?: O;
@@ -35,7 +35,7 @@ export function parameter<T, N extends string, G = false, O = false>(
   sentence: boolean;
   pluralise: boolean;
   aliases: string[];
-  parser: Parser<T>;
+  transformer: Transformer<T>;
   default?: (ctx: NoArgsCommandContext) => T;
 } {
   const param = {
@@ -46,7 +46,7 @@ export function parameter<T, N extends string, G = false, O = false>(
     sentence: opts?.sentence ?? false,
     pluralise: opts?.pluralise ?? false,
     aliases: opts?.aliases ?? [],
-    parser,
+    transformer,
     default: opts?.default,
   };
 

@@ -1,5 +1,5 @@
-import { parameter } from "@parser/parameter";
-import { stringParser } from "@parser/parsers/string";
+import { parameter } from "@args/parameter";
+import { stringTransformer } from "@args/transformers/string";
 import { numDigits } from "@utils/num_digits";
 import { xmur3 } from "@utils/xmur3";
 
@@ -20,7 +20,10 @@ FunPlugin.command({
   aliases: ["8"],
   description: "Ask the magic 8ball a question",
   usage: [
-    parameter("question", stringParser, { sentence: true, aliases: ["q"] }),
+    parameter("question", stringTransformer, {
+      sentence: true,
+      aliases: ["q"],
+    }),
   ],
   run(ctx) {
     const seed = xmur3(ctx.args.question);

@@ -38,7 +38,7 @@
     "paths": {
       "@core/*": ["../lib/core/*"],
       "@cmds/*": ["../lib/cmds/*"],
-      "@parser/*": ["../lib/parser/*"],
+      "@args/*": ["../lib/args/*"],
       "@utils/*": ["../lib/utils/*"],
       "@view/*": ["../lib/view/*"],
       "@ux/*": ["../lib/ux/*"],
@@ -51,6 +51,6 @@
     "src/**/*",
     "shims/**/*",
     "lib/**/*"
-  ],
+, "lib/parser"  ],
   "exclude": ["node_modules"]
 }

@@ -1,14 +1,12 @@
+import { extractContentStrings } from "@args/content";
 import { KoppaClient } from "@core/client";
 import { EventContext } from "@core/context";
-import { extractContentStrings, parse } from "@parser/parse";
-import { Arguments } from "@parser/parser";
-import { Usage } from "@parser/usage";
-import { createEmbed, createErrorEmbed, EmbedColours } from "@ux/embeds";
+import { createErrorEmbed } from "@ux/embeds";
 
 import { Message, MessageOptions, TextChannel } from "discord.js-light";
 import { Container } from "typedi";
 
-import { CommandContext, NoArgsCommandContext } from "./context";
+import { CommandContext } from "./context";
 import { CommandRegistry } from "./registry";
 
 const registry = Container.get(CommandRegistry);
@@ -37,36 +35,32 @@ export function dispatcher(defaultPrefix: string, reportsChannelId: string) {
       cmdLog.debug("Command has been called", { callKey, content });
 
       try {
-        const ctxNoArgs: NoArgsCommandContext = {
+        const ctx: CommandContext = {
           msg,
           cmd,
           content,
           callKey,
           prefix,
           log,
+          args: {},
         };
 
-        const { args, error } = parse(ctxNoArgs, cmd.usage, content);
+        // const { args, error } = parse(ctxNoArgs, cmd.usage, content);
 
-        if (error) {
-          // TODO: Send a nice embed.
-          const argErrorEmb = createEmbed({
-            author: msg.author,
-            footerNote: `For more information, run '${prefix}man syntax'`,
-          })
-            .setTitle("Argument error")
-            .setColor(EmbedColours.Error)
-            .setDescription(
-              `The argument \`${error.name}\` for command **${cmd.name}** was incorrect:\n${error.reason}`
-            );
+        // if (error) {
+        //   // TODO: Send a nice embed.
+        //   const argErrorEmb = createEmbed({
+        //     author: msg.author,
+        //     footerNote: `For more information, run '${prefix}man syntax'`,
+        //   })
+        //     .setTitle("Argument error")
+        //     .setColor(EmbedColours.Error)
+        //     .setDescription(
+        //       `The argument \`${error.name}\` for command **${cmd.name}** was incorrect:\n${error.reason}`
+        //     );
 
-          return void msg.channel.send(argErrorEmb);
-        }
-
-        const ctx: CommandContext = {
-          args: args as Arguments<Usage>,
-          ...ctxNoArgs,
-        };
+        //   return void msg.channel.send(argErrorEmb);
+        // }
 
         const output = await cmd.run(ctx);
         await handleOutput(msg, output).catch(err =>

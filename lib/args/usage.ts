@@ -22,10 +22,12 @@ export function validateUsage(usage: Usage) {
   for (const param of usage) {
     if (
       typeof prevParam !== "undefined" &&
-      param.parser.prohibitedAntecedents?.includes(prevParam.parser.name)
+      param.transformer.prohibitedAntecedents?.includes(
+        prevParam.transformer.name
+      )
     ) {
       throw new Error(
-        `A parameter of parser ${param.parser.name} can not have an antecedent of ${prevParam.parser.name}`
+        `A parameter of parser ${param.transformer.name} can not have an antecedent of ${prevParam.transformer.name}`
       );
     }
 

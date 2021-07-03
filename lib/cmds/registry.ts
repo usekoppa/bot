@@ -1,9 +1,8 @@
+import { Usage } from "@args/usage";
 import { createLogger } from "@utils/logger";
 
 import equal from "fast-deep-equal";
 import { Service } from "typedi";
-
-import { Usage } from "../parser/usage";
 
 import { Command } from "./command";
 
@@ -26,7 +25,7 @@ export class CommandRegistry {
       throw new Error(`Duplicate command "${cmd.name}"`);
     }
 
-    this.#commands.set(cmd.name, cmd);
+    this.#commands.set(cmd.name, cmd as unknown as CommandResolvable<Usage>);
     this.#size += 1;
     for (const alias of cmd.aliases ?? []) this.#commands.set(alias, cmd.name);
   }
