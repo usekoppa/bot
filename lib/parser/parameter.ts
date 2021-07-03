@@ -28,7 +28,7 @@ export function parameter<T, N extends string, G = false, O = false>(
   }
 ): {
   name: N;
-  // Stupid workarounds.
+  // Workaround for more explicit types.
   greedy: G extends false ? false : true;
   optional: O extends false ? false : true;
   pairable: boolean;

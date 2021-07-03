@@ -1,6 +1,7 @@
 import { NoArgsCommandContext } from "@cmds/context";
 import { StringConsumer } from "@utils/string_consumer";
 
+import { createParsingError } from "./errors";
 import { parsePairs } from "./pairs";
 
 export function parse(ctx: NoArgsCommandContext, content: string) {
@@ -36,8 +37,19 @@ export function parse(ctx: NoArgsCommandContext, content: string) {
 
           if (typeof nextParamRes !== "undefined") {
             const parsed = param.parser.parse(ctx, word);
-            const nextWord = consumer.peakWord();
-            if (typeof parsed === "undefined") return { error: void 0 as any };
+            const [nextWord, pos] = consumer.peakWordsWithPos();
+            if (typeof parsed === "undefined") {
+              return {
+                error: createParsingError({
+                  idx: consumer.position + ,
+                  offendingString: nex,
+                  missing: true,
+                  matchingString,
+                  param,
+                }),
+              };
+            }
+            
             if (typeof nextWord === "undefined") break;
           } else {
             // something.

@@ -32,8 +32,9 @@ export function setProdMode(production: boolean) {
 }
 
 /* TODO(@zorbyte): Use type-di and/or implement a mechanism to store loggers and prevent duplicate instances.
-                   Debug log environment variable should allow scopes, to print logs for certain child loggers
-                   instead. */
+ *                 Debug log environment variable should allow scopes, to print logs for certain child loggers
+ *                 instead.
+ */
 
 // These overloads are so that the child creation function isn't usually visible.
 export function createLogger(name?: string): Logger;

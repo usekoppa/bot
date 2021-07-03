@@ -5,7 +5,7 @@ export interface ParseError {
   reason: string;
 }
 
-export function pairError(opts: {
+export function createParsingError(opts: {
   idx?: number;
   matchingString: string;
   // With the offending string, we should search through the

@@ -1,6 +1,6 @@
 import { NoArgsCommandContext } from "@cmds/context";
 
-import { pairError } from "./errors";
+import { createParsingError } from "./errors";
 
 // group 1 = key name
 // group 2 = quotation mark type (ignore it)
@@ -61,7 +61,7 @@ function parsePairedArgument(
         //         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Expected type "${param.parser.name}" here
         // but found type "sentence" instead.
-        error: pairError({
+        error: createParsingError({
           offendingString: `${quoteMark}${sentence}${quoteMark}`,
           invalidType: "sentence",
           matchingString,
@@ -79,7 +79,7 @@ function parsePairedArgument(
         //         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Expected *one* item of type "${param.parser.name}" here
         // but found a list of [`type "${infer type}"` | "values"] instead.
-        error: pairError({
+        error: createParsingError({
           offendingString: listString,
           invalidType: "list",
           matchingString,
@@ -100,7 +100,7 @@ function parsePairedArgument(
           //                      ~~~~~~~
           // Expected type "${param.parser.name}"" here
           // but found [`type ${infer type}` | "something else"] instead.
-          error: pairError({
+          error: createParsingError({
             idx: matchingString.indexOf(listString) + listString.indexOf(item),
             offendingString: item,
             matchingString,
@@ -123,7 +123,7 @@ function parsePairedArgument(
       value = param.default?.(ctx);
     } else {
       return {
-        error: pairError({
+        error: createParsingError({
           idx: match.index,
           offendingString: matchingString,
           missing: true,

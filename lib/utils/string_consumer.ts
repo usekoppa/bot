@@ -60,7 +60,7 @@ export class StringConsumer {
     return this.peakWordsWithPos(amnt).words;
   }
 
-  private peakWordsWithPos(amnt: number): { pos: number; words: string[] } {
+  public peakWordsWithPos(amnt: number): { pos: number; words: string[] } {
     const words = this.raw.split(/\s/g);
     let pos = 0;
     const collected: string[] = [];
