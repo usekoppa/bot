@@ -24,7 +24,7 @@ CorePlugin.command({
   category: Category.Information,
   description: "Tells you about the bot & provides some statistics",
   run(ctx) {
-    const respEmbed = createEmbed({ author: ctx.msg.author })
+    const resEmbed = createEmbed({ author: ctx.msg.author })
       .setTitle(":robot: About Koppa")
       .setDescription(
         `Koppa v${version} ~ By [zorbyte](https://github.com/zorbyte) & contributors (\`${ctx.prefix}credits\`)`
@@ -35,11 +35,11 @@ CorePlugin.command({
       `**Users (cached):** ${client.users.cache.size}\n` +
       `**Commands:** ${registry.size}\n` +
       `**Uptime:** ${ms(process.uptime() * 1000)}`;
-    respEmbed.addField("Statistics", statistics);
+    resEmbed.addField("Statistics", statistics);
 
     const thumb = client.user!.avatarURL({ format: "png", size: 512 });
-    if (thumb !== null) respEmbed.setThumbnail(thumb);
+    if (thumb !== null) resEmbed.setThumbnail(thumb);
 
-    return respEmbed;
+    return resEmbed;
   },
 });
