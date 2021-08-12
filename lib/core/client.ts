@@ -2,14 +2,11 @@ import { Client, ClientOptions, Intents } from "discord.js";
 import { Service } from "typedi";
 
 export const clientOptions: ClientOptions = {
-  disableMentions: "everyone",
-  ws: {
-    intents: [
-      Intents.FLAGS.GUILDS,
-      Intents.FLAGS.GUILD_MESSAGES,
-      Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-    ],
-  },
+  allowedMentions: { parse: ["users", "roles"], repliedUser: true },
+  intents:
+    Intents.FLAGS.GUILDS |
+    Intents.FLAGS.GUILD_MESSAGES |
+    Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
 };
 
 @Service()
