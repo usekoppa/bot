@@ -3,7 +3,7 @@ import { KoppaClient } from "@core/client";
 import { EventContext } from "@core/context";
 import { createErrorEmbed } from "@ux/embeds";
 
-import { Message, MessageOptions, TextChannel } from "discord.js-light";
+import { Message, MessageOptions, TextChannel } from "discord.js";
 import { Container } from "typedi";
 
 import { CommandContext } from "./context";

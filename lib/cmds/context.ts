@@ -2,7 +2,7 @@ import { Arguments } from "@args/transformer";
 import { Usage, UsageTuple } from "@args/usage";
 import { Logger } from "@utils/logger";
 
-import { Message } from "discord.js-light";
+import { Message } from "discord.js";
 
 import { Command } from "./command";
 

@@ -1,6 +1,6 @@
 import { KoppaClient } from "@core/client";
 
-import { Message, ReactionCollector, User } from "discord.js-light";
+import { Message, ReactionCollector, User } from "discord.js";
 import { Container } from "typedi";
 
 import { Context } from "../context";

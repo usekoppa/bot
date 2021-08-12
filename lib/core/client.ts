@@ -1,4 +1,4 @@
-import { Client, ClientOptions, Intents } from "discord.js-light";
+import { Client, ClientOptions, Intents } from "discord.js";
 import { Service } from "typedi";
 
 export const clientOptions: ClientOptions = {

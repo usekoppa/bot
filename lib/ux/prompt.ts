@@ -3,7 +3,7 @@ import { Logger } from "@utils/logger";
 import { compose } from "@view/composer";
 import { button, embed } from "@view/pieces";
 
-import { Message } from "discord.js-light";
+import { Message } from "discord.js";
 
 import { createEmbed } from "./embeds";
 

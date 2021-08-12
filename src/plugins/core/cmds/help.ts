@@ -7,7 +7,7 @@ import { CommandRegistry } from "@cmds/registry";
 import { blank } from "@ux/blank";
 import { createEmbed } from "@ux/embeds";
 
-import { MessageEmbed } from "discord.js-light";
+import { MessageEmbed } from "discord.js";
 import { Container } from "typedi";
 
 import { CorePlugin } from "..";

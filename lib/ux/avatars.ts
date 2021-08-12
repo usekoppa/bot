@@ -1,4 +1,4 @@
-import { User } from "discord.js-light";
+import { User } from "discord.js";
 
 export const DEFAULT_AVATAR_URL =
   "https://cdn.discordapp.com/embed/avatars/0.png";

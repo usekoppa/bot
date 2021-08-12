@@ -1,6 +1,6 @@
 import { Asyncable } from "@utils/types";
 
-import { Message, MessageEmbed } from "discord.js-light";
+import { Message, MessageEmbed } from "discord.js";
 
 import { Context } from "../context";
 import { Piece } from "../piece";

@@ -1,10 +1,10 @@
 import { Category } from "@cmds/categories";
 import { Command } from "@cmds/command";
-import { Usage } from "@parser/usage";
 import { createLogger, Logger } from "@utils/logger";
 import { Asyncable } from "@utils/types";
 
-import { PermissionString } from "discord.js-light";
+import { Usage } from "@parser/usage";
+import { PermissionString } from "discord.js";
 import { Container } from "typedi";
 
 import { DefaultPermissions } from "../perms/permissions";

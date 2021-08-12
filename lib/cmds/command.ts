@@ -1,7 +1,7 @@
 import { Usage } from "@args/usage";
 import { Asyncable } from "@utils/types";
 
-import { PermissionString, TextChannel } from "discord.js-light";
+import { PermissionString, TextChannel } from "discord.js";
 
 import { Category } from "./categories";
 import { CommandContext } from "./context";

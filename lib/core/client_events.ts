@@ -2,43 +2,62 @@
 import { UnionToTuple } from "@utils/types";
 
 import {
-  Channel,
+  ApplicationCommand,
+  Client,
   CloseEvent,
   Collection,
+  DMChannel,
   Guild,
+  GuildBan,
+  GuildChannel,
   GuildEmoji,
   GuildMember,
+  Interaction,
+  InvalidRequestWarningData,
   Invite,
   Message,
   MessageReaction,
-  PartialDMChannel,
   PartialGuildMember,
   PartialMessage,
+  PartialMessageReaction,
   PartialUser,
   Presence,
   RateLimitData,
   Role,
   Snowflake,
-  Speaking,
+  StageInstance,
+  Sticker,
+  TextBasedChannels,
   TextChannel,
+  ThreadChannel,
+  ThreadMember,
+  Typing,
   User,
   VoiceState,
-} from "discord.js-light";
+} from "discord.js";
 
 export interface ClientEvents {
-  channelCreate: { channel: Channel };
-  channelDelete: { channel: Channel | PartialDMChannel };
-  channelPinsUpdate: { channel: Channel | PartialDMChannel; time: Date };
-  channelUpdate: { oldChannel: Channel | null; newChannel: Channel };
-  debug: { info: string };
-  warn: { info: string };
-  // disconnect: [any, number];
+  applicationCommandCreate: { command: ApplicationCommand };
+  applicationCommandDelete: { command: ApplicationCommand };
+  applicationCommandUpdate: {
+    oldCommand: ApplicationCommand | null;
+    newCommand: ApplicationCommand;
+  };
+  channelCreate: { channel: GuildChannel };
+  channelDelete: { channel: DMChannel | GuildChannel };
+  channelPinsUpdate: { channel: TextBasedChannels; date: Date };
+  channelUpdate: {
+    oldChannel: DMChannel | GuildChannel;
+    newChannel: DMChannel | GuildChannel;
+  };
+  debug: { message: string };
+  warn: { message: string };
   emojiCreate: { emoji: GuildEmoji };
   emojiDelete: { emoji: GuildEmoji };
   emojiUpdate: { oldEmoji: GuildEmoji; newEmoji: GuildEmoji };
-  error: { reason: Error };
-  guildBanAdd: { guild: Guild; user: User };
-  guildBanRemove: { guild: Guild; user: User };
+  error: { error: Error };
+  guildBanAdd: { ban: GuildBan };
+  guildBanRemove: { ban: GuildBan };
   guildCreate: { guild: Guild };
   guildDelete: { guild: Guild };
   guildUnavailable: { guild: Guild };
@@ -49,52 +68,77 @@ export interface ClientEvents {
   guildMembersChunk: {
     members: Collection<Snowflake, GuildMember>;
     guild: Guild;
-    chunk: { count: number; index: number; nonce: string | undefined };
-  };
-  guildMemberSpeaking: {
-    member: GuildMember | PartialGuildMember;
-    speaking: Readonly<Speaking>;
+    data: { count: number; index: number; nonce: string | undefined };
   };
   guildMemberUpdate: {
-    oldMember: GuildMember | PartialGuildMember | null;
+    oldMember: GuildMember | PartialGuildMember;
     newMember: GuildMember;
   };
   guildUpdate: { oldGuild: Guild; newGuild: Guild };
   inviteCreate: { invite: Invite };
   inviteDelete: { invite: Invite };
-  message: { msg: Message };
-  messageDelete: { msg: Message | PartialMessage };
-  messageReactionRemoveAll: { msg: Message | PartialMessage };
-  messageReactionRemoveEmoji: { reaction: MessageReaction };
-  messageDeleteBulk: { msgs: Collection<Snowflake, Message | PartialMessage> };
-  messageReactionAdd: { reaction: MessageReaction; user: User | PartialUser };
+  messageCreate: { message: Message };
+  messageDelete: { message: Message | PartialMessage };
+  messageReactionRemoveAll: { message: Message | PartialMessage };
+  messageReactionRemoveEmoji: {
+    reaction: MessageReaction | PartialMessageReaction;
+  };
+  messageDeleteBulk: {
+    messages: Collection<Snowflake, Message | PartialMessage>;
+  };
+  messageReactionAdd: {
+    message: MessageReaction | PartialMessageReaction;
+    user: User | PartialUser;
+  };
   messageReactionRemove: {
-    reaction: MessageReaction;
+    reaction: MessageReaction | PartialMessageReaction;
     user: User | PartialUser;
   };
   messageUpdate: {
-    oldMsg: Message | PartialMessage | null;
-    newMsg: Message | PartialMessage;
+    oldMessage: Message | PartialMessage;
+    newMessage: Message | PartialMessage;
   };
   presenceUpdate: { oldPresence: Presence | null; newPresence: Presence };
-  rateLimit: { rateLimit: RateLimitData };
-  ready: Record<string, any>;
-  invalidated: Record<string, any>;
+  rateLimit: { rateLimitData: RateLimitData };
+  invalidRequestWarning: {
+    invalidRequestWarningData: InvalidRequestWarningData;
+  };
+  ready: { client: Client<true> };
+  invalidated: Record<string, never>;
   roleCreate: { role: Role };
   roleDelete: { role: Role };
   roleUpdate: { oldRole: Role; newRole: Role };
-  typingStart: {
-    channel: Channel | PartialDMChannel;
-    user: User | PartialUser;
+  threadCreate: { thread: ThreadChannel };
+  threadDelete: { thread: ThreadChannel };
+  threadListSync: { threads: Collection<Snowflake, ThreadChannel> };
+  threadMemberUpdate: { oldMember: ThreadMember; newMember: ThreadMember };
+  threadMembersUpdate: {
+    oldMembers: Collection<Snowflake, ThreadMember>;
+    mewMembers: Collection<Snowflake, ThreadMember>;
   };
+  threadUpdate: { oldThread: ThreadChannel; newThread: ThreadChannel };
+  typingStart: { typing: Typing };
   userUpdate: { oldUser: User | PartialUser; newUser: User };
   voiceStateUpdate: { oldState: VoiceState; newState: VoiceState };
   webhookUpdate: { channel: TextChannel };
-  shardDisconnect: { event: CloseEvent; id: number };
-  shardError: { reason: Error; id: number };
-  shardReady: { id: number; unavailableGuilds: Set<Snowflake> | undefined };
-  shardReconnecting: { id: number };
-  shardResume: { id: number; replayedEvents: number };
+  interactionCreate: { interaction: Interaction };
+  shardDisconnect: { closeEvent: CloseEvent; shardId: number };
+  shardError: { error: Error; shardId: number };
+  shardReady: {
+    shardId: number;
+    unavailableGuilds: Set<Snowflake> | undefined;
+  };
+  shardReconnecting: { shardId: number };
+  shardResume: { shardId: number; replayedEvents: number };
+  stageInstanceCreate: { stageInstance: StageInstance };
+  stageInstanceUpdate: {
+    oldStageInstance: StageInstance | null;
+    newStageInstance: StageInstance;
+  };
+  stageInstanceDelete: { stageInstance: StageInstance };
+  stickerCreate: { sticker: Sticker };
+  stickerDelete: { sticker: Sticker };
+  stickerUpdate: { oldSticker: Sticker; newSticker: Sticker };
 }
 
 export type ClientEventsMap = {
@@ -104,55 +148,69 @@ export type ClientEventsMap = {
 // This allows us to reduce an array of arguments that the client event emitter
 // supplies into an object which ultimately becomes the context.
 export const clientEventsMap: ClientEventsMap = {
+  applicationCommandCreate: ["command"],
+  applicationCommandDelete: ["command"],
+  applicationCommandUpdate: ["oldCommand", "newCommand"],
   channelCreate: ["channel"],
   channelDelete: ["channel"],
-  channelPinsUpdate: ["channel", "time"],
+  channelPinsUpdate: ["channel", "date"],
   channelUpdate: ["oldChannel", "newChannel"],
-  debug: ["info"],
-  warn: ["info"],
+  debug: ["message"],
+  warn: ["message"],
   emojiCreate: ["emoji"],
   emojiDelete: ["emoji"],
   emojiUpdate: ["oldEmoji", "newEmoji"],
-  error: ["reason"],
-  guildBanAdd: ["guild", "user"],
-  guildBanRemove: ["guild", "user"],
+  error: ["error"],
+  guildBanAdd: ["ban"],
+  guildBanRemove: ["ban"],
   guildCreate: ["guild"],
   guildDelete: ["guild"],
-  guildUnavailable: ["guild"],
   guildIntegrationsUpdate: ["guild"],
   guildMemberAdd: ["member"],
   guildMemberAvailable: ["member"],
   guildMemberRemove: ["member"],
-  guildMembersChunk: ["guild", "members", "chunk"],
-  guildMemberSpeaking: ["member", "speaking"],
   guildMemberUpdate: ["oldMember", "newMember"],
+  guildMembersChunk: ["guild", "members", "data"],
+  guildUnavailable: ["guild"],
   guildUpdate: ["oldGuild", "newGuild"],
   inviteCreate: ["invite"],
   inviteDelete: ["invite"],
-  message: ["msg"],
-  messageDelete: ["msg"],
-  messageReactionRemoveAll: ["msg"],
+  messageCreate: ["message"],
+  messageDelete: ["message"],
+  messageDeleteBulk: ["messages"],
+  messageReactionAdd: ["message", "user"],
+  messageReactionRemove: ["user", "reaction"],
+  messageReactionRemoveAll: ["message"],
   messageReactionRemoveEmoji: ["reaction"],
-  messageDeleteBulk: ["msgs"],
-  // @ts-expect-error Typescript is broken.
-  messageReactionAdd: ["reaction", "user"],
-  // @ts-ignore Same reason as before.
-  messageReactionRemove: ["reaction", "user"],
-  messageUpdate: ["oldMsg", "newMsg"],
+  messageUpdate: ["oldMessage", "newMessage"],
   presenceUpdate: ["oldPresence", "newPresence"],
-  rateLimit: ["rateLimit"],
-  ready: [""],
+  rateLimit: ["rateLimitData"],
+  invalidRequestWarning: ["invalidRequestWarningData"],
+  ready: ["client"],
   invalidated: [""],
   roleCreate: ["role"],
   roleDelete: ["role"],
   roleUpdate: ["oldRole", "newRole"],
-  typingStart: ["channel", "user"],
+  threadCreate: ["thread"],
+  threadDelete: ["thread"],
+  threadListSync: ["threads"],
+  threadMemberUpdate: ["oldMember", "newMember"],
+  threadMembersUpdate: ["oldMembers", "mewMembers"],
+  threadUpdate: ["oldThread", "newThread"],
+  typingStart: ["typing"],
   userUpdate: ["oldUser", "newUser"],
   voiceStateUpdate: ["oldState", "newState"],
   webhookUpdate: ["channel"],
-  shardDisconnect: ["event", "id"],
-  shardError: ["reason", "id"],
-  shardReady: ["id", "unavailableGuilds"],
-  shardReconnecting: ["id"],
-  shardResume: ["id", "replayedEvents"],
+  interactionCreate: ["interaction"],
+  shardDisconnect: ["closeEvent", "shardId"],
+  shardError: ["error", "shardId"],
+  shardReady: ["shardId", "unavailableGuilds"],
+  shardReconnecting: ["shardId"],
+  shardResume: ["shardId", "replayedEvents"],
+  stageInstanceCreate: ["stageInstance"],
+  stageInstanceDelete: ["stageInstance"],
+  stageInstanceUpdate: ["oldStageInstance", "newStageInstance"],
+  stickerCreate: ["sticker"],
+  stickerDelete: ["sticker"],
+  stickerUpdate: ["oldSticker", "newSticker"],
 };
