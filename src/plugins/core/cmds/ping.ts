@@ -1,4 +1,4 @@
-import { Category } from "@cmds/categories";
+import { Category } from "../lib/cmds_old/categories";
 import { KoppaClient } from "@core/client";
 import { createEmbed } from "@ux/embeds";
 

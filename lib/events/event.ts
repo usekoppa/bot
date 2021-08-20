@@ -1,6 +1,6 @@
 import { Asyncable } from "@utils/types";
 
-import { EventContext } from "./context";
+import { EventContext } from "./event_context";
 import { Events } from "./events";
 
 export type EventListener<N extends keyof Events> = (
@@ -8,7 +8,7 @@ export type EventListener<N extends keyof Events> = (
 ) => Asyncable<void>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface Event<N extends keyof Events = keyof Events> {
+export interface Event<N extends keyof Events> {
   type: "on" | "once";
   name: N;
   run: EventListener<N>;

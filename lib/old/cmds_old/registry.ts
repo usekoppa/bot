@@ -1,8 +1,7 @@
-import { Usage } from "@args/usage";
+import { Usage } from "../lib/parser/usage";
 import { createLogger } from "@utils/logger";
 
 import equal from "fast-deep-equal";
-import { Service } from "typedi";
 
 import { Command } from "./command";
 

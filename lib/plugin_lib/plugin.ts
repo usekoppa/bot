@@ -1,27 +1,19 @@
-import { Category } from "@cmds/categories";
-import { Command } from "@cmds/command";
+import { Event, Events } from "@events";
 import { createLogger, Logger } from "@utils/logger";
 import { Asyncable } from "@utils/types";
 
-import { Usage } from "@parser/usage";
 import { PermissionString } from "discord.js";
 import { Container } from "typedi";
 
 import { DefaultPermissions } from "../perms/permissions";
 
-import { PluginCommand } from "./command";
-import { Event } from "./event";
-import { Events } from "./events";
+import { PluginCommand } from "./plugin_command";
 import { PluginManager } from "./plugin_manager";
 
 export const kPlugin = Symbol("plugin");
 
 export abstract class BasePlugin {
   abstract name: string;
-
-  // The category that this plugin is associated and the
-  // default category for its commands.
-  abstract category: Category;
 
   // Information about the plugin.
   abstract description: string;
@@ -30,11 +22,11 @@ export abstract class BasePlugin {
   // this would be the default permissions to use the command.
   permissions = DefaultPermissions.User;
 
-  // A global plugin can not be disabled.
+  // A global plugin registers all its commands as global ones.
   global = false;
 
   // If the plugin is enabled by default.
-  enabled = true;
+  enabledByDefault = true;
 
   // The permissions the bot needs to run a command in the plugin, or for the plugin to work in general.
   botPermissions: PermissionString[] = [];
@@ -57,11 +49,10 @@ type ImplementedPluginCtor<P extends ImplementedBasePlugin> = new (
   ...args: any[]
 ) => P;
 
-export function plugin<P extends ImplementedBasePlugin>(
+export function createPlugin<P extends ImplementedBasePlugin>(
   fn: (Plugin: BasePluginCtor) => ImplementedPluginCtor<P>
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let events: Event[] = [];
+  let events: Event<keyof Events>[] = [];
   let commands: Command[] = [];
 
   // You have no idea how fucking retarded this is.
@@ -77,7 +68,6 @@ export function plugin<P extends ImplementedBasePlugin>(
   class Plugin extends BasePlugin {
     name = "BasePlugin";
     description = "A plugin that is the base for all other plugins";
-    category = "None" as Category;
 
     #log?: Logger;
 
@@ -109,7 +99,7 @@ export function plugin<P extends ImplementedBasePlugin>(
 
     // Registers an event for this plugin.
     static event<N extends keyof Events>(event: Event<N>) {
-      events.push(event as unknown as Event);
+      events.push(event as unknown as Event<keyof Events>);
     }
 
     get commands() {
@@ -137,7 +127,7 @@ export function plugin<P extends ImplementedBasePlugin>(
   return ctedPlugin;
 }
 
-type PluginWithFunction = ReturnType<typeof plugin>;
+type PluginWithFunction = ReturnType<typeof createPlugin>;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export interface Plugin extends Omit<PluginWithFunction, keyof Function> {

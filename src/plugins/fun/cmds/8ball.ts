@@ -1,5 +1,5 @@
-import { parameter } from "@args/parameter";
-import { stringTransformer } from "@args/transformers/string";
+import { parameter } from "../lib/parser/parameter";
+import { stringTransformer } from "../lib/parser/transformers/string";
 import { numDigits } from "@utils/num_digits";
 import { xmur3 } from "@utils/xmur3";
 

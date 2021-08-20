@@ -5,6 +5,7 @@
     ".prettierrc.js",
     "src/**/*",
     "lib/**/*",
+    "packages/**/*",
     "shims/**/*",
     "tsconfig.json"
   ]

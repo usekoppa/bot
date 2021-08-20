@@ -1,14 +1,12 @@
 import { level } from "@utils/debug";
-import { createLogger, Logger } from "@utils/logger";
+import { createLogger } from "@utils/logger";
 import { UnionToTuple } from "@utils/types";
 
-import { Container } from "typedi";
+import { Client } from "discord.js";
 
-import { KoppaClient } from "./client";
-import { clientEventsMap } from "./client_events";
-import { EventContext } from "./context";
 import { Event } from "./event";
-import { Events, EventsMap, eventsMap } from "./events";
+import { EventContext } from "./event_context";
+import { Events, eventsMap } from "./events";
 
 type EventValues<N extends keyof Events> = UnionToTuple<
   {
@@ -16,7 +14,7 @@ type EventValues<N extends keyof Events> = UnionToTuple<
   }
 >;
 
-export type WrappedEventListener<N extends keyof Events = keyof Events> = (
+export type WrappedEventListener<N extends keyof Events> = (
   ...args: EventValues<N>
 ) => Promise<void>;
 
@@ -27,9 +25,11 @@ export class EventManager {
     debugEnabled: level >= 2,
   });
 
-  #client = Container.get(KoppaClient);
+  #client: Client;
 
-  constructor(public moduleLogger: Logger) {}
+  constructor(client: Client) {
+    this.#client = client;
+  }
 
   emit<N extends keyof Events>(event: N, ...args: EventValues<N>) {
     this.#client.emit(event as string, ...(args as unknown[]));
@@ -64,7 +64,7 @@ export class EventManager {
   private wrapListener<N extends keyof Events>(
     event: Event<N>
   ): WrappedEventListener<N> {
-    const childLogger = this.moduleLogger.child(event.name);
+    const childLogger = EventManager.log.child(event.name);
 
     return async function wrappedListener(...args) {
       EventManager.log.debug("Listener called", {
@@ -74,12 +74,17 @@ export class EventManager {
 
       const ctx = { log: childLogger } as EventContext<N>;
       for (let i = 0; i < args.length; i++) {
-        const name = Object.getOwnPropertyNames(eventsMap).includes(event.name)
-          ? eventsMap[event.name as keyof EventsMap][i]
-          : clientEventsMap[event.name][i];
+        if (Object.getOwnPropertyNames(eventsMap).includes(event.name)) {
+          ctx.log.warn("Unknown event", { args });
+          return;
+        }
 
-        // @ts-ignore No idea, but please shut up.
-        ctx[name as keyof EventContext<N>] = args[i];
+        const name = eventsMap[event.name][i];
+
+        // I have many questions about typescript sometimes....
+        ctx[name as Exclude<keyof EventContext<N>, "log">] = args[
+          i
+        ] as EventContext<N>[Exclude<keyof Events[N], "log">];
       }
 
       await event.run(ctx);

@@ -1,4 +1,4 @@
-import { Usage } from "@args/usage";
+import { Usage } from "../lib/parser/usage";
 import { Asyncable } from "@utils/types";
 
 import { PermissionString, TextChannel } from "discord.js";

@@ -1,7 +1,7 @@
 import { readdir } from "fs/promises";
 import { join, relative, sep } from "path";
 
-import { CommandRegistry } from "@cmds/registry";
+import { EventManager, Events, WrappedEventListener } from "@events";
 import { count } from "@utils/count";
 import { exists } from "@utils/exists";
 import { createLogger } from "@utils/logger";
@@ -9,19 +9,16 @@ import { createLogger } from "@utils/logger";
 import { FSWatcher, watch } from "chokidar";
 import { Collection } from "discord.js";
 import ms from "ms";
-import { Container, Service } from "typedi";
 
-import { EventManager, WrappedEventListener } from "./event_manager";
-import { Events } from "./events";
 import { kPlugin, Plugin, PluginInstance } from "./plugin";
 
-const registry = Container.get(CommandRegistry);
-
-@Service()
 export class PluginManager {
   #log = createLogger("plugins");
   #plugins = new Collection<Plugin, PluginInstance>();
-  #events = new Map<Plugin, Record<keyof Events, WrappedEventListener>>();
+  #events = new Map<
+    Plugin,
+    Record<keyof Events, WrappedEventListener<keyof Events>>
+  >();
   #paths = new Collection<Plugin, string>();
   #path?: string;
   #hasLoaded = false;
@@ -104,6 +101,11 @@ export class PluginManager {
 
     // I'm assuming that we may end up with some places calling for the plugin
     // using the old constructor, so we just point those to the new one.
+
+    // TODO(@zorbyte): To have this work correctly, the existing plugin instance actually
+    // needs to have its prototype overwritten with the new one. In production, this would be
+    // unacceptable since it disables optimisations enabled by V8 but in development
+    // this should be fine.
     this.#plugins.set(plugin as Plugin, this.get(newPlugin));
   }
 

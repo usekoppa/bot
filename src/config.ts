@@ -1,8 +1,19 @@
+import { ClientOptions, Intents } from "discord.js";
+
+const clientOptions: ClientOptions = {
+  allowedMentions: { parse: ["users", "roles"], repliedUser: true },
+  intents:
+    Intents.FLAGS.GUILDS |
+    Intents.FLAGS.GUILD_MESSAGES |
+    Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+};
+
 export const config = {
   bot: {
     token: getCriticalEnvVar("BOT_TOKEN"),
     prefix: "k:",
     reportsChannelId: "845555781009014805",
+    clientOptions,
   },
 
   db: {

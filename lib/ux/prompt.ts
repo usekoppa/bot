@@ -1,7 +1,7 @@
-import { CommandContext } from "@cmds/context";
+import { CommandContext } from "../lib/cmds_old/context";
 import { Logger } from "@utils/logger";
-import { compose } from "@view/composer";
-import { button, embed } from "@view/pieces";
+import { compose } from "../lib/old/view/composer";
+import { button, embed } from "../lib/old/view/pieces";
 
 import { Message } from "discord.js";
 

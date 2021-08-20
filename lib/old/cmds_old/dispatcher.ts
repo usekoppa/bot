@@ -1,4 +1,4 @@
-import { extractContentStrings } from "@args/content";
+import { extractContentStrings } from "../lib/parser/content";
 import { KoppaClient } from "@core/client";
 import { EventContext } from "@core/context";
 import { createErrorEmbed } from "@ux/embeds";

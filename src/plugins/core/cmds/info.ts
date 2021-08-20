@@ -1,7 +1,7 @@
 import { join } from "path";
 
-import { Category } from "@cmds/categories";
-import { CommandRegistry } from "@cmds/registry";
+import { Category } from "../lib/cmds_old/categories";
+import { CommandRegistry } from "../lib/cmds_old/registry";
 import { KoppaClient } from "@core/client";
 import { readJsonSync } from "@utils/read_json";
 import { createEmbed } from "@ux/embeds";

@@ -1,4 +1,4 @@
-import { Category } from "@cmds/categories";
+import { Category } from "../lib/cmds_old/categories";
 import { plugin } from "@core/plugin";
 
 export const FunPlugin = plugin(

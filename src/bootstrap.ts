@@ -1,25 +1,24 @@
 import { join } from "path";
 
-import { dispatcher } from "@cmds/dispatcher";
-import { KoppaClient } from "@core/client";
-import { EventManager } from "@core/event_manager";
-import { PluginManager } from "@core/plugin_manager";
+import { connect } from "@db/connect";
+import { PluginManager } from "@plugin_lib/plugin_manager";
 import { level } from "@utils/debug";
 import { createLogger, setProdMode } from "@utils/logger";
 
+import { EventManager } from "@events";
 import ms from "ms";
-import { Container } from "typedi";
 
-import { connect } from "../lib/db/connect";
+import { dispatcher } from "../lib/old/cmds_old/dispatcher";
 
+import { getClient } from "./client";
 import { config } from "./config";
 
 setProdMode(!config.dev);
 
-const client = Container.get(KoppaClient);
-const plManager = Container.get(PluginManager);
-const log = createLogger("bot");
-const evManager = new EventManager(log);
+const client = getClient();
+const plManager = new PluginManager();
+const log = createLogger();
+const evManager = new EventManager(client);
 
 export async function bootstrap() {
   try {
@@ -40,9 +39,19 @@ function setupClientHandlers(startTime: number) {
     type: "once",
     name: "ready",
     run(ctx) {
-      ctx.log.info("First login completed", {
-        time: `~${ms(Date.now() - startTime)}`,
-      });
+      if (client.isReady()) {
+        ctx.log.info("First login completed", {
+          time: `~${ms(Date.now() - startTime)}`,
+        });
+      } else {
+        // Something is very wrong if we reach this place.
+        ctx.log.pureError(
+          "I literally have no idea what happened to get us here, but it happened"
+        );
+
+        // This is so dumb that I'd rather terminate the program than keep going on from here.
+        process.exit(0xb00b6);
+      }
     },
   });
 
@@ -71,7 +80,7 @@ function setupClientHandlers(startTime: number) {
 
   evManager.add({
     type: "on",
-    name: "message",
+    name: "messageCreate",
     run: dispatcher(config.bot.prefix, config.bot.reportsChannelId),
   });
 
@@ -87,7 +96,7 @@ function setupClientHandlers(startTime: number) {
     type: "on",
     name: "error",
     run(ctx) {
-      ctx.log.error("Client emitted an error", ctx.reason);
+      ctx.log.error("Client emitted an error", ctx.error);
     },
   });
 
@@ -95,7 +104,7 @@ function setupClientHandlers(startTime: number) {
     type: "on",
     name: "shardReconnecting",
     run(ctx) {
-      ctx.log.warn(`Shard is reconnecting`, { id: ctx.id });
+      ctx.log.warn(`Shard is reconnecting`, { shardId: ctx.shardId });
     },
   });
 }

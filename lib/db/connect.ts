@@ -9,6 +9,7 @@ import { getEntities } from "./entities";
 
 const log = createLogger("db");
 
+// TODO: Use postegresdb when we are more prod ready.
 export async function connect(path: PathLike) {
   log.info("Connecting to database");
 

@@ -47,7 +47,7 @@ module.exports = {
           // Internal packages.
           [
             `^(@|${Object.keys(require("./tsconfig.json").compilerOptions.paths)
-              .map(path => path.slice(0, -2))
+              .map(path => (path.endsWith("/*") ? path.slice(0, -2) : path))
               .join("|")})(/.*|$)`,
           ],
 

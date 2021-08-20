@@ -9,6 +9,10 @@ export class ApplicationCommandManager {
     this.#rest = new REST({ version: "9" }).setToken(token);
   }
 
+  registerGlobalCommands(commands: ApplicationCommandData[]) {
+    return this.#register(this.#routeURI(), commands);
+  }
+
   registerGuildCommands(
     guildID: Snowflake,
     commands: ApplicationCommandData[]

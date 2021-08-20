@@ -36,7 +36,7 @@ import {
   VoiceState,
 } from "discord.js";
 
-export interface ClientEvents {
+export interface Events {
   applicationCommandCreate: { command: ApplicationCommand };
   applicationCommandDelete: { command: ApplicationCommand };
   applicationCommandUpdate: {
@@ -50,8 +50,8 @@ export interface ClientEvents {
     oldChannel: DMChannel | GuildChannel;
     newChannel: DMChannel | GuildChannel;
   };
-  debug: { message: string };
-  warn: { message: string };
+  debug: { info: string };
+  warn: { info: string };
   emojiCreate: { emoji: GuildEmoji };
   emojiDelete: { emoji: GuildEmoji };
   emojiUpdate: { oldEmoji: GuildEmoji; newEmoji: GuildEmoji };
@@ -141,13 +141,13 @@ export interface ClientEvents {
   stickerUpdate: { oldSticker: Sticker; newSticker: Sticker };
 }
 
-export type ClientEventsMap = {
-  [E in keyof ClientEvents]: UnionToTuple<keyof ClientEvents[E]>;
+export type EventsMap = {
+  [E in keyof Events]: UnionToTuple<keyof Events[E]>;
 };
 
 // This allows us to reduce an array of arguments that the client event emitter
 // supplies into an object which ultimately becomes the context.
-export const clientEventsMap: ClientEventsMap = {
+export const eventsMap: EventsMap = {
   applicationCommandCreate: ["command"],
   applicationCommandDelete: ["command"],
   applicationCommandUpdate: ["oldCommand", "newCommand"],
@@ -155,8 +155,8 @@ export const clientEventsMap: ClientEventsMap = {
   channelDelete: ["channel"],
   channelPinsUpdate: ["channel", "date"],
   channelUpdate: ["oldChannel", "newChannel"],
-  debug: ["message"],
-  warn: ["message"],
+  debug: ["info"],
+  warn: ["info"],
   emojiCreate: ["emoji"],
   emojiDelete: ["emoji"],
   emojiUpdate: ["oldEmoji", "newEmoji"],
@@ -179,6 +179,7 @@ export const clientEventsMap: ClientEventsMap = {
   messageDelete: ["message"],
   messageDeleteBulk: ["messages"],
   messageReactionAdd: ["message", "user"],
+  // @ts-ignore Some dumb ts error here for some reason.
   messageReactionRemove: ["user", "reaction"],
   messageReactionRemoveAll: ["message"],
   messageReactionRemoveEmoji: ["reaction"],

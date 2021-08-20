@@ -36,8 +36,9 @@
     "rootDir": "./",
     "baseUrl": "./src",
     "paths": {
-      "@core/*": ["../lib/core/*"],
       "@cmds/*": ["../lib/cmds/*"],
+      "@plugin_lib/*": ["../lib/plugin_lib/*"],
+      "@events": ["../lib/events/index"],
       "@args/*": ["../lib/args/*"],
       "@utils/*": ["../lib/utils/*"],
       "@view/*": ["../lib/view/*"],
@@ -51,6 +52,6 @@
     "src/**/*",
     "shims/**/*",
     "lib/**/*"
-, "lib/parser"  ],
+ ],
   "exclude": ["node_modules"]
 }

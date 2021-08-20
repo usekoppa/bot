@@ -1,9 +1,9 @@
-import { parameter } from "@args/parameter";
-import { stringTransformer } from "@args/transformers/string";
-import { getUsageString } from "@args/usage";
-import { Category, categoryEmojis } from "@cmds/categories";
-import { Command } from "@cmds/command";
-import { CommandRegistry } from "@cmds/registry";
+import { parameter } from "../lib/parser/parameter";
+import { stringTransformer } from "../lib/parser/transformers/string";
+import { getUsageString } from "../lib/parser/usage";
+import { Category, categoryEmojis } from "../lib/cmds_old/categories";
+import { Command } from "../lib/cmds_old/command";
+import { CommandRegistry } from "../lib/cmds_old/registry";
 import { blank } from "@ux/blank";
 import { createEmbed } from "@ux/embeds";
 

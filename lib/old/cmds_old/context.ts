@@ -1,5 +1,5 @@
-import { Arguments } from "@args/transformer";
-import { Usage, UsageTuple } from "@args/usage";
+import { Arguments } from "../lib/parser/transformer";
+import { Usage, UsageTuple } from "../lib/parser/usage";
 import { Logger } from "@utils/logger";
 
 import { Message } from "discord.js";
