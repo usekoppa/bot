@@ -39,7 +39,7 @@ type CommandWithSubcommandOpts<A> = Pick<
   | "setDescription"
   | "defaultPermission"
   | "description"
-  | "enableDefaultPermission"
+  | "setDefaultPermissionEnabled"
   | "toJSON"
   | "name"
   | "options"
@@ -93,15 +93,15 @@ export class Command<A = {}, S extends boolean = false>
     return this;
   }
 
-  enableDefaultPermission(enabled: boolean) {
+  setDefaultPermissionEnabled(enabled: boolean) {
     this.#defaultPermissionEnabled = enabled;
     return this;
   }
 
   addSubcommand(fn: (subcommand: Subcommand) => Subcommand) {
-    const cmd = new Command(true);
-    const subCmd = fn(cmd);
-    this.#options.push(subCmd);
+    const subcmd = new Command(true) as unknown as Subcommand;
+    const finalSubcmd = fn(subcmd);
+    this.#options.push(finalSubcmd);
     return this as unknown as CommandWithSubcommands<A>;
   }
 
@@ -124,10 +124,52 @@ export class Command<A = {}, S extends boolean = false>
     );
   }
 
+  addIntegerOption<
+    T extends ApplicationCommandOptionTypes.INTEGER,
+    N extends string,
+    R extends boolean,
+    C extends number
+  >(fn: AddOptionWithChoiceFn<T, N, R, C>) {
+    return this.#addOptionWithChoices<T, N, R, C>(
+      ApplicationCommandOptionTypes.INTEGER as T,
+      fn
+    );
+  }
+
   addNumberOption<N extends string, R extends boolean>(
     fn: AddOptionFn<ApplicationCommandOptionTypes.NUMBER, N, R>
   ) {
     return this.#addOption(ApplicationCommandOptionTypes.NUMBER, fn);
+  }
+
+  addRoleOption<N extends string, R extends boolean>(
+    fn: AddOptionFn<ApplicationCommandOptionTypes.ROLE, N, R>
+  ) {
+    return this.#addOption(ApplicationCommandOptionTypes.ROLE, fn);
+  }
+
+  addMentionableOption<N extends string, R extends boolean>(
+    fn: AddOptionFn<ApplicationCommandOptionTypes.MENTIONABLE, N, R>
+  ) {
+    return this.#addOption(ApplicationCommandOptionTypes.MENTIONABLE, fn);
+  }
+
+  addUserOption<N extends string, R extends boolean>(
+    fn: AddOptionFn<ApplicationCommandOptionTypes.USER, N, R>
+  ) {
+    return this.#addOption(ApplicationCommandOptionTypes.USER, fn);
+  }
+
+  addChannelOption<N extends string, R extends boolean>(
+    fn: AddOptionFn<ApplicationCommandOptionTypes.CHANNEL, N, R>
+  ) {
+    return this.#addOption(ApplicationCommandOptionTypes.CHANNEL, fn);
+  }
+
+  addBooleanOption<N extends string, R extends boolean>(
+    fn: AddOptionFn<ApplicationCommandOptionTypes.BOOLEAN, N, R>
+  ) {
+    return this.#addOption(ApplicationCommandOptionTypes.BOOLEAN, fn);
   }
 
   use(fn: Middleware<A> | Middleware<A>[]) {
@@ -141,11 +183,23 @@ export class Command<A = {}, S extends boolean = false>
   }
 
   toJSON() {
-    return {
+    const data: Partial<ApplicationCommandData> = {
       name: this.name,
       description: this.description,
-      options: this.#options.map(opt => opt.toJSON()),
+      defaultPermission: this.defaultPermission,
+      options: this.#options.map(
+        opt =>
+          opt.toJSON() as ReturnType<
+            Option<ApplicationCommandOptionTypes>["toJSON"]
+          >
+      ),
     };
+
+    if (this.isSubcommand) {
+      (data as ApplicationCommandOptionData).type = this.type;
+    }
+
+    return data as Record<string, unknown>;
   }
 
   #addOptionWithChoices<

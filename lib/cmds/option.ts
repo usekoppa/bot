@@ -10,14 +10,14 @@ import { OptionTypesMap } from "./options_types_map";
 export class Option<
     T extends ApplicationCommandOptionTypes,
     N extends string = string,
-    R extends boolean = false
+    R extends boolean = true
   >
   extends Base
   implements ApplicationCommandOptionData
 {
-  protected _required = false;
+  protected _required = true;
 
-  constructor(public type: T) {
+  constructor(public readonly type: T) {
     super();
   }
 
@@ -43,6 +43,7 @@ export class Option<
 
   toJSON() {
     return {
+      type: this.type,
       name: this.name,
       description: this.description,
       required: this.required,
@@ -55,7 +56,7 @@ export class OptionWithChoices<
     | ApplicationCommandOptionTypes.INTEGER
     | ApplicationCommandOptionTypes.STRING,
   N extends string = string,
-  R extends boolean = false,
+  R extends boolean = true,
   C extends OptionTypesMap[T] = never
 > extends Option<T, N, R> {
   choices?: ApplicationCommandOptionChoice[];

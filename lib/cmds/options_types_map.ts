@@ -1,4 +1,4 @@
-import { Channel, Role, Snowflake, User } from "discord.js";
+import { Channel, GuildMember, Role, User } from "discord.js";
 import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 
 import { Command } from "./command";
@@ -12,6 +12,6 @@ export interface OptionTypesMap {
   [ApplicationCommandOptionTypes.USER]: User;
   [ApplicationCommandOptionTypes.CHANNEL]: Channel;
   [ApplicationCommandOptionTypes.ROLE]: Role;
-  [ApplicationCommandOptionTypes.MENTIONABLE]: Snowflake;
+  [ApplicationCommandOptionTypes.MENTIONABLE]: User | GuildMember | Role;
   [ApplicationCommandOptionTypes.NUMBER]: number;
 }
