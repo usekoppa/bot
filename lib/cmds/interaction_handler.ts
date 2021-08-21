@@ -20,6 +20,4 @@ export function handle({ interaction }: HandleOpts) {
     interaction,
     log: log.child(command.name),
   };
-
-  
 }
