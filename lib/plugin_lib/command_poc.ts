@@ -1,52 +1,10 @@
-import { ApplicationCommand } from "discord.js";
-import { DefaultPermissions } from "../perms/permissions";
 
-ApplicationCommand
-
-class Command {
-  #name?: string;
-  #description?: string;
-  #subcommands?: Command[];
-
-  get name() {
-    this.#throwIfNotSet(this.#name);
-    return this.#name!;
-  }
-
-  get description() {
-    this.#throwIfNotSet(this.#description);
-    return this.#description!;
-  }
-
-  setName(name: string) {
-    this.#name = name;
-    return this;
-  }
-
-  setDescription(description: string) {
-    this.#description = description;
-    return this;
-  }
-
-
-
-  #throwIfNotSet(data: unknown) {
-    if (
-      typeof data === "undefined" ||
-      data === null ||
-      (typeof data === "string" && data === "")
-    ) {
-      throw new Error("The property has not been set.");
-    }
-  }
-}
-
-Plugin.addCommand((cmd: Command) =>
+Plugin.addCommand(cmd =>
   cmd
     .setName("name")
     .setDescription("it does something")
-    .setDefaultPermissions(DefaultPermissions.Administrator)
-    .addStringOption(op =>
+    .isDefaultPermissionsEnabled(true)
+    .addStringOption(opt =>
       opt.setName("input").isRequired(true).setDescription("Enter a string")
     )
     .addIntegerOption(opt =>
@@ -66,7 +24,6 @@ Plugin.addCommand((cmd: Command) =>
     )
     .use(ctx => {
       ctx.args.input; // string
-      ctx.args.int // number | undefined
-
+      ctx.args.int; // number | undefined
     })
 );
