@@ -9,7 +9,7 @@ import { Base } from "./base";
 import { CommandContext } from "./command_context";
 import { Middleware, NextFn } from "./middleware";
 import { Option, OptionWithChoices } from "./option";
-import { OptionTypesMap } from "./option_maps";
+import { OptionTypesMap } from "./option_type_map";
 import { Subcommand, SubcommandGroup } from "./subcommands";
 
 type ArgumentContainer<

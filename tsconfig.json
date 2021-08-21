@@ -52,6 +52,6 @@
     "src/**/*",
     "shims/**/*",
     "lib/**/*"
- ],
+  ],
   "exclude": ["node_modules"]
 }
