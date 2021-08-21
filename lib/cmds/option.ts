@@ -5,10 +5,10 @@ import {
 import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 
 import { Base } from "./base";
-import { OptionTypesMap } from "./options_types_map";
+import { OptionTypesMap } from "./option_maps";
 
 export class Option<
-    T extends ApplicationCommandOptionTypes,
+    T extends ApplicationCommandOptionTypes = ApplicationCommandOptionTypes,
     N extends string = string,
     R extends boolean = true
   >

@@ -15,3 +15,16 @@ export interface OptionTypesMap {
   [ApplicationCommandOptionTypes.MENTIONABLE]: User | GuildMember | Role;
   [ApplicationCommandOptionTypes.NUMBER]: number;
 }
+
+export const ObjectEnumToStringMap = {
+  [ApplicationCommandOptionTypes.SUB_COMMAND]: "SUB_COMMAND",
+  [ApplicationCommandOptionTypes.SUB_COMMAND_GROUP]: "SUB_COMMAND_GROUP",
+  [ApplicationCommandOptionTypes.STRING]: "STRING",
+  [ApplicationCommandOptionTypes.INTEGER]: "INTEGER",
+  [ApplicationCommandOptionTypes.BOOLEAN]: "BOOLEAN",
+  [ApplicationCommandOptionTypes.USER]: "USER",
+  [ApplicationCommandOptionTypes.CHANNEL]: "CHANNEL",
+  [ApplicationCommandOptionTypes.ROLE]: "ROLE",
+  [ApplicationCommandOptionTypes.MENTIONABLE]: "MENTIONABLE",
+  [ApplicationCommandOptionTypes.NUMBER]: "NUMBER",
+};

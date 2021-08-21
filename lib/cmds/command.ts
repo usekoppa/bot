@@ -1,13 +1,15 @@
 import {
   ApplicationCommandData,
   ApplicationCommandOptionData,
+  CommandInteractionOptionResolver,
 } from "discord.js";
 import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 
 import { Base } from "./base";
-import { Middleware } from "./middleware";
+import { CommandContext } from "./command_context";
+import { Middleware, NextFn } from "./middleware";
 import { Option, OptionWithChoices } from "./option";
-import { OptionTypesMap } from "./options_types_map";
+import { OptionTypesMap } from "./option_maps";
 import { Subcommand, SubcommandGroup } from "./subcommands";
 
 type ArgumentContainer<
@@ -44,7 +46,7 @@ type CommandWithSubcommandOpts<A> = Pick<
   | "name"
   | "options"
   | "type"
-  | "use"
+  | "addRunner"
 >;
 
 type CommandWithSubcommands<A> = Omit<
@@ -102,6 +104,12 @@ export class Command<A = {}, S extends boolean = false>
     const subcmd = new Command(true) as unknown as Subcommand;
     const finalSubcmd = fn(subcmd);
     this.#options.push(finalSubcmd);
+    this.stack.push((ctx, next) => {
+      if (ctx.interaction.options.getSubcommand(true) === finalSubcmd.name) {
+        return next();
+      }
+    });
+
     return this as unknown as CommandWithSubcommands<A>;
   }
 
@@ -109,6 +117,15 @@ export class Command<A = {}, S extends boolean = false>
     const group = new SubcommandGroup();
     const finalGroup = fn(group);
     this.#options.push(finalGroup);
+    this.stack.push(async (ctx, next) => {
+      if (ctx.interaction.options.getSubcommandGroup(true) === group.name) {
+        const subcmdName = ctx.interaction.options.getSubcommand(true);
+        const subcmd = group.options.find(subcmd => subcmd.name === subcmdName);
+        if (typeof subcmd === "undefined") return;
+        await subcmd._executeStack(ctx, next);
+      }
+    });
+
     return this as unknown as CommandWithSubcommandGroup<A>;
   }
 
@@ -172,12 +189,7 @@ export class Command<A = {}, S extends boolean = false>
     return this.#addOption(ApplicationCommandOptionTypes.BOOLEAN, fn);
   }
 
-  use(fn: Middleware<A> | Middleware<A>[]) {
-    this.stack.push(...(Array.isArray(fn) ? fn : [fn]));
-    return this;
-  }
-
-  run(fn: Middleware<A>) {
+  addRunner(fn: Middleware<A>) {
     this.stack.push(fn);
     return this;
   }
@@ -202,6 +214,36 @@ export class Command<A = {}, S extends boolean = false>
     return data as Record<string, unknown>;
   }
 
+  _executeStack(ctx: CommandContext<A>, next?: NextFn) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const self = this;
+
+    return new Promise<void>((resolve, reject) => {
+      function curNext(idx: number, err?: Error) {
+        if (typeof err !== "undefined") return reject(err);
+        if (self.stack.length < idx) {
+          if (typeof next !== "undefined") next();
+          return resolve();
+        }
+
+        const fn = self.stack[idx];
+        const res = fn(ctx, curNext.bind(null, idx + 1));
+
+        if (typeof res?.then !== "undefined") {
+          res.then(resolve).catch(reject);
+        } else {
+          resolve();
+        }
+      }
+
+      try {
+        curNext(0);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
   #addOptionWithChoices<
     T extends
       | ApplicationCommandOptionTypes.INTEGER
@@ -211,8 +253,10 @@ export class Command<A = {}, S extends boolean = false>
     C extends OptionTypesMap[T]
   >(type: T, fn: AddOptionWithChoiceFn<T, N, R, C>) {
     const opt = new OptionWithChoices(type);
-    const newOpt = fn(opt);
-    this.#options.push(newOpt);
+    const finalOpt = fn(opt);
+    this.#options.push(finalOpt);
+    this.#addOptionMiddleware(finalOpt as Option);
+
     return this as unknown as Omit<
       Command<A & Record<N, C | (R extends false ? undefined : never)>, S>,
       "addSubcommand" | "addSubcommandGroup"
@@ -225,11 +269,65 @@ export class Command<A = {}, S extends boolean = false>
     R extends boolean
   >(type: T, fn: AddOptionFn<T, N, R>) {
     const opt = new Option(type);
-    const newOpt = fn(opt);
-    this.#options.push(newOpt);
+    const finalOpt = fn(opt);
+    this.#options.push(finalOpt);
+    this.#addOptionMiddleware(finalOpt as Option);
+
     return this as unknown as Omit<
       Command<A & ArgumentContainer<T, N, R>, S>,
       "addSubcommand" | "addSubcommandGroup"
     >;
+  }
+
+  #addOptionMiddleware(opt: Option) {
+    this.stack.push((ctx, next) => {
+      let optMethod: keyof CommandInteractionOptionResolver;
+      switch (opt.type) {
+        case ApplicationCommandOptionTypes.BOOLEAN: {
+          optMethod = "getBoolean";
+          break;
+        }
+        case ApplicationCommandOptionTypes.CHANNEL: {
+          optMethod = "getChannel";
+          break;
+        }
+        case ApplicationCommandOptionTypes.INTEGER: {
+          optMethod = "getInteger";
+          break;
+        }
+        case ApplicationCommandOptionTypes.MENTIONABLE: {
+          optMethod = "getMentionable";
+          break;
+        }
+        case ApplicationCommandOptionTypes.NUMBER: {
+          optMethod = "getNumber";
+          break;
+        }
+        case ApplicationCommandOptionTypes.ROLE: {
+          optMethod = "getRole";
+          break;
+        }
+        case ApplicationCommandOptionTypes.STRING: {
+          optMethod = "getString";
+          break;
+        }
+        case ApplicationCommandOptionTypes.USER: {
+          optMethod = "getUser";
+          break;
+        }
+        default: {
+          throw new Error("Unknown option type");
+        }
+      }
+
+      const val =
+        ctx.interaction.options[optMethod](opt.name, opt.required) ?? void 0;
+
+      if (typeof val === "undefined") return next();
+
+      ctx.args[opt.name as unknown as keyof A] = val as unknown as A[keyof A];
+
+      next();
+    });
   }
 }
