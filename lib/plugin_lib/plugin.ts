@@ -5,7 +5,7 @@ import { Asyncable } from "@utils/types";
 import { PermissionString } from "discord.js";
 import { Container } from "typedi";
 
-import { DefaultPermissions } from "../perms/permissions";
+import { DefaultPermissions } from "../old/perms/permissions";
 
 import { PluginCommand } from "./plugin_command";
 import { PluginManager } from "./plugin_manager";
