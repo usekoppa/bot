@@ -208,7 +208,7 @@ export class Command<A = {}, S extends boolean = false>
       (data as ApplicationCommandOptionData).type = this.type;
     }
 
-    return data as Record<string, unknown>;
+    return data;
   }
 
   _executeStack(ctx: CommandContext<A>, next?: NextFn) {

@@ -52,5 +52,5 @@
     "shims/**/*",
     "lib/**/*"
   ],
-  "exclude": ["node_modules", "lib/old/**/*", "src/plugins/**/*", "lib/ux/**/*"]
+  "exclude": ["node_modules", "lib/old/**/*", "lib/old/pl_old/**/*", "lib/ux/**/*"]
 }

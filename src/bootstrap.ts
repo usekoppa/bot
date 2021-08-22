@@ -5,7 +5,9 @@ import { connect } from "@db/connect";
 import { EventManager } from "@events";
 import { level } from "@utils/debug";
 import { createLogger, setProdMode } from "@utils/logger";
+import { toAPISnowflake } from "@utils/to_api_snowflake";
 
+import { MessageActionRow, MessageButton, SnowflakeUtil } from "discord.js";
 import ms from "ms";
 
 // import { dispatcher } from "../lib/old/cmds_old/dispatcher";
@@ -24,7 +26,7 @@ export async function bootstrap() {
     const startTime = Date.now();
     //  await plManager.load(join(__dirname, "plugins"));
     // if (config.hpr) plManager.watch();
-    await testCommands();
+    testCommands();
     setupClientHandlers(startTime);
     await connect("./koppa.db");
     await client.login(config.bot.token);
@@ -34,8 +36,8 @@ export async function bootstrap() {
   }
 }
 
-async function testCommands() {
-  const cmd = new Command()
+function testCommands() {
+  const sayCmd = new Command()
     .setName("say")
     .setDescription("It repeats what you tell it to.")
     .addStringOption(opt =>
@@ -45,22 +47,164 @@ async function testCommands() {
       await ctx.interaction.reply(ctx.args.msg);
     });
 
+  const pingCmd = new Command()
+    .setName("ping")
+    .setDescription("Pings the bot and tests latency")
+    .addRunner(async ctx => {
+      const reply = await ctx.interaction.deferReply({ fetchReply: true });
+      await ctx.interaction.editReply(
+        `:ping_pong: Pong! Took **\`${ms(
+          Math.abs(
+            SnowflakeUtil.deconstruct(reply.id).timestamp -
+              ctx.interaction.createdTimestamp -
+              client.ws.ping
+          )
+        )}\`**.\n:heartbeat: Heartbeat latency **\`${ms(
+          client.ws.shards.get(ctx.interaction.guild?.shardId ?? 0)?.manager
+            ?.ping ?? 0
+        )}\`**.`
+      );
+    });
+
+  // If anyone checks the commit history: THIS IS A JOKE
+  const likesLoliCmd = new Command()
+    .setName("likesloli")
+    .setDescription("checks if a user likes loli")
+    .addUserOption(opt =>
+      opt.setName("user").setDescription("the user to ask if they like loli")
+    )
+    .addRunner(async ctx => {
+      const yesBtn = new MessageButton()
+        .setCustomId("loli_yes")
+        .setLabel("Yes!")
+        .setStyle("SUCCESS")
+        .setEmoji("😩");
+
+      const noBtn = new MessageButton()
+        .setCustomId("loli_no")
+        .setLabel("No")
+        .setStyle("DANGER")
+        .setEmoji("😢");
+
+      const row = new MessageActionRow({ components: [yesBtn, noBtn] });
+
+      const r = await ctx.interaction.reply({
+        content: `Hey <@${ctx.args.user.id}>! Do you like loli?`,
+        components: [row],
+      });
+
+      ctx.interaction.channel
+        ?.createMessageComponentCollector({
+          max: 1,
+          maxComponents: 1,
+          time: 10000,
+          filter(int) {
+            return (
+              int.user.id === ctx.args.user.id &&
+              int.isButton() &&
+              (int.customId === "loli_no" || int.customId === "loli_yes")
+            );
+          },
+        })
+        .on("collect", async int => {
+          await int.reply(int.customId);
+        });
+    });
+
+  const touchCmd = new Command()
+    .setName("touch")
+    .setDescription("Allows you to touch something")
+    .addRunner(async ctx => {
+      const cumBtn = new MessageButton()
+        .setCustomId("cum")
+        .setLabel("touch me")
+        .setEmoji("😩")
+        .setStyle("PRIMARY");
+      const row = new MessageActionRow().addComponents(cumBtn);
+
+      const r = await ctx.interaction.reply({
+        fetchReply: true,
+        content: "lets have sex",
+        components: [row],
+      });
+
+      ctx.interaction.channel
+        ?.createMessageComponentCollector({
+          maxUsers: 1,
+          time: 3000,
+          filter(int) {
+            return (
+              int.message.id === r.id &&
+              int.isButton() &&
+              int.customId === "cum"
+            );
+          },
+        })
+        .on("collect", int => {
+          if (int.user.id !== ctx.interaction.user.id) {
+            void int.reply({
+              content:
+                ":x: bitch not ur button to press dumb fag, use the cmd urself",
+              ephemeral: true,
+            });
+          } else {
+            void int.reply({
+              content: "I came :sweat_drops::weary::eggplant:",
+              ephemeral: true,
+            });
+          }
+        })
+        .on("end", () => {
+          const newBtn = cumBtn.setDisabled(true);
+
+          void ctx.interaction.editReply({
+            content: "no more cum left",
+            components: [new MessageActionRow().addComponents(newBtn)],
+          });
+        });
+    });
+
   const m = new ApplicationCommandManager(
     config.bot.clientId,
     config.bot.token
   );
 
-  await m.registerGuildCommands(`${833205130131406908n}`, [cmd]);
-  await m.registerGuildCommands(`${782769848740610058n}`, [cmd]);
+  void Promise.all(
+    ["511547945871474699", "833205130131406908", "782769848740610058"]
+      .map(toAPISnowflake)
+      .map(id => {
+        return m.registerGuildCommands(id, [
+          sayCmd,
+          pingCmd,
+          touchCmd,
+          likesLoliCmd,
+        ]);
+      })
+  );
 
   evManager.add({
     type: "on",
     name: "interactionCreate",
     async run(ctx) {
       if (!ctx.interaction.isCommand()) return;
-      if (ctx.interaction.commandName === "say") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await cmd._executeStack({ ...ctx, args: {} } as CommandContext<any>);
+      const cmdCtx = { ...ctx, args: {} } as CommandContext<any>;
+      switch (ctx.interaction.commandName) {
+        case "say": {
+          await sayCmd._executeStack(cmdCtx);
+          break;
+        }
+        case "ping": {
+          await pingCmd._executeStack(cmdCtx);
+          break;
+        }
+        case "touch": {
+          await touchCmd._executeStack(cmdCtx);
+          break;
+        }
+        case "likesloli": {
+          await likesLoliCmd._executeStack(cmdCtx);
+          break;
+        }
       }
     },
   });
@@ -143,7 +287,7 @@ function setupClientHandlers(startTime: number) {
 
 function setStatus() {
   // TODO(@zorbyte): Make this more dynamic.
-  client.user?.setActivity(`Koppa - ${config.bot.prefix}help`);
+  client.user?.setActivity(`Koppa - /say`);
 }
 
 process.on("warning", warn => {
