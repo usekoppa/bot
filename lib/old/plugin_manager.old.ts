@@ -10,7 +10,7 @@ import { FSWatcher, watch } from "chokidar";
 import { Collection } from "discord.js";
 import ms from "ms";
 
-import { kPlugin, Plugin, PluginInstance } from "./plugin";
+import { kPlugin, Plugin, PluginInstance } from "../../src/plugins/plugin.old";
 
 export class PluginManager {
   #log = createLogger("plugins");

@@ -1,11 +1,8 @@
-import { join } from "path";
-
 import { connect } from "@db/connect";
-import { PluginManager } from "@plugin_lib/plugin_manager";
+import { EventManager } from "@events";
 import { level } from "@utils/debug";
 import { createLogger, setProdMode } from "@utils/logger";
 
-import { EventManager } from "@events";
 import ms from "ms";
 
 import { dispatcher } from "../lib/old/cmds_old/dispatcher";
@@ -16,14 +13,14 @@ import { config } from "./config";
 setProdMode(!config.dev);
 
 const client = getClient();
-const plManager = new PluginManager();
+// const plManager = new PluginManager();
 const log = createLogger();
 const evManager = new EventManager(client);
 
 export async function bootstrap() {
   try {
     const startTime = Date.now();
-    await plManager.load(join(__dirname, "plugins"));
+    //  await plManager.load(join(__dirname, "plugins"));
     // if (config.hpr) plManager.watch();
     setupClientHandlers(startTime);
     await connect("./koppa.db");

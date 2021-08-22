@@ -1,5 +1,6 @@
-import { NoArgsCommandContext } from "../lib/cmds_old/context";
 import { Asyncable } from "@utils/types";
+
+import { NoArgsCommandContext } from "../context";
 
 import { Usage, UsageTuple } from "./usage";
 

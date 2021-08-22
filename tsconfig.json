@@ -37,7 +37,6 @@
     "baseUrl": "./src",
     "paths": {
       "@cmds/*": ["../lib/cmds/*"],
-      "@plugin_lib/*": ["../lib/plugin_lib/*"],
       "@events": ["../lib/events/index"],
       "@args/*": ["../lib/args/*"],
       "@utils/*": ["../lib/utils/*"],
@@ -53,5 +52,5 @@
     "shims/**/*",
     "lib/**/*"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "lib/old/**/*", "src/plugins/**/*", "lib/ux/**/*"]
 }

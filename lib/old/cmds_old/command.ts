@@ -1,8 +1,8 @@
-import { Usage } from "../lib/parser/usage";
 import { Asyncable } from "@utils/types";
 
 import { PermissionString, TextChannel } from "discord.js";
 
+import { Usage } from "./parser/usage";
 import { Category } from "./categories";
 import { CommandContext } from "./context";
 

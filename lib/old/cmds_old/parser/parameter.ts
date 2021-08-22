@@ -1,4 +1,4 @@
-import { NoArgsCommandContext } from "../lib/cmds_old/context";
+import { NoArgsCommandContext } from "../context";
 
 import { Transformer } from "./transformer";
 

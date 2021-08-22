@@ -20,10 +20,13 @@ const tsConfig = readJsonSync<AliasesOfTsConfig>(
 addAliases(
   Object.fromEntries(
     Object.entries(tsConfig.compilerOptions.paths).map(([key, value]) => [
-      key.slice(0, -2),
+      key.endsWith("/*") ? key.slice(0, -2) : key,
 
       // Removes "./" and prepends "../" to the path value.
-      join(__dirname, `../${value[0].slice(2, -2)}`),
+      join(
+        __dirname,
+        `../${value[0].slice(2, key.endsWith("/*") ? -2 : void 0)}`
+      ),
     ])
   )
 );

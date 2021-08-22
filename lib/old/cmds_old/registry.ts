@@ -1,14 +1,13 @@
-import { Usage } from "../lib/parser/usage";
 import { createLogger } from "@utils/logger";
 
 import equal from "fast-deep-equal";
 
+import { Usage } from "./parser/usage";
 import { Command } from "./command";
 
 // The values of aliases are a string, which are then resolved to commands.
 type CommandResolvable<U extends Usage> = Command<U> | string;
 
-@Service()
 export class CommandRegistry {
   #log = createLogger("registry");
   #commands = new Map<string, CommandResolvable<Usage>>();

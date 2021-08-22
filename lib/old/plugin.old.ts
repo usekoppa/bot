@@ -1,3 +1,4 @@
+import { Command } from "@cmds/command";
 import { Event, Events } from "@events";
 import { createLogger, Logger } from "@utils/logger";
 import { Asyncable } from "@utils/types";
@@ -5,10 +6,9 @@ import { Asyncable } from "@utils/types";
 import { PermissionString } from "discord.js";
 import { Container } from "typedi";
 
-import { DefaultPermissions } from "../old/perms/permissions";
+import { DefaultPermissions } from "../../lib/old/perms/permissions";
 
-import { PluginCommand } from "./plugin_command";
-import { PluginManager } from "./plugin_manager";
+import { PluginManager } from "../../lib/old/plugin_manager.old";
 
 export const kPlugin = Symbol("plugin");
 
@@ -75,30 +75,13 @@ export function createPlugin<P extends ImplementedBasePlugin>(
     // It checks the export and whether they have the kPlugin symbol on them or not.
     static [kPlugin] = true;
 
-    static command<U extends Usage>(cmd: PluginCommand<U>) {
-      commands.push({
-        ...cmd,
-        get botPermissions() {
-          const self = manager.get(ctedPlugin);
-          return cmd.botPermissions ?? self.botPermissions;
-        },
-        get permissions() {
-          const self = manager.get(ctedPlugin);
-          return cmd.permissions ?? self.permissions;
-        },
-        get category() {
-          const self = manager.get(ctedPlugin);
-          return cmd.category ?? self.category;
-        },
-        get pluginName() {
-          const self = manager.get(ctedPlugin);
-          return self.name;
-        },
-      });
+    static addCommand(fn: (cmd: Command) => Command) {
+      const cmd = fn(new Command());
+      commands.push(cmd);
     }
 
     // Registers an event for this plugin.
-    static event<N extends keyof Events>(event: Event<N>) {
+    static addEvent<N extends keyof Events>(event: Event<N>) {
       events.push(event as unknown as Event<keyof Events>);
     }
 

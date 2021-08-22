@@ -1,20 +1,19 @@
-import { extractContentStrings } from "../lib/parser/content";
-import { KoppaClient } from "@core/client";
-import { EventContext } from "@core/context";
+// @ts-nocheck
+import { EventContext } from "@events";
 import { createErrorEmbed } from "@ux/embeds";
 
-import { Message, MessageOptions, TextChannel } from "discord.js";
-import { Container } from "typedi";
+import { Client, Message, MessageOptions, TextChannel } from "discord.js";
 
+import { extractContentStrings } from "./parser/content";
 import { CommandContext } from "./context";
 import { CommandRegistry } from "./registry";
 
-const registry = Container.get(CommandRegistry);
-const client = Container.get(KoppaClient);
+declare const registry: CommandRegistry;
+declare const client: Client;
 
 export function dispatcher(defaultPrefix: string, reportsChannelId: string) {
-  return async function handler(ctx: EventContext<"message">) {
-    const { msg, log } = ctx;
+  return async function handler(ctx: EventContext<"messageCreate">) {
+    const { message: msg, log } = ctx;
     try {
       // Ensures the user is not a bot to prevent spam and also ensures we only handle messages that begin with the bot
       // prefix.

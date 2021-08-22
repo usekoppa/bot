@@ -38,7 +38,7 @@
   "dependencies": {
     "@discordjs/rest": "^0.1.0-canary.0",
     "@types/ms": "^0.7.31",
-    "better-sqlite3": "^7.4.0",
+    "better-sqlite3": "^7.4.3",
     "bufferutil": "^4.0.3",
     "chalk": "^4.1.0",
     "chokidar": "^3.5.1",

@@ -170,7 +170,8 @@ export const eventsMap: EventsMap = {
   guildMemberAvailable: ["member"],
   guildMemberRemove: ["member"],
   guildMemberUpdate: ["oldMember", "newMember"],
-  guildMembersChunk: ["guild", "members", "data"],
+  // @ts-ignore yet another strange ts error
+  guildMembersChunk: ["members", "guild", "data"],
   guildUnavailable: ["guild"],
   guildUpdate: ["oldGuild", "newGuild"],
   inviteCreate: ["invite"],

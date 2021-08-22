@@ -74,8 +74,8 @@ export class EventManager {
 
       const ctx = { log: childLogger } as EventContext<N>;
       for (let i = 0; i < args.length; i++) {
-        if (Object.getOwnPropertyNames(eventsMap).includes(event.name)) {
-          ctx.log.warn("Unknown event", { args });
+        if (!Object.getOwnPropertyNames(eventsMap).includes(event.name)) {
+          ctx.log.warn("Unknown event", { name: event.name, args });
           return;
         }
 
