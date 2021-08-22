@@ -2,8 +2,8 @@ import {
   ApplicationCommandOptionChoice,
   ApplicationCommandOptionData,
 } from "discord.js";
-import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 
+import type { ApplicationCommandOptionTypes } from "./application_command_option_types";
 import { Base } from "./base";
 import { OptionTypesMap } from "./option_type_map";
 
@@ -41,7 +41,7 @@ export class Option<
     return this as unknown as Option<T, N, IR>;
   }
 
-  toJSON() {
+  toJSON(): Record<string, unknown> {
     return {
       type: this.type,
       name: this.name,
@@ -79,7 +79,9 @@ export class OptionWithChoices<
   }
 
   toJSON() {
-    this.throwIfNotSet(this.choices);
-    return { ...super.toJSON(), choices: this.choices! };
+    const data = super.toJSON();
+    if (typeof this.choices !== "undefined") data.choices = this.choices;
+
+    return data;
   }
 }

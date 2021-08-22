@@ -12,7 +12,8 @@ export const config = {
   bot: {
     token: getCriticalEnvVar("BOT_TOKEN"),
     prefix: "k:",
-    reportsChannelId: "845555781009014805",
+    reportsChannelId: "845555781009014805" as `${bigint}`,
+    clientId: "826333330886230027" as `${bigint}`,
     clientOptions,
   },
 

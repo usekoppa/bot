@@ -1,3 +1,6 @@
+import { ApplicationCommandManager } from "@cmds/application_command_manager";
+import { Command } from "@cmds/command";
+import { CommandContext } from "@cmds/command_context";
 import { connect } from "@db/connect";
 import { EventManager } from "@events";
 import { level } from "@utils/debug";
@@ -5,8 +8,7 @@ import { createLogger, setProdMode } from "@utils/logger";
 
 import ms from "ms";
 
-import { dispatcher } from "../lib/old/cmds_old/dispatcher";
-
+// import { dispatcher } from "../lib/old/cmds_old/dispatcher";
 import { getClient } from "./client";
 import { config } from "./config";
 
@@ -22,6 +24,7 @@ export async function bootstrap() {
     const startTime = Date.now();
     //  await plManager.load(join(__dirname, "plugins"));
     // if (config.hpr) plManager.watch();
+    await testCommands();
     setupClientHandlers(startTime);
     await connect("./koppa.db");
     await client.login(config.bot.token);
@@ -29,6 +32,38 @@ export async function bootstrap() {
     log.error("Failed to bootstrap", err);
     process.exit(1);
   }
+}
+
+async function testCommands() {
+  const cmd = new Command()
+    .setName("say")
+    .setDescription("It repeats what you tell it to.")
+    .addStringOption(opt =>
+      opt.setName("msg").setDescription("The message to send")
+    )
+    .addRunner(async ctx => {
+      await ctx.interaction.reply(ctx.args.msg);
+    });
+
+  const m = new ApplicationCommandManager(
+    config.bot.clientId,
+    config.bot.token
+  );
+
+  await m.registerGuildCommands(`${833205130131406908n}`, [cmd]);
+  await m.registerGuildCommands(`${782769848740610058n}`, [cmd]);
+
+  evManager.add({
+    type: "on",
+    name: "interactionCreate",
+    async run(ctx) {
+      if (!ctx.interaction.isCommand()) return;
+      if (ctx.interaction.commandName === "say") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await cmd._executeStack({ ...ctx, args: {} } as CommandContext<any>);
+      }
+    },
+  });
 }
 
 function setupClientHandlers(startTime: number) {
@@ -75,11 +110,11 @@ function setupClientHandlers(startTime: number) {
     });
   }
 
-  evManager.add({
+  /* evManager.add({
     type: "on",
     name: "messageCreate",
     run: dispatcher(config.bot.prefix, config.bot.reportsChannelId),
-  });
+  });*/
 
   evManager.add({
     type: "on",

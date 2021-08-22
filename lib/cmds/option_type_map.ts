@@ -1,6 +1,6 @@
 import { Channel, GuildMember, Role, User } from "discord.js";
-import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 
+import type { ApplicationCommandOptionTypes } from "./application_command_option_types";
 import { Command } from "./command";
 
 export interface OptionTypesMap {

@@ -20,6 +20,7 @@ export async function connect(path: PathLike) {
     logger: new CustomSimpleConsoleLogger(log, "all"),
     logging: true,
   } as ConnectionOptions);
+
   log.info("Connected to database");
 
   return conn;

@@ -1,5 +1,4 @@
-import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
-
+import { ApplicationCommandOptionTypes } from "./application_command_option_types";
 import { Base } from "./base";
 import { Command } from "./command";
 

@@ -3,8 +3,8 @@ import {
   ApplicationCommandOptionData,
   CommandInteractionOptionResolver,
 } from "discord.js";
-import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 
+import { ApplicationCommandOptionTypes } from "./application_command_option_types";
 import { Base } from "./base";
 import { CommandContext } from "./command_context";
 import { Middleware, NextFn } from "./middleware";
@@ -200,10 +200,7 @@ export class Command<A = {}, S extends boolean = false>
       description: this.description,
       defaultPermission: this.defaultPermission,
       options: this.#options.map(
-        opt =>
-          opt.toJSON() as ReturnType<
-            Option<ApplicationCommandOptionTypes>["toJSON"]
-          >
+        opt => opt.toJSON() as unknown as ApplicationCommandOptionData
       ),
     };
 
@@ -217,7 +214,6 @@ export class Command<A = {}, S extends boolean = false>
   _executeStack(ctx: CommandContext<A>, next?: NextFn) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
-
     return new Promise<void>((resolve, reject) => {
       function curNext(idx: number, err?: Error) {
         if (typeof err !== "undefined") return reject(err);
@@ -258,7 +254,15 @@ export class Command<A = {}, S extends boolean = false>
     this.#addOptionMiddleware(finalOpt as Option);
 
     return this as unknown as Omit<
-      Command<A & Record<N, C | (R extends false ? undefined : never)>, S>,
+      Command<
+        A &
+          Record<
+            N,
+            | ([C] extends [never] ? OptionTypesMap[T] : C)
+            | (R extends false ? undefined : never)
+          >,
+        S
+      >,
       "addSubcommand" | "addSubcommandGroup"
     >;
   }

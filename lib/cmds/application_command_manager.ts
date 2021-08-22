@@ -5,7 +5,7 @@ import { Routes, Snowflake } from "discord-api-types/v9";
 export class ApplicationCommandManager {
   #rest: REST;
 
-  constructor(private clientID: Snowflake, token: string) {
+  constructor(private clientId: Snowflake, token: string) {
     this.#rest = new REST({ version: "9" }).setToken(token);
   }
 
@@ -22,9 +22,9 @@ export class ApplicationCommandManager {
 
   #routeURI(guildID?: Snowflake) {
     if (typeof guildID !== "undefined") {
-      return Routes.applicationGuildCommands(this.clientID, guildID);
+      return Routes.applicationGuildCommands(this.clientId, guildID);
     } else {
-      return Routes.applicationCommands(this.clientID);
+      return Routes.applicationCommands(this.clientId);
     }
   }
 
