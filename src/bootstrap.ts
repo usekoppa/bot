@@ -7,7 +7,12 @@ import { level } from "@utils/debug";
 import { createLogger, setProdMode } from "@utils/logger";
 import { toAPISnowflake } from "@utils/to_api_snowflake";
 
-import { MessageActionRow, MessageButton, SnowflakeUtil } from "discord.js";
+import {
+  Collection,
+  MessageActionRow,
+  MessageButton,
+  SnowflakeUtil,
+} from "discord.js";
 import ms from "ms";
 
 // import { dispatcher } from "../lib/old/cmds_old/dispatcher";
@@ -29,6 +34,7 @@ export async function bootstrap() {
     testCommands();
     setupClientHandlers(startTime);
     await connect("./koppa.db");
+    log.info("Logging into Discord");
     await client.login(config.bot.token);
   } catch (err) {
     log.error("Failed to bootstrap", err);
@@ -107,7 +113,21 @@ function testCommands() {
           },
         })
         .on("collect", async int => {
-          await int.reply(int.customId);
+          await int.update({
+            content:
+              int.customId === "loli_yes"
+                ? "you are a tasteful individual"
+                : "think of the children!?!?!? :weary:",
+            components: [],
+          });
+        })
+        .on("end", async (_, reason) => {
+          if (reason === "time") {
+            await ctx.interaction.editReply({
+              content: "too late bitch",
+              components: [],
+            });
+          }
         });
     });
 
@@ -120,6 +140,7 @@ function testCommands() {
         .setLabel("touch me")
         .setEmoji("😩")
         .setStyle("PRIMARY");
+
       const row = new MessageActionRow().addComponents(cumBtn);
 
       const r = await ctx.interaction.reply({
@@ -169,18 +190,36 @@ function testCommands() {
     config.bot.token
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cmds = new Collection<string, Command<any>>()
+    .set(sayCmd.name, sayCmd)
+    .set(pingCmd.name, pingCmd)
+    .set(touchCmd.name, touchCmd)
+    .set(likesLoliCmd.name, likesLoliCmd);
+
   void Promise.all(
     ["511547945871474699", "833205130131406908", "782769848740610058"]
       .map(toAPISnowflake)
       .map(id => {
-        return m.registerGuildCommands(id, [
-          sayCmd,
-          pingCmd,
-          touchCmd,
-          likesLoliCmd,
-        ]);
+        return m.registerGuildCommands(id, [...cmds.values()]);
       })
   );
+
+  evManager.add({
+    type: "on",
+    name: "guildCreate",
+    run(ctx) {
+      ctx.log.info("Added to guild, registering commands", {
+        guildId: ctx.guild.id,
+      });
+
+      m.registerGuildCommands(toAPISnowflake(ctx.guild.id), [
+        ...cmds.values(),
+      ]).catch(err => {
+        ctx.log.error("Failed to register guild commands", err);
+      });
+    },
+  });
 
   evManager.add({
     type: "on",
@@ -188,24 +227,8 @@ function testCommands() {
     async run(ctx) {
       if (!ctx.interaction.isCommand()) return;
       const cmdCtx = { ...ctx, args: {} } as CommandContext<any>;
-      switch (ctx.interaction.commandName) {
-        case "say": {
-          await sayCmd._executeStack(cmdCtx);
-          break;
-        }
-        case "ping": {
-          await pingCmd._executeStack(cmdCtx);
-          break;
-        }
-        case "touch": {
-          await touchCmd._executeStack(cmdCtx);
-          break;
-        }
-        case "likesloli": {
-          await likesLoliCmd._executeStack(cmdCtx);
-          break;
-        }
-      }
+      const cmd = cmds.get(ctx.interaction.commandName);
+      await cmd?._executeStack(cmdCtx);
     },
   });
 }
