@@ -77,12 +77,6 @@ function setupClientHandlers(startTime: number) {
     });
   }
 
-  /* evManager.add({
-    type: "on",
-    name: "messageCreate",
-    run: dispatcher(config.bot.prefix, config.bot.reportsChannelId),
-  });*/
-
   evManager.add({
     type: "on",
     name: "warn",
