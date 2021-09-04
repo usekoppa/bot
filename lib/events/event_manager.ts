@@ -4,7 +4,7 @@ import { UnionToTuple } from "@utils/types";
 
 import { Client } from "discord.js";
 
-import { Event } from "./event";
+import { Event, EventListener } from "./event";
 import { EventContext } from "./event_context";
 import { Events, eventsMap } from "./events";
 
@@ -25,26 +25,56 @@ export class EventManager {
     debugEnabled: level >= 2,
   });
 
-  #client: Client;
+  private static client: Client;
 
-  constructor(client: Client) {
-    this.#client = client;
+  static setClient(client: Client) {
+    EventManager.client = client;
   }
 
-  emit<N extends keyof Events>(event: N, ...args: EventValues<N>) {
-    this.#client.emit(event as string, ...(args as unknown[]));
+  static on<N extends keyof Events>(name: N, listener: EventListener<N>) {
+    return EventManager.add({
+      type: "on",
+      name: name,
+      run: listener,
+    });
   }
 
-  add<N extends keyof Events>(event: Event<N>): WrappedEventListener<N> {
-    const newTotal = this.#client.rawListeners(event.name).length + 1;
+  static once<N extends keyof Events>(name: N, listener: EventListener<N>) {
+    return EventManager.add({
+      type: "once",
+      name: name,
+      run: listener,
+    });
+  }
+
+  static off<N extends keyof Events>(
+    name: N,
+    listener: WrappedEventListener<N>
+  ) {
+    this.assertClient();
+
+    const newTotal = EventManager.client.rawListeners(name).length;
+    EventManager.log.debug("Removing listener", { name, newTotal });
+    EventManager.client.removeListener(
+      name,
+      listener as unknown as (...args: unknown[]) => void
+    );
+  }
+
+  private static add<N extends keyof Events>(
+    event: Event<N>
+  ): WrappedEventListener<N> {
+    this.assertClient();
+
+    const newTotal = EventManager.client.rawListeners(event.name).length + 1;
     EventManager.log.debug("Adding listener", {
       name: event.name,
       type: event.type,
       newTotal,
     });
 
-    const wrapped = this.wrapListener(event);
-    this.#client[event.type](
+    const wrapped = EventManager.wrapListener(event);
+    EventManager.client[event.type](
       event.name,
       wrapped as unknown as (...args: unknown[]) => void
     );
@@ -52,16 +82,7 @@ export class EventManager {
     return wrapped;
   }
 
-  off<N extends keyof Events>(name: N, listener: WrappedEventListener<N>) {
-    const newTotal = this.#client.rawListeners(name).length;
-    EventManager.log.debug("Removing listener", { name, newTotal });
-    this.#client.removeListener(
-      name,
-      listener as unknown as (...args: unknown[]) => void
-    );
-  }
-
-  private wrapListener<N extends keyof Events>(
+  private static wrapListener<N extends keyof Events>(
     event: Event<N>
   ): WrappedEventListener<N> {
     const childLogger = EventManager.log.child(event.name);
@@ -89,5 +110,11 @@ export class EventManager {
 
       await event.run(ctx);
     };
+  }
+
+  private static assertClient() {
+    if (typeof EventManager.client === "undefined") {
+      throw new Error("Client was not set using EventManager.setClient()");
+    }
   }
 }
