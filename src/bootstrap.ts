@@ -1,7 +1,6 @@
 import { ApplicationCommandManager } from "@cmds/application_command_manager";
 import { Command } from "@cmds/command";
 import { CommandContext } from "@cmds/command_context";
-import { connect } from "@db/connect";
 import { EventManager } from "@events";
 import { level } from "@utils/debug";
 import { createLogger, setProdMode } from "@utils/logger";
@@ -18,6 +17,7 @@ import ms from "ms";
 // import { dispatcher } from "../lib/old/cmds_old/dispatcher";
 import { getClient } from "./client";
 import { config } from "./config";
+import { connect } from "./db_driver";
 
 setProdMode(!config.dev);
 
@@ -33,7 +33,7 @@ export async function bootstrap() {
     // if (config.hpr) plManager.watch();
     testCommands();
     setupClientHandlers(startTime);
-    await connect("./koppa.db");
+    await connect("mongodb://localhost:27017", "koppa");
     log.info("Logging into Discord");
     await client.login(config.bot.token);
   } catch (err) {
