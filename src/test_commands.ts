@@ -1,8 +1,6 @@
 // This is a temporary file just so we can test out application commands.
 
-import { ApplicationCommandManager } from "@cmds/application_command_manager";
-import { Command } from "@cmds/command";
-import { CommandContext } from "@cmds/command_context";
+import { ApplicationCommandManager, Command, CommandContext } from "@cmds";
 import { EventManager } from "@events";
 import { toAPISnowflake } from "@utils/to_api_snowflake";
 

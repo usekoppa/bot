@@ -38,19 +38,9 @@ function setupClientHandlers(startTime: number) {
     type: "once",
     name: "ready",
     run(ctx) {
-      if (client.isReady()) {
-        ctx.log.info("First login completed", {
-          time: `~${ms(Date.now() - startTime)}`,
-        });
-      } else {
-        // Something is very wrong if we reach this place.
-        ctx.log.pureError(
-          "I literally have no idea what happened to get us here, but it happened"
-        );
-
-        // This is so dumb that I'd rather terminate the program than keep going on from here.
-        process.exit(0xb00b6);
-      }
+      ctx.log.info("First login completed", {
+        time: `~${ms(Date.now() - startTime)}`,
+      });
     },
   });
 

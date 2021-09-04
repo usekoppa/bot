@@ -101,13 +101,14 @@ export class Command<A = {}, S extends boolean = false>
   }
 
   addSubcommand(fn: (subcommand: Subcommand) => Subcommand) {
-    const subcmd = new Command(true) as unknown as Subcommand;
-    const finalSubcmd = fn(subcmd);
-    this.#options.push(finalSubcmd);
+    const subcmd = fn(new Command(true) as unknown as Subcommand);
+    this.#options.push(subcmd);
     this.stack.push((ctx, next) => {
-      if (ctx.interaction.options.getSubcommand(true) === finalSubcmd.name) {
-        return next();
+      if (ctx.interaction.options.getSubcommand(true) === subcmd.name) {
+        return subcmd._executeStack(ctx);
       }
+
+      return next();
     });
 
     return this as unknown as CommandWithSubcommands<A>;
@@ -217,7 +218,10 @@ export class Command<A = {}, S extends boolean = false>
     return new Promise<void>((resolve, reject) => {
       function curNext(idx: number, err?: Error) {
         if (typeof err !== "undefined") return reject(err);
+
+        // When we have ran out of items on the stack to run:
         if (self.stack.length < idx) {
+          // If a next function was provided, run it.
           if (typeof next !== "undefined") next();
           return resolve();
         }
