@@ -68,7 +68,7 @@ function testCommands() {
     });
 
   const m = new ApplicationCommandManager(
-    config.bot.clientId,
+    toAPISnowflake(config.bot.clientId),
     config.bot.token
   );
 

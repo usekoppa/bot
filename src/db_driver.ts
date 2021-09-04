@@ -11,10 +11,11 @@ const log = createLogger("db");
 
 const credentialsRegex = /mongodb:\/\/(?:(.+:.+)@)?[^@]+:(?:\d{4}|\d{2})/g;
 
-export async function connect(
-  url: `mongodb://${`${string}:${string}@` | ""}${string}:${number}`,
-  dbName: string
-) {
+export type MongoUrl = `mongodb://${
+  | `${string}:${string}@`
+  | ""}${string}:${number}`;
+
+export async function connect(url: MongoUrl, dbName: string) {
   const credMatch = credentialsRegex.exec(url) ?? void 0;
   const displayUrl =
     typeof credMatch?.[1] !== "undefined"
@@ -27,8 +28,8 @@ export async function connect(
   client = await MongoClient.connect(url);
   log.info("Successfully connected to MongoDB");
 
+  log.debug("Configuring papr");
   papr.initialize(client.db(dbName));
-
   await papr.updateSchemas();
 }
 

@@ -1,4 +1,4 @@
-# Koppa
+# Koppa ~ WIP
 
 Koppa's your all-purpose Discord multi-tool 🛠
 
@@ -14,5 +14,5 @@ Some things you ought to know for development:
    directly interacted with user features like plugins in the `src` directory and the libraries that
    power this in the `lib` directory. 
     - Consider the following as the best rule of thumb:
-      - An experience that a user can interact with -> `src`
-      - A tool, framework, or piece of logic that enables that -> `lib`
+      - An experience that a user can interact with or code that is inter-dependent -> `src`
+      - A tool or framework, -> `lib`

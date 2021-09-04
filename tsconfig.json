@@ -34,17 +34,16 @@
     "skipLibCheck": true,
     "outDir": "./dist",
     "rootDir": "./",
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "paths": {
-      "@cmds/*": ["../lib/cmds/*"],
-      "@events": ["../lib/events/index"],
-      "@args/*": ["../lib/args/*"],
-      "@utils/*": ["../lib/utils/*"],
-      "@view/*": ["../lib/view/*"],
-      "@ux/*": ["../lib/ux/*"],
-      "@db/*": ["../lib/db/*"],
-      "@plugins/*": ["../src/plugins/*"],
-      "@root/*": ["../src/*"]
+      "@cmds/*": ["./lib/cmds/*"],
+      "@events": ["./lib/events/index"],
+      "@args/*": ["./lib/args/*"],
+      "@utils/*": ["./lib/utils/*"],
+      "@view/*": ["./lib/view/*"],
+      "@ux/*": ["./lib/ux/*"],
+      "@db/*": ["./lib/db/*"],
+      "@root/*": ["./src/*"]
     }
   },
   "include": [
@@ -52,5 +51,5 @@
     "shims/**/*",
     "lib/**/*"
   ],
-  "exclude": ["node_modules", "lib/old/**/*", "lib/old/pl_old/**/*", "lib/ux/**/*"]
+  "exclude": ["node_modules"]
 }

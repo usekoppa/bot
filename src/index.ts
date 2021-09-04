@@ -1,5 +1,3 @@
-import "reflect-metadata";
-
 import { config as dotenv } from "dotenv";
 
 dotenv();

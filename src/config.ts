@@ -1,5 +1,7 @@
 import { ClientOptions, Intents } from "discord.js";
 
+import type { MongoUrl } from "./db_driver";
+
 const clientOptions: ClientOptions = {
   allowedMentions: { parse: ["users", "roles"], repliedUser: true },
   intents:
@@ -11,9 +13,8 @@ const clientOptions: ClientOptions = {
 export const config = {
   bot: {
     token: getCriticalEnvVar("BOT_TOKEN"),
-    prefix: "k:",
-    reportsChannelId: "845555781009014805" as `${bigint}`,
-    clientId: "826333330886230027" as `${bigint}`,
+    reportsChannelId: "845555781009014805",
+    clientId: "826333330886230027",
     clientOptions,
   },
 
@@ -22,6 +23,7 @@ export const config = {
     name: getCriticalEnvVar("DB_NAME"),
     username: getCriticalEnvVar("DB_USERNAME"),
     password: getCriticalEnvVar("DB_PASSWORD"),
+    url: "mongodb://localhost:255" as MongoUrl,
   },
 
   api: {
