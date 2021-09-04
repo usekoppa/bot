@@ -6,12 +6,7 @@ import { level } from "@utils/debug";
 import { createLogger, setProdMode } from "@utils/logger";
 import { toAPISnowflake } from "@utils/to_api_snowflake";
 
-import {
-  Collection,
-  MessageActionRow,
-  MessageButton,
-  SnowflakeUtil,
-} from "discord.js";
+import { Collection, SnowflakeUtil } from "discord.js";
 import ms from "ms";
 
 // import { dispatcher } from "../lib/old/cmds_old/dispatcher";
@@ -72,119 +67,6 @@ function testCommands() {
       );
     });
 
-  // If anyone checks the commit history: THIS IS A JOKE
-  const likesLoliCmd = new Command()
-    .setName("likesloli")
-    .setDescription("checks if a user likes loli")
-    .addUserOption(opt =>
-      opt.setName("user").setDescription("the user to ask if they like loli")
-    )
-    .addRunner(async ctx => {
-      const yesBtn = new MessageButton()
-        .setCustomId("loli_yes")
-        .setLabel("Yes!")
-        .setStyle("SUCCESS")
-        .setEmoji("😩");
-
-      const noBtn = new MessageButton()
-        .setCustomId("loli_no")
-        .setLabel("No")
-        .setStyle("DANGER")
-        .setEmoji("😢");
-
-      const row = new MessageActionRow({ components: [yesBtn, noBtn] });
-
-      const r = await ctx.interaction.reply({
-        content: `Hey <@${ctx.args.user.id}>! Do you like loli?`,
-        components: [row],
-      });
-
-      ctx.interaction.channel
-        ?.createMessageComponentCollector({
-          max: 1,
-          maxComponents: 1,
-          time: 10000,
-          filter(int) {
-            return (
-              int.user.id === ctx.args.user.id &&
-              int.isButton() &&
-              (int.customId === "loli_no" || int.customId === "loli_yes")
-            );
-          },
-        })
-        .on("collect", async int => {
-          await int.update({
-            content:
-              int.customId === "loli_yes"
-                ? "you are a tasteful individual"
-                : "think of the children!?!?!? :weary:",
-            components: [],
-          });
-        })
-        .on("end", async (_, reason) => {
-          if (reason === "time") {
-            await ctx.interaction.editReply({
-              content: "too late bitch",
-              components: [],
-            });
-          }
-        });
-    });
-
-  const touchCmd = new Command()
-    .setName("touch")
-    .setDescription("Allows you to touch something")
-    .addRunner(async ctx => {
-      const cumBtn = new MessageButton()
-        .setCustomId("cum")
-        .setLabel("touch me")
-        .setEmoji("😩")
-        .setStyle("PRIMARY");
-
-      const row = new MessageActionRow().addComponents(cumBtn);
-
-      const r = await ctx.interaction.reply({
-        fetchReply: true,
-        content: "lets have sex",
-        components: [row],
-      });
-
-      ctx.interaction.channel
-        ?.createMessageComponentCollector({
-          maxUsers: 1,
-          time: 3000,
-          filter(int) {
-            return (
-              int.message.id === r.id &&
-              int.isButton() &&
-              int.customId === "cum"
-            );
-          },
-        })
-        .on("collect", int => {
-          if (int.user.id !== ctx.interaction.user.id) {
-            void int.reply({
-              content:
-                ":x: bitch not ur button to press dumb fag, use the cmd urself",
-              ephemeral: true,
-            });
-          } else {
-            void int.reply({
-              content: "I came :sweat_drops::weary::eggplant:",
-              ephemeral: true,
-            });
-          }
-        })
-        .on("end", () => {
-          const newBtn = cumBtn.setDisabled(true);
-
-          void ctx.interaction.editReply({
-            content: "no more cum left",
-            components: [new MessageActionRow().addComponents(newBtn)],
-          });
-        });
-    });
-
   const m = new ApplicationCommandManager(
     config.bot.clientId,
     config.bot.token
@@ -193,9 +75,7 @@ function testCommands() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const cmds = new Collection<string, Command<any>>()
     .set(sayCmd.name, sayCmd)
-    .set(pingCmd.name, pingCmd)
-    .set(touchCmd.name, touchCmd)
-    .set(likesLoliCmd.name, likesLoliCmd);
+    .set(pingCmd.name, pingCmd);
 
   void Promise.all(
     ["511547945871474699", "833205130131406908", "782769848740610058"]
@@ -226,6 +106,7 @@ function testCommands() {
     name: "interactionCreate",
     async run(ctx) {
       if (!ctx.interaction.isCommand()) return;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cmdCtx = { ...ctx, args: {} } as CommandContext<any>;
       const cmd = cmds.get(ctx.interaction.commandName);
       await cmd?._executeStack(cmdCtx);
