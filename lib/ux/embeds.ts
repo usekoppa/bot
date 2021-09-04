@@ -13,17 +13,17 @@ export const enum EmbedColours {
 
 export interface EmbedOpts {
   author?: User;
-  footerNote?: string;
+  footer?: string;
 }
 
 export function createEmbed(opts: EmbedOpts) {
   let footerStr = "";
   if (opts.author) {
     footerStr = `Ran by ${opts.author.tag}`;
-    if (opts.footerNote) footerStr += " | ";
+    if (opts.footer) footerStr += " | ";
   }
 
-  if (opts.footerNote) footerStr += opts.footerNote;
+  if (opts.footer) footerStr += opts.footer;
 
   const res = new MessageEmbed().setColor(EmbedColours.Primary);
   if (footerStr) {
