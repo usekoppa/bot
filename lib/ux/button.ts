@@ -1,7 +1,6 @@
 import { Asyncable } from "@utils/types";
 
 import {
-  BaseMessageComponent,
   ButtonInteraction,
   Client,
   Collection,
@@ -41,7 +40,7 @@ const FIFTEEN_MINS = 900_000;
 // The default timer length, 2 mins in ms.
 const TWO_MINS = 120_000;
 
-export class Button extends BaseMessageComponent {
+export class Button {
   customId?: string;
   disabled = false;
   emoji?: EmojiResolvable;
@@ -56,10 +55,6 @@ export class Button extends BaseMessageComponent {
   #collector?: InteractionCollector<ButtonInteraction>;
   #onEnd?: OnEndHandler;
   #onTimerFinish?: OnEndHandler;
-
-  constructor() {
-    super();
-  }
 
   setName(name: string) {
     this.label = name;
@@ -121,7 +116,7 @@ export class Button extends BaseMessageComponent {
       },
     });
 
-    this.#collector.on("collector", this.#onClickHdlr);
+    this.#collector.on("collect", this.#onClickHdlr);
     this.#collector.on("end", (collected, reason) => {
       if (reason === "time") return this.#onTimerFinish?.(collected);
       this.#onEnd?.(collected);

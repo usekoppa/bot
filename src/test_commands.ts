@@ -3,9 +3,10 @@
 import { ApplicationCommandManager, Command, CommandContext } from "@cmds";
 import { EventManager } from "@events";
 import { toAPISnowflake } from "@utils/to_api_snowflake";
+import { Button } from "@ux/button";
 import { createEmbed } from "@ux/embeds";
 
-import { Collection, SnowflakeUtil } from "discord.js";
+import { Collection, MessageActionRow, SnowflakeUtil } from "discord.js";
 import ms from "ms";
 
 import { getClient } from "./client";
@@ -32,7 +33,7 @@ export function testCommands() {
       const reply = await ctx.interaction.deferReply({ fetchReply: true });
       const embed = createEmbed({
         author: ctx.interaction.user,
-        footerNote: `Latency: ${ms(
+        footer: `Latency: ${ms(
           client.ws.shards.get(ctx.interaction.guild?.shardId ?? 0)?.manager
             ?.ping ?? 0
         )}`,
@@ -51,6 +52,34 @@ export function testCommands() {
       await ctx.interaction.editReply({ embeds: [embed] });
     });
 
+  const testButtons = new Command()
+    .setName("test")
+    .setDescription("Tests functionality of the bot")
+    .addSubcommand(subcmd =>
+      subcmd
+        .setName("buttons")
+        .setDescription("Tests buttons")
+        .addRunner(async ctx => {
+          const btn = new Button()
+            .setName("test")
+            .setEmoji("🎉")
+            .setMaxClicks(20)
+            .onClick(async i => {
+              await i.followUp("clicked");
+            });
+
+          const row = new MessageActionRow().addComponents(btn);
+
+          const msg = await ctx.interaction.reply({
+            content: "hi",
+            components: [row],
+            fetchReply: true,
+          });
+
+          btn._execute(client, msg);
+        })
+    );
+
   const m = new ApplicationCommandManager(
     toAPISnowflake(config.bot.clientId),
     config.bot.token
@@ -59,7 +88,8 @@ export function testCommands() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const cmds = new Collection<string, Command<any>>()
     .set(sayCmd.name, sayCmd)
-    .set(pingCmd.name, pingCmd);
+    .set(pingCmd.name, pingCmd)
+    .set(testButtons.name, testButtons as Command);
 
   void Promise.all(
     ["511547945871474699", "833205130131406908", "782769848740610058"]
